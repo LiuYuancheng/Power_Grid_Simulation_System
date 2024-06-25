@@ -20,6 +20,7 @@ import json
 import wx
 import powerGridPWGlobal as gv
 import powerGridPWMap as pnlMap
+import powerGridPWMapMgr as mapMgr
 
 FRAME_SIZE = (1800, 1030)
 
@@ -37,7 +38,7 @@ class UIFrame(wx.Frame):
         self.SetBackgroundColour(wx.Colour(200, 210, 200))
         #self.SetTransparent(gv.gTranspPct*255//100)
         # Init the global variables:
-        #self._initGlobals()
+        self._initGlobals()
         # Build the top menu bar.
         self._buildMenuBar()
         # Build UI sizer
@@ -57,6 +58,10 @@ class UIFrame(wx.Frame):
         self.timer.Start(gv.PERIODIC)
         self.Bind(wx.EVT_CLOSE, self.onClose)
         gv.gDebugPrint("Metro-System real world main frame inited.", logType=gv.LOG_INFO)
+
+    def _initGlobals(self):
+        """ Init the global variables """
+        gv.iMapMgr = mapMgr.powerGridPWMapMgr(self)
 
 
 #--UIFrame---------------------------------------------------------------------

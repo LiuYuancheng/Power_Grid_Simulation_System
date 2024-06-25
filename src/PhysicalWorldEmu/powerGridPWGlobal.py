@@ -51,7 +51,9 @@ CONFIG_DICT = iConfigLoader.getJson()
 
 PERIODIC = 300      # update the main in every 300ms
 
-
+#------<IMAGES PATH>-------------------------------------------------------------
+IMG_FD = os.path.join(dirpath, 'img')
+ICO_PATH = os.path.join(IMG_FD, "metro.ico")
 
 # Init the log type parameters.
 DEBUG_FLG   = False
@@ -82,4 +84,5 @@ gUpdateRate = float(CONFIG_DICT['UI_INTERVAL']) if float(CONFIG_DICT['UI_INTERVA
 
 
 iMapPanel = None
+iMapMgr = None      # map manager.
 iMainFrame = None
