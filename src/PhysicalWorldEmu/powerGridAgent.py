@@ -25,12 +25,13 @@ class AgentTarget(object):
     """ Create a agent target to generate all the elements in the metro system, 
         all the other 'things' in the system will be inheritance from this module.
     """
-    def __init__(self, parent, tgtID, pos, targetPos, tType):
+    def __init__(self, parent, tgtID, pos, targetPosList, tType):
         self.parent = parent
         self.id = tgtID
         self.pos = pos      # target init position on the map.
-        self.targetPos = targetPos  # target position on the map.
-        self.tType = tType  
+        self.targetPosList = list(targetPosList)  # target position on the map.
+        self.tType = tType
+        self.switchState = 0
         self.powerState = 0 
 
 #--AgentTarget-----------------------------------------------------------------
@@ -47,21 +48,30 @@ class AgentTarget(object):
     def getPowerState(self):
         return self.powerState
         
+    def getSwitchState(self):
+        return self.switchState
+
     def getLink(self):
-        return (self.pos, self.targetPos)
+        return self.targetPosList.copy()
+
+    def setPowerState(self, state):
+        self.powerState = state
+
+    def setSwitchState(self, state):
+        self.switchState = state
 
 
 class AgentMotor(AgentTarget):
 
-    def __init__(self, parent, tgtID, pos, targetPos, tType='MOTO', maxRPM=5000):
-        super().__init__(parent, tgtID, pos, targetPos, tType)
+    def __init__(self, parent, tgtID, pos, targetPosList, tType='MOTO', maxRPM=5000):
+        super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.maxRPM = maxRPM
-        self.powerState =1
+        self.powerState = 1
 
 class AgentGenerator(AgentTarget):
 
-    def __init__(self, parent, tgtID, pos, targetPos, tType='GEN'):
-        super().__init__(parent, tgtID, pos, targetPos, tType)
+    def __init__(self, parent, tgtID, pos, targetPosList, tType='GEN'):
+        super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.powerState = 1
 
     def getPowerOutput(self):
@@ -71,6 +81,6 @@ class AgentGenerator(AgentTarget):
 
 class AgentSwitch(AgentTarget):
 
-    def __init__(self, parent, tgtID, pos, targetPos, tType='SWITCH'):
-        super().__init__(parent, tgtID, pos, targetPos, tType)
+    def __init__(self, parent, tgtID, pos, targetPosList, tType='SWITCH'):
+        super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.powerState = 1

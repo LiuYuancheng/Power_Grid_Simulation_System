@@ -46,35 +46,87 @@ class PanelMap(wx.Panel):
         self.dcDefPen = dc.GetPen()
         self._drawSubStation(dc)
 
-#-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
     def _loadBitMaps(self):
         """ Load the internal usage pictures as bitmaps."""
         imgDict = {}
 
         motorPath = os.path.join(gv.IMG_FD, 'pump.png')
         motoImg = wx.Image(motorPath, wx.BITMAP_TYPE_ANY).Scale(60, 60, wx.IMAGE_QUALITY_HIGH)
-        
         imgDict['motor'] = motoImg.ConvertToBitmap()
-         
+
+        genPath = os.path.join(gv.IMG_FD, 'gen.png')
+        genImg = wx.Image(genPath, wx.BITMAP_TYPE_ANY).Scale(60, 60, wx.IMAGE_QUALITY_HIGH)
+        imgDict['gen'] = genImg.ConvertToBitmap()
+
+
+        #imgPath = os.path.join(gv.IMG_FD, 'alert.png')
+
+
+
+
         #if os.path.exists(imgPath):
         #    png = wx.Image(imgPath, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
         #    imgDict['alert'] = png
         return imgDict
 
+    #-----------------------------------------------------------------------------
+    def _drawItem(self, dc, item, imageKey, size=(60, 60)):
+        itemPos = item.getPos()
+        linkPos = item.getLink()
+        tgtPos = linkPos[0]
+        pwState = item.getPowerState()
+        swState = item.getSwitchState()
+        itemBGCol = wx.Colour(67, 138, 85) if pwState else wx.Colour(255, 0, 0)
+        dc.SetPen(wx.Pen(itemBGCol, 3, wx.PENSTYLE_SOLID))
+        dc.SetBrush(wx.Brush(itemBGCol))
+        dc.DrawLine(itemPos[0], itemPos[1], tgtPos[0], tgtPos[1])
+        w1, h1 = size[0]//2, size[1]//2
+        dc.DrawRectangle(itemPos[0]-w1-2, itemPos[1]-h1-2, size[0]+4, size[1]+4)
+        dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
+        linkCol = wx.Colour(67, 138, 85) if pwState and swState else wx.Colour(255, 0, 0)
+        dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
+        dc.DrawLines(linkPos)
+        swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
+        dc.SetBrush(wx.Brush(swtichCol))
+        dc.SetPen(self.dcDefPen)
+        dc.DrawCircle(tgtPos[0], tgtPos[1], 8)
 
+    #-----------------------------------------------------------------------------
     def _drawSubStation(self, dc):
+        motors = gv.iMapMgr.getMotors()
+        for motor in motors:
+            self._drawItem(dc, motor, 'motor')
+
+    def _drawSubStation_old(self, dc):
         """ Draw the sub station on the panel."""
         # draw moto 
         motors = gv.iMapMgr.getMotors()
         for motor in motors:
-            imgPos, tgtPos = motor.getLink()
-            state = motor.getPowerState()
-            if state: 
-                dc.SetPen(wx.Pen(wx.Colour(0, 0, 255), 2, wx.PENSTYLE_SOLID))
+            imgPos = motor.getPos()
+            linkPos = motor.getLink()
+            pwrstate = motor.getPowerState()
+            if pwrstate: 
+                dc.SetPen(wx.Pen(wx.Colour(67, 138, 85), 3, wx.PENSTYLE_SOLID))
+                dc.SetBrush(wx.Brush(wx.Colour(67, 138, 85)))
             else:
-                dc.SetPen(wx.Pen(wx.Colour(255, 0, 0), 2, wx.PENSTYLE_SHORT_DASH))
+                dc.SetPen(wx.Pen(wx.Colour(255, 0, 0), 3, wx.PENSTYLE_SOLID))
+                dc.SetBrush(wx.Brush(wx.Colour(255, 0, 0)))
+
+            tgtPos = linkPos[0]
             dc.DrawLine(imgPos[0], imgPos[1], tgtPos[0], tgtPos[1])
+            dc.DrawRectangle(imgPos[0]-32, imgPos[1]-32, 64, 64)
             dc.DrawBitmap(self.bitMaps['motor'], imgPos[0]-30, imgPos[1]-30, True)
+            
+            swState = motor.getSwitchState()
+            linkCol = wx.Colour(67, 138, 85) if pwrstate and swState else wx.Colour(255, 0, 0)
+            dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
+            dc.DrawLines(linkPos)
+            swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
+            dc.SetBrush(wx.Brush(swtichCol))
+            dc.SetPen(self.dcDefPen)
+            dc.DrawCircle(tgtPos[0], tgtPos[1], 8)
+
 
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 
