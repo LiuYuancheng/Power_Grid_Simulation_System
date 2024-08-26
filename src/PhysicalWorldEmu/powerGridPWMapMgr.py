@@ -66,7 +66,31 @@ class powerGridPWMapMgr(object):
             self.motos.append(moto)
 
     def initGenerators(self):
+        generators = [
+            {'id': 'Generator1', 
+             'type': 'Gen',
+             'pos':(150, 400),
+             'tgtpos': [(250, 400), (350, 400)],
+             'pwrstate': 0,
+             'swstate': 0
+             }, 
 
+            {'id': 'Generator2', 
+             'type': 'Gen',
+             'pos':(150, 500),
+             'tgtpos': [(250, 500), (350, 500)],
+             'pwrstate': 1,
+             'swstate': 0
+             },
+
+            {'id': 'Moto-Pump3', 
+             'type': 'Moto-Pump',
+             'pos':(150, 600),
+             'tgtpos': [(250, 600), (350, 600)],
+             'pwrstate': 0,
+             'swstate': 1
+             }
+        ]
 
 
 
