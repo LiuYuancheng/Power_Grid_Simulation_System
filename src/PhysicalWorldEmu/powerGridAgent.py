@@ -79,6 +79,13 @@ class AgentGenerator(AgentTarget):
         current = 100
         return (voltage, current)
 
+
+class AgentTransform(AgentTarget):
+
+    def __init__(self, parent, tgtID, pos, targetPosList, tType="TRANS"):
+        super().__init__(parent, tgtID, pos, targetPosList, tType)
+        self.powerState = 1
+
 class AgentSwitch(AgentTarget):
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType='SWITCH'):
