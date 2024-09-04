@@ -29,7 +29,7 @@ class AgentTarget(object):
         self.parent = parent
         self.id = tgtID
         self.pos = pos      # target init position on the map.
-        self.targetPosList = list(targetPosList)  # target position on the map.
+        self.targetPosList = list(targetPosList) if targetPosList else None  # target position on the map.
         self.tType = tType
         self.switchState = 0
         self.powerState = 0 
@@ -52,7 +52,9 @@ class AgentTarget(object):
         return self.switchState
 
     def getLink(self):
-        return self.targetPosList.copy()
+        if self.targetPosList:
+            return self.targetPosList.copy()
+        return None
 
     def setPowerState(self, state):
         self.powerState = state
@@ -85,6 +87,9 @@ class AgentTransform(AgentTarget):
     def __init__(self, parent, tgtID, pos, targetPosList, tType="TRANS"):
         super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.powerState = 1
+
+
+
 
 class AgentSwitch(AgentTarget):
 

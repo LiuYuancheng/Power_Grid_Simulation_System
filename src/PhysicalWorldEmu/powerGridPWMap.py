@@ -74,17 +74,36 @@ class PanelMap(wx.Panel):
         subSTImg = wx.Image(subSTPath, wx.BITMAP_TYPE_ANY).Scale(200, 150, wx.IMAGE_QUALITY_HIGH)
         self.bitMaps['subST'] = subSTImg.ConvertToBitmap()
 
+        transMPath = os.path.join(gv.IMG_FD, 'transmission.png')
+        transMImg = wx.Image(transMPath, wx.BITMAP_TYPE_ANY).Scale(600, 130, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['transm'] = transMImg.ConvertToBitmap()
+
+        cityPath = os.path.join(gv.IMG_FD, 'city.png')
+        cityImg = wx.Image(cityPath, wx.BITMAP_TYPE_ANY).Scale(200, 110, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['city'] = cityImg.ConvertToBitmap()
+
+        factoryPath = os.path.join(gv.IMG_FD, 'factory.png')
+        factoryImg = wx.Image(factoryPath, wx.BITMAP_TYPE_ANY).Scale(200, 100, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['factory'] = factoryImg.ConvertToBitmap()
+
+        
+        railPath = os.path.join(gv.IMG_FD, 'railway.png')
+        railImg = wx.Image(railPath, wx.BITMAP_TYPE_ANY).Scale(300, 180, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['railway'] = railImg.ConvertToBitmap()
+
+
+
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item, imageKey, size=(60, 60)):
         itemPos = item.getPos()
         linkPos = item.getLink()
-        tgtPos = linkPos[0]
+        tgtPos = linkPos[0] if linkPos else None
         pwState = item.getPowerState()
         swState = item.getSwitchState()
         itemBGCol = wx.Colour(67, 138, 85) if pwState else wx.Colour(255, 0, 0)
         dc.SetPen(wx.Pen(itemBGCol, 3, wx.PENSTYLE_SOLID))
         dc.SetBrush(wx.Brush(itemBGCol))
-        dc.DrawLine(itemPos[0], itemPos[1], tgtPos[0], tgtPos[1])
+        if tgtPos: dc.DrawLine(itemPos[0], itemPos[1], tgtPos[0], tgtPos[1])
         w1, h1 = size[0]//2, size[1]//2
         dc.DrawRectangle(itemPos[0]-w1-2, itemPos[1]-h1-2, size[0]+4, size[1]+4)
         dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
@@ -92,16 +111,18 @@ class PanelMap(wx.Panel):
         ItemId = str(item.getID())
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawText(ItemId, itemPos[0]-w1-5, itemPos[1]-h1-20)
-        linkCol = wx.Colour(67, 138, 85) if pwState and swState else wx.Colour(255, 0, 0)
-        dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
-        dc.DrawLines(linkPos)
-        swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
-        dc.SetTextForeground(swtichCol)
-        dc.SetBrush(wx.Brush(swtichCol))
-        dc.SetPen(self.dcDefPen)
-        dc.DrawCircle(tgtPos[0], tgtPos[1], 8)
-        switchLb = ItemId+'-SW:'+'ON' if swState else ItemId+'-SW:'+'OFF'
-        dc.DrawText(switchLb, tgtPos[0]-40, tgtPos[1]-20)
+        if linkPos:
+            linkCol = wx.Colour(67, 138, 85) if pwState and swState else wx.Colour(255, 0, 0)
+            dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
+            dc.DrawLines(linkPos)
+        if tgtPos:
+            swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
+            dc.SetTextForeground(swtichCol)
+            dc.SetBrush(wx.Brush(swtichCol))
+            dc.SetPen(self.dcDefPen)
+            dc.DrawCircle(tgtPos[0], tgtPos[1], 8)
+            switchLb = ItemId+'-SW:'+'ON' if swState else ItemId+'-SW:'+'OFF'
+            dc.DrawText(switchLb, tgtPos[0]-40, tgtPos[1]-20)
 
     #-----------------------------------------------------------------------------
     def _drawSubStation(self, dc):
@@ -128,8 +149,22 @@ class PanelMap(wx.Panel):
         subSts = gv.iMapMgr.getSubST()
         for subST in subSts:
             self._drawItem(dc, subST, 'subST', size=(200, 150))
+        
+        trainmistion = gv.iMapMgr.getTransmission()
+        self._drawItem(dc, trainmistion, 'transm', size=(600, 130))
+    
+        loadfactory = gv.iMapMgr.getLoadFactory()
+        self._drawItem(dc, loadfactory, 'factory', size=(200, 100))
 
+        loadrailway = gv.iMapMgr.getLoadRailway()
+        self._drawItem(dc, loadrailway, 'railway', size=(300, 180))
 
+        downtrans  = gv.iMapMgr.getDownTF()
+        for trans in downtrans:
+            self._drawItem(dc, trans, 'trans')
+
+        loadhome = gv.iMapMgr.getLoadHome()
+        self._drawItem(dc, loadhome, 'city', size=(200, 110))
 
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 

@@ -36,6 +36,11 @@ class powerGridPWMapMgr(object):
         self.solarPl = []
         self.upTrans = []
         self.substations = []
+        self.transmition = None
+        self.downTrans = []
+        self.loadHome = None 
+        self.loadFactory = None
+        self.loadRailway = None
 
         self.initMotors()
         self.initGenerators()
@@ -43,7 +48,27 @@ class powerGridPWMapMgr(object):
         self.initSolarPanel()
         self.initUpTF()
         self.initSubST()
+        self.initTransmission()
+        self.initDownTF()
+        self.initHome()
+        self.initFactory()
+        self.initRailway()
         
+    def initHome(self):
+        home = {
+            'id': 'Load: City', 
+             'type': 'Load',
+             'pos':(1300, 800),
+             'tgtpos': None,
+             'pwrstate': 1,
+             'swstate': 0
+        }
+        self.loadHome = agent.AgentTarget(self, home['id'], 
+                                             home['pos'], 
+                                             home['tgtpos'], home['type'])
+        self.loadHome.setPowerState(home['pwrstate'])
+        self.loadHome.setSwitchState(home['swstate'])
+
         
     def initMotors(self):
         motos = [
@@ -180,7 +205,7 @@ class powerGridPWMapMgr(object):
             {'id': 'Substation', 
              'type': 'Sub',
              'pos':(800, 450),
-             'tgtpos': [(800, 250), (850, 650)],
+             'tgtpos': [(800, 300), (700, 300), (700, 120), (900,120)],
              'pwrstate': 0,
              'swstate': 0
              },
@@ -191,6 +216,84 @@ class powerGridPWMapMgr(object):
             ss.setSwitchState(s['swstate'])
             self.substations.append(ss)
 
+    def initTransmission(self):
+        transmission = {
+            'id': 'Transmission', 
+             'type': 'Trans',
+             'pos':(1100, 120),
+             'tgtpos': [(1500, 120), (1500, 250), (1000, 250), (1000, 400)],
+             'pwrstate': 1,
+             'swstate': 1
+        }
+        self.transmition = agent.AgentTarget(self, transmission['id'], 
+                                             transmission['pos'], 
+                                             transmission['tgtpos'], transmission['type'])
+        self.transmition.setPowerState(transmission['pwrstate'])
+        self.transmition.setSwitchState(transmission['swstate'])
+
+    def initDownTF(self):
+        stepdownTrans = [
+            {'id': 'Lvl0-StepDown-TF', 
+             'type': 'Trans',
+             'pos':(1000, 400),
+             'tgtpos': [(1000, 480), (1000, 560)],
+             'pwrstate': 0,
+             'swstate': 0
+             },
+
+            {'id': 'Lvl1-StepDown-TF', 
+             'type': 'Trans',
+             'pos':(1000, 560),
+             'tgtpos': [(1000, 640), (1000, 720)],
+             'pwrstate': 1,
+             'swstate': 1
+             },
+
+            {'id': 'Lvl2-StepDown-TF', 
+             'type': 'Trans',
+             'pos':(1000, 720),
+             'tgtpos': [(1000, 800), (1200, 800)],
+             'pwrstate': 0,
+             'swstate': 0
+             },
+
+        ]
+        for t in stepdownTrans:
+            ut = agent.AgentTransform(self, t['id'], t['pos'], t['tgtpos'])
+            ut.setPowerState(t['pwrstate'])
+            ut.setSwitchState(t['swstate'])
+            self.downTrans.append(ut)
+
+
+    def initFactory(self):
+        factory = {
+            'id': 'Load: Factory', 
+             'type': 'Load',
+             'pos':(1300, 660),
+             'tgtpos': [(1100, 560), (1000,560)],
+             'pwrstate': 1,
+             'swstate': 0
+        }
+        self.loadFactory = agent.AgentTarget(self, factory['id'], 
+                                             factory['pos'], 
+                                             factory['tgtpos'], factory['type'])
+        self.loadFactory.setPowerState(factory['pwrstate'])
+        self.loadFactory.setSwitchState(factory['swstate'])
+
+    def initRailway(self):
+        railway = {
+            'id': 'Load: Railway', 
+             'type': 'Load',
+             'pos':(1350, 490),
+             'tgtpos': [(1100, 400), (1000,400)],
+             'pwrstate': 1,
+             'swstate': 0
+        }
+        self.loadRailway = agent.AgentTarget(self, railway['id'], 
+                                             railway['pos'], 
+                                             railway['tgtpos'], railway['type'])
+        self.loadRailway.setPowerState(railway['pwrstate'])
+        self.loadRailway.setSwitchState(railway['swstate'])
 
 
     def getMotors(self):
@@ -208,5 +311,20 @@ class powerGridPWMapMgr(object):
     def getUpTF(self):
         return self.upTrans
     
+    def getDownTF(self):
+        return self.downTrans
+
     def getSubST(self):
         return self.substations
+    
+    def getTransmission(self):
+        return self.transmition
+    
+    def getLoadHome(self):
+        return self.loadHome
+    
+    def getLoadFactory(self):
+        return self.loadFactory
+    
+    def getLoadRailway(self):
+        return self.loadRailway
