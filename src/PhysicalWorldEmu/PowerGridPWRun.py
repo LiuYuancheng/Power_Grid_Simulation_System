@@ -20,9 +20,10 @@ import json
 import wx
 import powerGridPWGlobal as gv
 import powerGridPWMap as pnlMap
+import powerGridPWPanel as pnlCtrl
 import powerGridPWMapMgr as mapMgr
 
-FRAME_SIZE = (1800, 1030)
+FRAME_SIZE = (1820, 1030)
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -95,13 +96,20 @@ class UIFrame(wx.Frame):
         vbox1 = wx.BoxSizer(wx.VERTICAL)
         vbox1.AddSpacer(5)
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
-        label = wx.StaticText(self, label= "RealWorld Metro System Emulator")
+        label = wx.StaticText(self, label= "Power System Physical World Simulator")
         label.SetFont(font)
         vbox1.Add(label, flag=wx.CENTRE, border=2)
         vbox1.AddSpacer(5)
         gv.iMapPanel = self.mapPanel = pnlMap.PanelMap(self)
         vbox1.Add(gv.iMapPanel, flag=wx.CENTRE, border=2)
         mSizer.Add(vbox1, flag=flagsL, border=2)
+        mSizer.AddSpacer(10)
+        mSizer.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 900),
+                                 style=wx.LI_VERTICAL), flag=flagsL, border=2)
+        mSizer.AddSpacer(10)
+
+        gv.iCtrlPanel = pnlCtrl.PanelCtrl(self)
+        mSizer.Add(gv.iCtrlPanel, flag=flagsL, border=2)
         return mSizer
 
 

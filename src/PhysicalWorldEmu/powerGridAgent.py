@@ -58,7 +58,6 @@ class AgentTarget(object):
     def isPowerOutput(self):
         return self.powerState and self.switchState
 
-
     def getLink(self):
         if self.targetPosList:
             return self.targetPosList.copy()

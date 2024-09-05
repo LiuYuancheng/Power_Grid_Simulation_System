@@ -84,5 +84,6 @@ gUpdateRate = float(CONFIG_DICT['UI_INTERVAL']) if float(CONFIG_DICT['UI_INTERVA
 
 
 iMapPanel = None
+iCtrlPanel = None
 iMapMgr = None      # map manager.
 iMainFrame = None

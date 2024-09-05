@@ -64,9 +64,9 @@ class powerGridPWMapMgr(object):
             genObj.setPowerState(self.motos[i].isPowerOutput())
 
         # calculate step up transformer
-        self.upTrans[0].setPowerState(self.windTb.isPowerOutput())
+        self.upTrans[1].setPowerState(self.windTb.isPowerOutput())
 
-        self.upTrans[1].setPowerState(self.solarPl.isPowerOutput())
+        self.upTrans[0].setPowerState(self.solarPl.isPowerOutput())
 
         upTrans3State = self.generators[0].isPowerOutput() or self.generators[1].isPowerOutput() or self.generators[2].isPowerOutput()
         self.upTrans[2].setPowerState(upTrans3State)
@@ -87,12 +87,12 @@ class powerGridPWMapMgr(object):
 
 
         # calculate load railway
-        railwayPower = self.downTrans[0].isPowerOutput() and self.loadRailway.isSwitchOn()
+        railwayPower = self.downTrans[0].getPowerState() and self.loadRailway.getSwitchState()
         self.loadRailway.setPowerState(railwayPower)
 
 
         # calculate load factory
-        factoryPower = self.downTrans[1].isPowerOutput() and self.loadFactory.isSwitchOn()
+        factoryPower = self.downTrans[1].isPowerOutput() and self.loadFactory.getSwitchState()
         self.loadFactory.setPowerState(factoryPower)
 
         # calculate load home
