@@ -109,8 +109,9 @@ class PanelMap(wx.Panel):
         dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
         # Draw the label
         ItemId = str(item.getID())
+        ItemName = str(item.getName())
         dc.SetTextForeground(wx.Colour("WHITE"))
-        dc.DrawText(ItemId, itemPos[0]-w1-5, itemPos[1]-h1-20)
+        dc.DrawText(ItemName, itemPos[0]-w1-5, itemPos[1]-h1-20)
         if linkPos:
             linkCol = wx.Colour(67, 138, 85) if pwState and swState else wx.Colour(255, 0, 0)
             dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
@@ -135,20 +136,17 @@ class PanelMap(wx.Panel):
             self._drawItem(dc, gen, 'gen')
 
         winds = gv.iMapMgr.getWindTurbines()
-        for wind in winds:
-            self._drawItem(dc, wind, 'wind', size=(200, 200))
+        self._drawItem(dc, winds, 'wind', size=(200, 200))
 
         solar = gv.iMapMgr.getSolarPanels()
-        for solar in solar:
-            self._drawItem(dc, solar, 'solar', size=(200, 200))
+        self._drawItem(dc, solar, 'solar', size=(200, 200))
 
         uptrans = gv.iMapMgr.getUpTF()
         for trans in uptrans:
             self._drawItem(dc, trans, 'trans')
 
-        subSts = gv.iMapMgr.getSubST()
-        for subST in subSts:
-            self._drawItem(dc, subST, 'subST', size=(200, 150))
+        subST = gv.iMapMgr.getSubST()
+        self._drawItem(dc, subST, 'subST', size=(200, 150))
         
         trainmistion = gv.iMapMgr.getTransmission()
         self._drawItem(dc, trainmistion, 'transm', size=(600, 130))
@@ -171,7 +169,7 @@ class PanelMap(wx.Panel):
             update the panel, if called as updateDisplay(updateFlag=?) the function
             will set the self update flag.
         """
-        self.Refresh(False)
+        self.Refresh(True)
         self.Update()
         self.toggle = not self.toggle
 

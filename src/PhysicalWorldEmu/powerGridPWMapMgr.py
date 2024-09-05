@@ -2,9 +2,9 @@
 #-----------------------------------------------------------------------------
 # Name:        railwayMgr.py
 #
-# Purpose:     The management module to control all the components on the map 
-#              and update the components state. 
-# 
+# Purpose:     The management module to control all the components on the map
+#              and update the components state.
+#
 # Author:      Yuancheng Liu
 #
 # Version:     v0.1.2
@@ -23,8 +23,11 @@ import powerGridAgent as agent
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
+
+
 class powerGridPWMapMgr(object):
     """ Map manager to init/control differet elements state on the map."""
+
     def __init__(self, parent):
         """ Init all the elements on the map. All the parameters are public to 
             other module.
@@ -32,13 +35,13 @@ class powerGridPWMapMgr(object):
         self.parent = parent
         self.motos = []
         self.generators = []
-        self.windTb = []
-        self.solarPl = []
+        self.windTb = None
+        self.solarPl = None
         self.upTrans = []
-        self.substations = []
+        self.substations = None
         self.transmition = None
         self.downTrans = []
-        self.loadHome = None 
+        self.loadHome = None
         self.loadFactory = None
         self.loadRailway = None
 
@@ -53,278 +56,339 @@ class powerGridPWMapMgr(object):
         self.initHome()
         self.initFactory()
         self.initRailway()
-        
-    def initHome(self):
-        home = {
-            'id': 'Load: City', 
-             'type': 'Load',
-             'pos':(1300, 800),
-             'tgtpos': None,
-             'pwrstate': 1,
-             'swstate': 0
-        }
-        self.loadHome = agent.AgentTarget(self, home['id'], 
-                                             home['pos'], 
-                                             home['tgtpos'], home['type'])
-        self.loadHome.setPowerState(home['pwrstate'])
-        self.loadHome.setSwitchState(home['swstate'])
 
-        
+
+    def calculatePowerState(self):
+        # calculate geneartor
+        for i, genObj in enumerate(self.generators):
+            genObj.setPowerState(self.motos[i].isPowerOutput())
+
+        # calculate step up transformer
+        self.upTrans[0].setPowerState(self.windTb.isPowerOutput())
+
+        self.upTrans[1].setPowerState(self.solarPl.isPowerOutput())
+
+        upTrans3State = self.generators[0].isPowerOutput() or self.generators[1].isPowerOutput() or self.generators[2].isPowerOutput()
+        self.upTrans[2].setPowerState(upTrans3State)
+
+        # calculate substation 
+        powerState = self.upTrans[0].isPowerOutput() or self.upTrans[1].isPowerOutput() or self.upTrans[2].isPowerOutput()
+        self.substations.setPowerState(powerState)
+
+        # calculate transmission
+        self.transmition.setPowerState(self.substations.isPowerOutput())
+
+        # calculate step down transformer1
+        self.downTrans[0].setPowerState(self.transmition.isPowerOutput())
+        # calculate step down transformer2
+        self.downTrans[1].setPowerState(self.downTrans[0].isPowerOutput())
+        # calculate step down transformer3
+        self.downTrans[2].setPowerState(self.downTrans[1].isPowerOutput())
+
+
+        # calculate load railway
+        railwayPower = self.downTrans[0].isPowerOutput() and self.loadRailway.isSwitchOn()
+        self.loadRailway.setPowerState(railwayPower)
+
+
+        # calculate load factory
+        factoryPower = self.downTrans[1].isPowerOutput() and self.loadFactory.isSwitchOn()
+        self.loadFactory.setPowerState(factoryPower)
+
+        # calculate load home
+        self.loadHome.setPowerState(self.downTrans[2].isPowerOutput())
+
+    def initHome(self):
+        parm = {
+            'id': 'Load: City',
+            'name': 'City Smart Home Power Load',
+            'type': 'Load',
+            'pos': (1300, 800),
+            'tgtpos': None,
+            'pwrstate': 1,
+            'swstate': 0
+        }
+        self.loadHome = agent.AgentTarget(self, parm['id'],
+                                          parm['pos'],
+                                          parm['tgtpos'], parm['type'])
+        self.loadHome.setPowerState(parm['pwrstate'])
+        self.loadHome.setSwitchState(parm['swstate'])
+        self.loadHome.setName(parm['name'])
+
     def initMotors(self):
-        motos = [
-            {'id': 'Motor-1', 
+        parm = [
+            {'id': 'Motor-1',
+             'name': 'Gen-Driver-Motor_01',
              'type': 'Moto-Pump',
-             'pos':(150, 550),
+             'pos': (150, 550),
              'tgtpos': [(250, 550), (350, 550)],
              'pwrstate': 0,
              'swstate': 0
-             }, 
+             },
 
-            {'id': 'Motor-2', 
+            {'id': 'Motor-2',
              'type': 'Moto-Pump',
-             'pos':(150, 650),
+             'name': 'Gen-Driver-Motor_02',
+             'pos': (150, 650),
              'tgtpos': [(250, 650), (350, 650)],
              'pwrstate': 1,
              'swstate': 0
              },
 
-            {'id': 'Motor-3', 
+            {'id': 'Motor-3',
              'type': 'Moto-Pump',
-             'pos':(150, 750),
+             'name': 'Gen-Driver-Motor_01',
+             'pos': (150, 750),
              'tgtpos': [(250, 750), (350, 750)],
              'pwrstate': 0,
              'swstate': 1
              }
         ]
-        for m in motos:
+        for m in parm:
             moto = agent.AgentMotor(self, m['id'], m['pos'], m['tgtpos'])
             moto.setPowerState(m['pwrstate'])
             moto.setSwitchState(m['swstate'])
+            moto.setName(m['name'])
             self.motos.append(moto)
 
     def initGenerators(self):
-        generators = [
-            {'id': 'Generator1', 
+        parm = [
+            {'id': 'Gen-1',
              'type': 'Gen',
-             'pos':(350, 550),
+             'name': 'Generator_01',
+             'pos': (350, 550),
              'tgtpos': [(450, 550), (550, 550), (550, 650)],
              'pwrstate': 0,
              'swstate': 0
-             }, 
+             },
 
-            {'id': 'Generator2', 
+            {'id': 'Gen-2',
              'type': 'Gen',
-             'pos':(350, 650),
+             'name': 'Generator_02',
+             'pos': (350, 650),
              'tgtpos': [(450, 650), (550, 650)],
              'pwrstate': 1,
              'swstate': 0
              },
 
-            {'id': 'Generator3', 
+            {'id': 'Gen-3',
              'type': 'Gen',
-             'pos':(350, 750),
+             'name': 'Generator_03',
+             'pos': (350, 750),
              'tgtpos': [(450, 750), (550, 750), (550, 650)],
              'pwrstate': 0,
              'swstate': 1
              }
         ]
-        for g in generators:
+        for g in parm:
             gen = agent.AgentGenerator(self, g['id'], g['pos'], g['tgtpos'])
             gen.setPowerState(g['pwrstate'])
             gen.setSwitchState(g['swstate'])
+            gen.setName(g['name'])
             self.generators.append(gen)
 
     def initWindTurbines(self):
-        windTubines = [
-            {'id': 'Wind-Tubines', 
-             'type': 'Wind',
-             'pos':(500, 150),
-             'tgtpos': [(500, 300), (500, 350)],
-             'pwrstate': 0,
-             'swstate': 0
-             }, 
-        ]
-        for w in windTubines:
-            wt = agent.AgentGenerator(self, w['id'], w['pos'], w['tgtpos'])
-            wt.setPowerState(w['pwrstate'])
-            wt.setSwitchState(w['swstate'])
-            self.windTb.append(wt)
+        parm = {'id': 'Wind-Tubines',
+                'type': 'Wind',
+                'name': 'Wind-Turbine-Generators',
+                'pos': (500, 150),
+                'tgtpos': [(500, 300), (500, 350)],
+                'pwrstate': 0,
+                'swstate': 0
+                }
+
+        self.windTb = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
+        self.windTb.setPowerState(parm['pwrstate'])
+        self.windTb.setSwitchState(parm['swstate'])
+        self.windTb.setName(parm['name'])
 
     def initSolarPanel(self):
-        solarPanels =  [
-            {'id': 'Solar-Panels', 
-             'type': 'Solar',
-             'pos':(200, 150),
-             'tgtpos': [(200, 350), (200, 400)],
-             'pwrstate': 0,
-             'swstate': 0
-             }, 
-        ]
-        for s in solarPanels:
-            sp = agent.AgentGenerator(self, s['id'], s['pos'], s['tgtpos'])
-            sp.setPowerState(s['pwrstate'])
-            sp.setSwitchState(s['swstate'])
-            self.solarPl.append(sp)
+        parm = {'id': 'Solar-Panels',
+                'type': 'Solar',
+                'name': 'Solar-Panel-Generators',
+                'pos': (200, 150),
+                'tgtpos': [(200, 350), (200, 400)],
+                'pwrstate': 0,
+                'swstate': 0
+        }
+        self.solarPl = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
+        self.solarPl.setPowerState(parm['pwrstate'])
+        self.solarPl.setSwitchState(parm['swstate'])
+        self.solarPl.setName(parm['name'])
 
     def initUpTF(self):
-        stepupTrans = [
-            {'id': 'DC-AC-Stepup-TF', 
+        parm = [
+            {'id': 'Transformer-01',
              'type': 'Trans',
-             'pos':(200, 450),
+             'name': 'DC-AC-StepUp-Transformer',
+             'pos': (200, 450),
              'tgtpos': [(300, 450), (420, 450), (420, 480), (800, 480)],
              'pwrstate': 0,
              'swstate': 0
              },
 
-            {'id': 'AC-AC-Stepup-TF', 
+            {'id': 'Transformer-02',
              'type': 'Trans',
-             'pos':(500, 380),
+             'name': 'AC-AC-StepUp-Transformer',
+             'pos': (500, 380),
              'tgtpos': [(360, 380), (360, 420), (800, 420)],
              'pwrstate': 1,
              'swstate': 1
              },
 
-            {'id': 'AC-AC-Stepup-TF', 
+            {'id': 'Transformer-03',
              'type': 'Trans',
-             'pos':(550, 650),
+             'name': 'AC-AC-StepUp-Transformer',
+             'pos': (550, 650),
              'tgtpos': [(650, 650), (800, 650), (800, 450)],
              'pwrstate': 0,
              'swstate': 0
              },
 
         ]
-        for t in stepupTrans:
+        for t in parm:
             ut = agent.AgentTransform(self, t['id'], t['pos'], t['tgtpos'])
             ut.setPowerState(t['pwrstate'])
             ut.setSwitchState(t['swstate'])
+            ut.setName(t['name'])
             self.upTrans.append(ut)
 
-
     def initSubST(self):
-        substation = [
-            {'id': 'Substation', 
+        parm = {'id': 'Substation',
              'type': 'Sub',
-             'pos':(800, 450),
-             'tgtpos': [(800, 300), (700, 300), (700, 120), (900,120)],
+             'name': 'Power-Substation',
+             'pos': (800, 450),
+             'tgtpos': [(800, 300), (700, 300), (700, 120), (900, 120)],
              'pwrstate': 0,
              'swstate': 0
-             },
-        ]
-        for s in substation:
-            ss = agent.AgentTransform(self, s['id'], s['pos'], s['tgtpos'])
-            ss.setPowerState(s['pwrstate'])
-            ss.setSwitchState(s['swstate'])
-            self.substations.append(ss)
+             }
+        self.substations = agent.AgentTransform(self, parm['id'], parm['pos'], parm['tgtpos'])
+        self.substations.setPowerState(parm['pwrstate'])
+        self.substations.setSwitchState(parm['swstate'])
+        self.substations.setName(parm['name'])
 
     def initTransmission(self):
-        transmission = {
-            'id': 'Transmission', 
-             'type': 'Trans',
-             'pos':(1100, 120),
-             'tgtpos': [(1500, 120), (1500, 250), (1000, 250), (1000, 400)],
-             'pwrstate': 1,
-             'swstate': 1
+        parm = {
+            'id': 'Transmission',
+            'type': 'Trans',
+            'name': 'High Voltage Power Transmission Towers',
+            'pos': (1100, 120),
+            'tgtpos': [(1500, 120), (1500, 250), (1000, 250), (1000, 400)],
+            'pwrstate': 1,
+            'swstate': 1
         }
-        self.transmition = agent.AgentTarget(self, transmission['id'], 
-                                             transmission['pos'], 
-                                             transmission['tgtpos'], transmission['type'])
-        self.transmition.setPowerState(transmission['pwrstate'])
-        self.transmition.setSwitchState(transmission['swstate'])
+        self.transmition = agent.AgentTarget(self, parm['id'],
+                                             parm['pos'],
+                                             parm['tgtpos'], parm['type'])
+        self.transmition.setPowerState(parm['pwrstate'])
+        self.transmition.setSwitchState(parm['swstate'])
+        self.transmition.setName(parm['name'])
 
     def initDownTF(self):
-        stepdownTrans = [
-            {'id': 'Lvl0-StepDown-TF', 
+        parm = [
+            {'id': 'Lvl0-transformer',
              'type': 'Trans',
-             'pos':(1000, 400),
+             'name': 'Lvl0-AC-AC-StepDown-Transformer',
+             'pos': (1000, 400),
              'tgtpos': [(1000, 480), (1000, 560)],
              'pwrstate': 0,
              'swstate': 0
              },
 
-            {'id': 'Lvl1-StepDown-TF', 
+            {'id': 'Lvl1-transformer',
              'type': 'Trans',
-             'pos':(1000, 560),
+             'name': 'Lvl1-AC-AC-StepDown-Transformer',
+             'pos': (1000, 560),
              'tgtpos': [(1000, 640), (1000, 720)],
              'pwrstate': 1,
              'swstate': 1
              },
 
-            {'id': 'Lvl2-StepDown-TF', 
+            {'id': 'Lvl2-transformer',
              'type': 'Trans',
-             'pos':(1000, 720),
+             'name': 'Lvl2-AC-AC-StepDown-Transformer',
+             'pos': (1000, 720),
              'tgtpos': [(1000, 800), (1200, 800)],
              'pwrstate': 0,
              'swstate': 0
-             },
-
+             }
         ]
-        for t in stepdownTrans:
+        for t in parm:
             ut = agent.AgentTransform(self, t['id'], t['pos'], t['tgtpos'])
             ut.setPowerState(t['pwrstate'])
             ut.setSwitchState(t['swstate'])
+            ut.setName(t['name'])
             self.downTrans.append(ut)
 
-
     def initFactory(self):
-        factory = {
-            'id': 'Load: Factory', 
-             'type': 'Load',
-             'pos':(1300, 660),
-             'tgtpos': [(1100, 560), (1000,560)],
-             'pwrstate': 1,
-             'swstate': 0
+        parm = {
+            'id': 'Factory',
+            'type': 'Load',
+            'name': 'Primary Customer: Factory',
+            'pos': (1300, 660),
+            'tgtpos': [(1100, 560), (1000, 560)],
+            'pwrstate': 1,
+            'swstate': 0
         }
-        self.loadFactory = agent.AgentTarget(self, factory['id'], 
-                                             factory['pos'], 
-                                             factory['tgtpos'], factory['type'])
-        self.loadFactory.setPowerState(factory['pwrstate'])
-        self.loadFactory.setSwitchState(factory['swstate'])
+        self.loadFactory = agent.AgentTarget(self, parm['id'],
+                                             parm['pos'],
+                                             parm['tgtpos'], parm['type'])
+        self.loadFactory.setPowerState(parm['pwrstate'])
+        self.loadFactory.setSwitchState(parm['swstate'])
+        self.loadFactory.setName(parm['name'])
 
     def initRailway(self):
-        railway = {
-            'id': 'Load: Railway', 
-             'type': 'Load',
-             'pos':(1350, 490),
-             'tgtpos': [(1100, 400), (1000,400)],
-             'pwrstate': 1,
-             'swstate': 0
+        parm = {
+            'id': 'Railway',
+            'type': 'Load',
+            'name': 'Substation Customer: Railway',
+            'pos': (1350, 490),
+            'tgtpos': [(1100, 400), (1000, 400)],
+            'pwrstate': 1,
+            'swstate': 0
         }
-        self.loadRailway = agent.AgentTarget(self, railway['id'], 
-                                             railway['pos'], 
-                                             railway['tgtpos'], railway['type'])
-        self.loadRailway.setPowerState(railway['pwrstate'])
-        self.loadRailway.setSwitchState(railway['swstate'])
-
+        self.loadRailway = agent.AgentTarget(self, parm['id'],
+                                             parm['pos'],
+                                             parm['tgtpos'], parm['type'])
+        self.loadRailway.setPowerState(parm['pwrstate'])
+        self.loadRailway.setSwitchState(parm['swstate'])
+        self.loadRailway.setName(parm['name'])
 
     def getMotors(self):
         return self.motos
-    
+
     def getGenerators(self):
         return self.generators
-    
+
     def getWindTurbines(self):
         return self.windTb
-    
+
     def getSolarPanels(self):
         return self.solarPl
-    
+
     def getUpTF(self):
         return self.upTrans
-    
+
     def getDownTF(self):
         return self.downTrans
 
     def getSubST(self):
         return self.substations
-    
+
     def getTransmission(self):
         return self.transmition
-    
+
     def getLoadHome(self):
         return self.loadHome
-    
+
     def getLoadFactory(self):
         return self.loadFactory
-    
+
     def getLoadRailway(self):
         return self.loadRailway
+
+
+
+    def periodic(self, now):
+        self.calculatePowerState()
+        pass 

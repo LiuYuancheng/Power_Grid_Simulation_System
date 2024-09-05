@@ -113,9 +113,9 @@ class UIFrame(wx.Frame):
             print("main frame update at %s" % str(now))
             self.lastPeriodicTime = now
             # update the manager.
-            #gv.iMapMgr.periodic(now)
+            gv.iMapMgr.periodic(now)
             # apply the state on the map panel.
-            #self.mapPanel.periodic(now)
+            gv.iMapPanel.periodic(now)
 
 #-----------------------------------------------------------------------------
     def onHelp(self, event):

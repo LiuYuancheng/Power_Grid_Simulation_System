@@ -28,6 +28,7 @@ class AgentTarget(object):
     def __init__(self, parent, tgtID, pos, targetPosList, tType):
         self.parent = parent
         self.id = tgtID
+        self.name = None
         self.pos = pos      # target init position on the map.
         self.targetPosList = list(targetPosList) if targetPosList else None  # target position on the map.
         self.tType = tType
@@ -38,6 +39,9 @@ class AgentTarget(object):
 # Define all the get() functions here:
     def getID(self):
         return self.id
+    
+    def getName(self):
+        return self.name
 
     def getPos(self):
         return self.pos
@@ -51,10 +55,17 @@ class AgentTarget(object):
     def getSwitchState(self):
         return self.switchState
 
+    def isPowerOutput(self):
+        return self.powerState and self.switchState
+
+
     def getLink(self):
         if self.targetPosList:
             return self.targetPosList.copy()
         return None
+
+    def setName(self, name):
+        self.name = name
 
     def setPowerState(self, state):
         self.powerState = state
