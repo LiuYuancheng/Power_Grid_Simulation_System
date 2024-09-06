@@ -83,7 +83,8 @@ class AgentTarget(object):
     def getDataDict(self):
         return self.dataDict
 
-
+    def getEnergyFlowPt(self):
+        return None
 
 class AgentMotor(AgentTarget):
 
@@ -112,6 +113,8 @@ class AgentGenerator(AgentTarget):
         self.powerState = 1
         self.valtage = 0
         self.current = 0
+        self.enerygFlowPt = []
+        self.enerygIdx = None
 
     def setPowerParm(self, volt, current, pUnit):
         self.valtage = volt
@@ -131,6 +134,19 @@ class AgentGenerator(AgentTarget):
         self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
         self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
 
+    def setEnergyFlowPt(self, ptList):
+        self.enerygFlowPt = ptList
+        self.enerygIdx = 0
+
+    def getEnergyFlowPt(self):
+        if self.enerygIdx is None:
+            return None
+        if self.isPowerOutput():
+            pt = self.enerygFlowPt[self.enerygIdx]
+            self.enerygIdx = (self.enerygIdx + 1) % len(self.enerygFlowPt)
+            return pt
+        return None
+
 class AgentTransform(AgentTarget):
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType="TRANS"):
@@ -139,6 +155,8 @@ class AgentTransform(AgentTarget):
         self.powerState = 1
         self.valtage = 0
         self.current = 0
+        self.enerygFlowPt = []
+        self.enerygIdx = None
 
     def setPowerParm(self, volt, current, pUnit):
         self.valtage = volt
@@ -155,6 +173,20 @@ class AgentTransform(AgentTarget):
         curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
         self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
         self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
+
+    def setEnergyFlowPt(self, ptList):
+        self.enerygFlowPt = ptList
+        self.enerygIdx = 0
+
+    def getEnergyFlowPt(self):
+        if self.enerygIdx is None:
+            return None
+        if self.isPowerOutput():
+            pt = self.enerygFlowPt[self.enerygIdx]
+            self.enerygIdx = (self.enerygIdx + 1) % len(self.enerygFlowPt)
+            return pt
+        return None
+
 
 
 class AgentSwitch(AgentTarget):

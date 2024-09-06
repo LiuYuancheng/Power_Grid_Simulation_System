@@ -57,6 +57,7 @@ class powerGridPWMapMgr(object):
         self.initFactory()
         self.initRailway()
 
+    #-----------------------------------------------------------------------------
     def updateComponentsData(self):
         """ Update the components data from the agent. """
         
@@ -77,7 +78,7 @@ class powerGridPWMapMgr(object):
         for trans in self.downTrans:
             trans.updateDataDict()
 
-        
+    #-----------------------------------------------------------------------------
     def calculatePowerState(self):
         # calculate geneartor
         for i, genObj in enumerate(self.generators):
@@ -117,6 +118,91 @@ class powerGridPWMapMgr(object):
 
         # calculate load home
         self.loadHome.setPowerState(self.downTrans[2].isPowerOutput())
+
+    #-----------------------------------------------------------------------------
+    def initSolarPanel(self):
+        parm = {'id': 'Solar-Panels',
+                'type': 'Solar',
+                'name': 'Solar-Panel-Generators',
+                'pos': (200, 150),
+                'tgtpos': [(200, 350), (200, 400)],
+                'pwrstate': 0,
+                'swstate': 0,
+                'powerparm':(40, 120, ('V', 'A')),
+                'enegyPts': ((200, 250), (200, 275),(200, 300), (200, 325), (200, 375))
+        }
+        self.solarPl = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
+        self.solarPl.setPowerState(parm['pwrstate'])
+        self.solarPl.setSwitchState(parm['swstate'])
+        self.solarPl.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
+        self.solarPl.setEnergyFlowPt(parm['enegyPts'])
+        self.solarPl.setName(parm['name'])
+
+    #-----------------------------------------------------------------------------
+    def initWindTurbines(self):
+        parm = {'id': 'Wind-Tubines',
+                'type': 'Wind',
+                'name': 'Wind-Turbine-Generators',
+                'pos': (500, 150),
+                'tgtpos': [(500, 300), (500, 350)],
+                'pwrstate': 0,
+                'swstate': 0,
+                'powerparm':(3.3, 90, ('kV', 'A')),
+                'enegyPts': ((500, 250), (500, 275),(500, 325))
+                }
+
+        self.windTb = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
+        self.windTb.setPowerState(parm['pwrstate'])
+        self.windTb.setSwitchState(parm['swstate'])
+        self.windTb.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
+        self.windTb.setEnergyFlowPt(parm['enegyPts'])
+        self.windTb.setName(parm['name'])
+
+    #-----------------------------------------------------------------------------
+    def initUpTF(self):
+        parm = [
+            {'id': 'Transformer-01',
+             'type': 'Trans',
+             'name': 'DC-AC-StepUp-Transformer',
+             'pos': (200, 450),
+             'tgtpos': [(300, 450), (420, 450), (420, 480), (800, 480)],
+             'pwrstate': 0,
+             'swstate': 0,
+             'powerparm':(33, 400, ('kV', 'A')),
+             'enegyPts': ((250, 450), (360, 450), (420, 450), (420, 480), (500, 480),(580, 480), (640, 480), (720, 480))
+             },
+
+            {'id': 'Transformer-02',
+             'type': 'Trans',
+             'name': 'AC-AC-StepUp-Transformer',
+             'pos': (500, 380),
+             'tgtpos': [(360, 380), (360, 420), (800, 420)],
+             'pwrstate': 1,
+             'swstate': 1,
+             'powerparm':(33, 400, ('kV', 'A')), 
+             'enegyPts': ((440, 380), (380, 380), (360, 420), (400,420), (500, 420), (600, 420), (700, 420))
+             },
+
+            {'id': 'Transformer-03',
+             'type': 'Trans',
+             'name': 'AC-AC-StepUp-Transformer',
+             'pos': (550, 650),
+             'tgtpos': [(650, 650), (800, 650), (800, 450)],
+             'pwrstate': 0,
+             'swstate': 0,
+             'powerparm':(33, 1200, ('kV', 'A')),
+             'enegyPts': ((600, 650), (700, 650), (800, 650), (800, 600),(800, 550), (800, 500))
+             }
+        ]
+        for t in parm:
+            ut = agent.AgentTransform(self, t['id'], t['pos'], t['tgtpos'])
+            ut.setPowerState(t['pwrstate'])
+            ut.setSwitchState(t['swstate'])
+            ut.setName(t['name'])
+            ut.setPowerParm(t['powerparm'][0], t['powerparm'][1], t['powerparm'][2])
+            ut.setEnergyFlowPt(t['enegyPts'])
+            self.upTrans.append(ut)
+
 
     def initHome(self):
         parm = {
@@ -211,79 +297,10 @@ class powerGridPWMapMgr(object):
             gen.setPowerParm(g['powerparm'][0], g['powerparm'][1], g['powerparm'][2])
             self.generators.append(gen)
 
-    def initWindTurbines(self):
-        parm = {'id': 'Wind-Tubines',
-                'type': 'Wind',
-                'name': 'Wind-Turbine-Generators',
-                'pos': (500, 150),
-                'tgtpos': [(500, 300), (500, 350)],
-                'pwrstate': 0,
-                'swstate': 0,
-                'powerparm':(3.3, 90, ('kV', 'A'))
-                }
 
-        self.windTb = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
-        self.windTb.setPowerState(parm['pwrstate'])
-        self.windTb.setSwitchState(parm['swstate'])
-        self.windTb.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
-        self.windTb.setName(parm['name'])
 
-    def initSolarPanel(self):
-        parm = {'id': 'Solar-Panels',
-                'type': 'Solar',
-                'name': 'Solar-Panel-Generators',
-                'pos': (200, 150),
-                'tgtpos': [(200, 350), (200, 400)],
-                'pwrstate': 0,
-                'swstate': 0,
-                'powerparm':(40, 120, ('V', 'A'))
-        }
-        self.solarPl = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
-        self.solarPl.setPowerState(parm['pwrstate'])
-        self.solarPl.setSwitchState(parm['swstate'])
-        self.solarPl.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
-        self.solarPl.setName(parm['name'])
 
-    def initUpTF(self):
-        parm = [
-            {'id': 'Transformer-01',
-             'type': 'Trans',
-             'name': 'DC-AC-StepUp-Transformer',
-             'pos': (200, 450),
-             'tgtpos': [(300, 450), (420, 450), (420, 480), (800, 480)],
-             'pwrstate': 0,
-             'swstate': 0,
-             'powerparm':(33, 400, ('kV', 'A'))
-             },
 
-            {'id': 'Transformer-02',
-             'type': 'Trans',
-             'name': 'AC-AC-StepUp-Transformer',
-             'pos': (500, 380),
-             'tgtpos': [(360, 380), (360, 420), (800, 420)],
-             'pwrstate': 1,
-             'swstate': 1,
-             'powerparm':(33, 400, ('kV', 'A'))
-             },
-
-            {'id': 'Transformer-03',
-             'type': 'Trans',
-             'name': 'AC-AC-StepUp-Transformer',
-             'pos': (550, 650),
-             'tgtpos': [(650, 650), (800, 650), (800, 450)],
-             'pwrstate': 0,
-             'swstate': 0,
-             'powerparm':(33, 1200, ('kV', 'A'))
-             },
-
-        ]
-        for t in parm:
-            ut = agent.AgentTransform(self, t['id'], t['pos'], t['tgtpos'])
-            ut.setPowerState(t['pwrstate'])
-            ut.setSwitchState(t['swstate'])
-            ut.setName(t['name'])
-            ut.setPowerParm(t['powerparm'][0], t['powerparm'][1], t['powerparm'][2])
-            self.upTrans.append(ut)
 
     def initSubST(self):
         parm = {'id': 'Substation',

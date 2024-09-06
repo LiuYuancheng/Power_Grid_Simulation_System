@@ -178,10 +178,16 @@ class PanelMap(wx.Panel):
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawText(ItemName, itemPos[0]-w1-5, itemPos[1]-h1-20)
         if linkPos:
-            linkCol = wx.Colour('GREEN')  if self.toggle else wx.Colour(67, 138, 85)
+            #linkCol = wx.Colour('GREEN')  if self.toggle else wx.Colour(67, 138, 85)
+            linkCol = wx.Colour(67, 138, 85)
             if not (pwState and swState): linkCol = wx.Colour(255, 0, 0)
             dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
             dc.DrawLines(linkPos)
+            if pwState and swState:
+                dc.SetPen(self.dcDefPen)
+                dc.SetBrush(wx.Brush(wx.Colour('GREEN')))
+                engPt = item.getEnergyFlowPt()
+                if engPt: dc.DrawRectangle(engPt[0]-4, engPt[1]-4, 9, 9)
         if tgtPos:
             swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
             dc.SetTextForeground(swtichCol)
