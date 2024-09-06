@@ -57,7 +57,27 @@ class powerGridPWMapMgr(object):
         self.initFactory()
         self.initRailway()
 
+    def updateComponentsData(self):
+        """ Update the components data from the agent. """
+        
+        self.solarPl.updateDataDict()
+        self.windTb.updateDataDict()
+        
+        for motor in self.motos:
+            motor.updateDataDict()
 
+        for gen in self.generators:
+            gen.updateDataDict()
+
+        for trans in self.upTrans:
+            trans.updateDataDict()
+
+        self.substations.updateDataDict()
+
+        for trans in self.downTrans:
+            trans.updateDataDict()
+
+        
     def calculatePowerState(self):
         # calculate geneartor
         for i, genObj in enumerate(self.generators):
@@ -159,7 +179,8 @@ class powerGridPWMapMgr(object):
              'pos': (350, 550),
              'tgtpos': [(450, 550), (550, 550), (550, 650)],
              'pwrstate': 0,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(10, 500, ('kV', 'A'))
              },
 
             {'id': 'Gen-2',
@@ -168,7 +189,8 @@ class powerGridPWMapMgr(object):
              'pos': (350, 650),
              'tgtpos': [(450, 650), (550, 650)],
              'pwrstate': 1,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(10, 500, ('kV', 'A'))
              },
 
             {'id': 'Gen-3',
@@ -177,7 +199,8 @@ class powerGridPWMapMgr(object):
              'pos': (350, 750),
              'tgtpos': [(450, 750), (550, 750), (550, 650)],
              'pwrstate': 0,
-             'swstate': 1
+             'swstate': 1,
+             'powerparm':(10, 500, ('kV', 'A'))
              }
         ]
         for g in parm:
@@ -185,6 +208,7 @@ class powerGridPWMapMgr(object):
             gen.setPowerState(g['pwrstate'])
             gen.setSwitchState(g['swstate'])
             gen.setName(g['name'])
+            gen.setPowerParm(g['powerparm'][0], g['powerparm'][1], g['powerparm'][2])
             self.generators.append(gen)
 
     def initWindTurbines(self):
@@ -194,12 +218,14 @@ class powerGridPWMapMgr(object):
                 'pos': (500, 150),
                 'tgtpos': [(500, 300), (500, 350)],
                 'pwrstate': 0,
-                'swstate': 0
+                'swstate': 0,
+                'powerparm':(3.3, 90, ('kV', 'A'))
                 }
 
         self.windTb = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
         self.windTb.setPowerState(parm['pwrstate'])
         self.windTb.setSwitchState(parm['swstate'])
+        self.windTb.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
         self.windTb.setName(parm['name'])
 
     def initSolarPanel(self):
@@ -209,11 +235,13 @@ class powerGridPWMapMgr(object):
                 'pos': (200, 150),
                 'tgtpos': [(200, 350), (200, 400)],
                 'pwrstate': 0,
-                'swstate': 0
+                'swstate': 0,
+                'powerparm':(40, 120, ('V', 'A'))
         }
         self.solarPl = agent.AgentGenerator(self, parm['id'], parm['pos'], parm['tgtpos'])
         self.solarPl.setPowerState(parm['pwrstate'])
         self.solarPl.setSwitchState(parm['swstate'])
+        self.solarPl.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
         self.solarPl.setName(parm['name'])
 
     def initUpTF(self):
@@ -224,7 +252,8 @@ class powerGridPWMapMgr(object):
              'pos': (200, 450),
              'tgtpos': [(300, 450), (420, 450), (420, 480), (800, 480)],
              'pwrstate': 0,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(33, 400, ('kV', 'A'))
              },
 
             {'id': 'Transformer-02',
@@ -233,7 +262,8 @@ class powerGridPWMapMgr(object):
              'pos': (500, 380),
              'tgtpos': [(360, 380), (360, 420), (800, 420)],
              'pwrstate': 1,
-             'swstate': 1
+             'swstate': 1,
+             'powerparm':(33, 400, ('kV', 'A'))
              },
 
             {'id': 'Transformer-03',
@@ -242,7 +272,8 @@ class powerGridPWMapMgr(object):
              'pos': (550, 650),
              'tgtpos': [(650, 650), (800, 650), (800, 450)],
              'pwrstate': 0,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(33, 1200, ('kV', 'A'))
              },
 
         ]
@@ -251,6 +282,7 @@ class powerGridPWMapMgr(object):
             ut.setPowerState(t['pwrstate'])
             ut.setSwitchState(t['swstate'])
             ut.setName(t['name'])
+            ut.setPowerParm(t['powerparm'][0], t['powerparm'][1], t['powerparm'][2])
             self.upTrans.append(ut)
 
     def initSubST(self):
@@ -260,11 +292,13 @@ class powerGridPWMapMgr(object):
              'pos': (800, 450),
              'tgtpos': [(800, 300), (700, 300), (700, 120), (900, 120)],
              'pwrstate': 0,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(138, 50, ('kV', 'A'))
              }
         self.substations = agent.AgentTransform(self, parm['id'], parm['pos'], parm['tgtpos'])
         self.substations.setPowerState(parm['pwrstate'])
         self.substations.setSwitchState(parm['swstate'])
+        self.substations.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2] )
         self.substations.setName(parm['name'])
 
     def initTransmission(self):
@@ -292,7 +326,8 @@ class powerGridPWMapMgr(object):
              'pos': (1000, 400),
              'tgtpos': [(1000, 480), (1000, 560)],
              'pwrstate': 0,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(69, 100, ('kV', 'A'))
              },
 
             {'id': 'Lvl1-transformer',
@@ -301,7 +336,8 @@ class powerGridPWMapMgr(object):
              'pos': (1000, 560),
              'tgtpos': [(1000, 640), (1000, 720)],
              'pwrstate': 1,
-             'swstate': 1
+             'swstate': 1,
+             'powerparm':(13, 80, ('kV', 'A'))
              },
 
             {'id': 'Lvl2-transformer',
@@ -310,7 +346,8 @@ class powerGridPWMapMgr(object):
              'pos': (1000, 720),
              'tgtpos': [(1000, 800), (1200, 800)],
              'pwrstate': 0,
-             'swstate': 0
+             'swstate': 0,
+             'powerparm':(220, 40, ('V', 'A'))
              }
         ]
         for t in parm:
@@ -318,6 +355,7 @@ class powerGridPWMapMgr(object):
             ut.setPowerState(t['pwrstate'])
             ut.setSwitchState(t['swstate'])
             ut.setName(t['name'])
+            ut.setPowerParm(t['powerparm'][0], t['powerparm'][1], t['powerparm'][2])
             self.downTrans.append(ut)
 
     def initFactory(self):
@@ -391,4 +429,5 @@ class powerGridPWMapMgr(object):
 
     def periodic(self, now):
         self.calculatePowerState()
+        self.updateComponentsData()
         pass 

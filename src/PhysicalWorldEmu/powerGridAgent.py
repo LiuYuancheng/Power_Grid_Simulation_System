@@ -33,7 +33,12 @@ class AgentTarget(object):
         self.targetPosList = list(targetPosList) if targetPosList else None  # target position on the map.
         self.tType = tType
         self.switchState = 0
-        self.powerState = 0 
+        self.powerState = 0
+        self.dataDict = {}
+        self._initDataDict()
+
+    def _initDataDict(self):
+        pass 
 
 #--AgentTarget-----------------------------------------------------------------
 # Define all the get() functions here:
@@ -72,6 +77,13 @@ class AgentTarget(object):
     def setSwitchState(self, state):
         self.switchState = state
 
+    def updateDataDict(self):
+        pass 
+
+    def getDataDict(self):
+        return self.dataDict
+
+
 
 class AgentMotor(AgentTarget):
 
@@ -80,25 +92,69 @@ class AgentMotor(AgentTarget):
         self.maxRPM = maxRPM
         self.powerState = 1
 
+    def _initDataDict(self):
+        self.dataDict['RPM'] = 0
+        return super()._initDataDict()
+
+    def updateDataDict(self):
+        if self.isPowerOutput():
+            self.dataDict['RPM'] = self.maxRPM + randint(-1000, 1000)
+        elif self.getPowerState():
+            self.dataDict['RPM'] = 1000 + randint(-100, 100)
+        else:
+            self.dataDict['RPM'] = 0
+
 class AgentGenerator(AgentTarget):
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType='GEN'):
+        self.pUnit = ('V', 'A')
         super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.powerState = 1
+        self.valtage = 0
+        self.current = 0
 
-    def getPowerOutput(self):
-        voltage = 500
-        current = 100
-        return (voltage, current)
+    def setPowerParm(self, volt, current, pUnit):
+        self.valtage = volt
+        self.current = current
+        self.pUnit = pUnit
 
+    def _initDataDict(self):
+        self.dataDict['State'] = 'standby'
+        self.dataDict['Voltage'] = '0 ' + self.pUnit[0]
+        self.dataDict['Current'] = '0 ' + self.pUnit[1]
+        return super()._initDataDict()
+
+    def updateDataDict(self):
+        self.dataDict['State'] = 'Running' if self.getPowerState() else 'standby'
+        valVal = self.valtage if self.getPowerState() else 0
+        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
+        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
+        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
 
 class AgentTransform(AgentTarget):
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType="TRANS"):
+        self.pUnit = ('V', 'A')
         super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.powerState = 1
+        self.valtage = 0
+        self.current = 0
 
+    def setPowerParm(self, volt, current, pUnit):
+        self.valtage = volt
+        self.current = current
+        self.pUnit = pUnit
 
+    def _initDataDict(self):
+        self.dataDict['Voltage'] = '0 ' + self.pUnit[0]
+        self.dataDict['Current'] = '0 ' + self.pUnit[1]
+        return super()._initDataDict()
+
+    def updateDataDict(self):
+        valVal = self.valtage if self.getPowerState() else 0
+        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
+        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
+        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
 
 
 class AgentSwitch(AgentTarget):

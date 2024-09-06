@@ -45,8 +45,13 @@ class PanelMap(wx.Panel):
         """ Draw the whole panel by using the wx device context."""
         dc = wx.PaintDC(self)
         self.dcDefPen = dc.GetPen()
+        self.dcDefFont = dc.GetFont()
+        self._drawBG(dc)
         self._drawSubStation(dc)
         
+
+
+
     #-----------------------------------------------------------------------------
     def _loadBitMaps(self):
         """ Load the internal usage pictures as bitmaps."""
@@ -86,10 +91,57 @@ class PanelMap(wx.Panel):
         factoryImg = wx.Image(factoryPath, wx.BITMAP_TYPE_ANY).Scale(200, 100, wx.IMAGE_QUALITY_HIGH)
         self.bitMaps['factory'] = factoryImg.ConvertToBitmap()
 
-        
         railPath = os.path.join(gv.IMG_FD, 'railway.png')
         railImg = wx.Image(railPath, wx.BITMAP_TYPE_ANY).Scale(300, 180, wx.IMAGE_QUALITY_HIGH)
         self.bitMaps['railway'] = railImg.ConvertToBitmap()
+
+        timePath = os.path.join(gv.IMG_FD, 'time.png')
+        timeImg = wx.Image(timePath, wx.BITMAP_TYPE_ANY).Scale(30, 30, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['time'] = timeImg.ConvertToBitmap()
+
+        plcPath = os.path.join(gv.IMG_FD, 'plcIcon.png')
+        plcImg = wx.Image(plcPath, wx.BITMAP_TYPE_ANY).Scale(50, 30, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['plc'] = plcImg.ConvertToBitmap()
+
+        rtuPath = os.path.join(gv.IMG_FD, 'rtuIcon.png')
+        rtuImg = wx.Image(rtuPath, wx.BITMAP_TYPE_ANY).Scale(50, 30, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['rtu'] = rtuImg.ConvertToBitmap()
+
+
+    def _drawBG(self, dc):
+        dc.SetPen(wx.Pen(wx.Colour(200, 210, 200), 1, wx.PENSTYLE_LONG_DASH))
+        dc.SetBrush(wx.Brush(wx.Colour(30, 40, 62), wx.BRUSHSTYLE_TRANSPARENT))
+        genArea = ((40, 20), (680, 20), (680, 820), (40, 820), (40, 20))
+        dc.DrawLines(genArea)
+        distrubtionArea = ((950, 330), (1170,330), (1170, 870), (950, 870), (950, 330))        
+        dc.DrawLines(distrubtionArea)
+
+        loadArea = ((1180, 330), (1540,330), (1540, 870), (1180, 870), (1180, 330))  
+        dc.DrawLines(loadArea)
+
+        # Draw time stamp
+        dc.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        dc.SetTextForeground(wx.Colour(200, 210, 200))
+        dc.DrawText("Power Generation", 240, 280)
+        dc.DrawText("Power Transmission", 900, 200)
+        dc.DrawText("Power Distribution", 970, 820)
+        dc.DrawText("Power Customers", 1270, 350)
+        dc.DrawRectangle(35, 835, 40, 40)
+        dc.DrawBitmap(self.bitMaps['time'], 40, 840, True)
+        dc.SetTextForeground(wx.Colour('GREEN'))
+        dc.DrawText('TIME : '+time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time())), 90, 840)
+
+
+        # Draw PLC and RTU Icon
+        dc.SetFont(self.dcDefFont)
+        dc.SetTextForeground(wx.Colour("WHITE"))
+        dc.DrawRectangle(695, 715, 60, 40) 
+        dc.DrawBitmap(self.bitMaps['plc'], 700, 720, True)
+        dc.DrawText("Power Control PLC Set", 690, 690)
+
+        dc.DrawRectangle(695, 815, 60, 40) 
+        dc.DrawBitmap(self.bitMaps['rtu'], 700, 820, True)
+        dc.DrawText("Power Monitor RTU Set", 690, 790)
 
 
 
@@ -100,20 +152,34 @@ class PanelMap(wx.Panel):
         tgtPos = linkPos[0] if linkPos else None
         pwState = item.getPowerState()
         swState = item.getSwitchState()
-        itemBGCol = wx.Colour(67, 138, 85) if pwState else wx.Colour(255, 0, 0)
+        itemBGCol = wx.Colour(67, 138, 85) if self.toggle else wx.Colour('GREEN')
+        if not pwState: itemBGCol = wx.Colour(255, 0, 0)
         dc.SetPen(wx.Pen(itemBGCol, 3, wx.PENSTYLE_SOLID))
         dc.SetBrush(wx.Brush(itemBGCol))
         if tgtPos: dc.DrawLine(itemPos[0], itemPos[1], tgtPos[0], tgtPos[1])
         w1, h1 = size[0]//2, size[1]//2
         dc.DrawRectangle(itemPos[0]-w1-2, itemPos[1]-h1-2, size[0]+4, size[1]+4)
         dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
+
+        dataCol = wx.Colour('GREEN') if pwState else wx.Colour('RED')
+        dc.SetTextForeground(dataCol)
+        x, y = itemPos[0]+w1+10, itemPos[1]+10
+        if imageKey == 'subST':
+            x, y = itemPos[0]+10, itemPos[1]-h1-40
+        off = 15
+        dataDict = item.getDataDict()
+        for key in dataDict.keys():
+            dc.DrawText(key+':'+str(dataDict[key]), x, y)
+            y += off
+
         # Draw the label
         ItemId = str(item.getID())
         ItemName = str(item.getName())
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawText(ItemName, itemPos[0]-w1-5, itemPos[1]-h1-20)
         if linkPos:
-            linkCol = wx.Colour(67, 138, 85) if pwState and swState else wx.Colour(255, 0, 0)
+            linkCol = wx.Colour('GREEN')  if self.toggle else wx.Colour(67, 138, 85)
+            if not (pwState and swState): linkCol = wx.Colour(255, 0, 0)
             dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
             dc.DrawLines(linkPos)
         if tgtPos:
@@ -127,6 +193,8 @@ class PanelMap(wx.Panel):
 
     #-----------------------------------------------------------------------------
     def _drawSubStation(self, dc):
+        dc.SetPen(self.dcDefPen)
+        dc.SetFont(self.dcDefFont)
         motors = gv.iMapMgr.getMotors()
         for motor in motors:
             self._drawItem(dc, motor, 'motor')
@@ -163,6 +231,9 @@ class PanelMap(wx.Panel):
 
         loadhome = gv.iMapMgr.getLoadHome()
         self._drawItem(dc, loadhome, 'city', size=(200, 110))
+        
+
+
 
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 
