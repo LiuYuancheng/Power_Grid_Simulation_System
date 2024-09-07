@@ -107,6 +107,10 @@ class PanelMap(wx.Panel):
         rtuImg = wx.Image(rtuPath, wx.BITMAP_TYPE_ANY).Scale(50, 30, wx.IMAGE_QUALITY_HIGH)
         self.bitMaps['rtu'] = rtuImg.ConvertToBitmap()
 
+        engStorPath = os.path.join(gv.IMG_FD, 'storage.png')
+        engImg = wx.Image(engStorPath, wx.BITMAP_TYPE_ANY).Scale(80, 68, wx.IMAGE_QUALITY_HIGH)
+        self.bitMaps['storage'] = engImg.ConvertToBitmap()
+
 
     def _drawBG(self, dc):
         dc.SetPen(wx.Pen(wx.Colour(200, 210, 200), 1, wx.PENSTYLE_LONG_DASH))
@@ -143,7 +147,10 @@ class PanelMap(wx.Panel):
         dc.DrawBitmap(self.bitMaps['rtu'], 700, 820, True)
         dc.DrawText("Power Monitor RTU Set", 690, 790)
 
-
+        dc.SetPen(wx.Pen(wx.Colour(254, 137, 2), 3, wx.PENSTYLE_SOLID))
+        dc.SetBrush(wx.Brush(wx.Colour(254, 137, 2)))
+        dc.DrawRectangle(815, 565, 90, 78) 
+        dc.DrawBitmap(self.bitMaps['storage'], 820, 570, True)
 
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item, imageKey, size=(60, 60)):
