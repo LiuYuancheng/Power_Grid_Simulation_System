@@ -49,9 +49,6 @@ class PanelMap(wx.Panel):
         self._drawBG(dc)
         self._drawSubStation(dc)
         
-
-
-
     #-----------------------------------------------------------------------------
     def _loadBitMaps(self):
         """ Load the internal usage pictures as bitmaps."""
@@ -149,8 +146,20 @@ class PanelMap(wx.Panel):
 
         dc.SetPen(wx.Pen(wx.Colour(254, 137, 2), 3, wx.PENSTYLE_SOLID))
         dc.SetBrush(wx.Brush(wx.Colour(254, 137, 2)))
-        dc.DrawRectangle(815, 565, 90, 78) 
+        dc.DrawLine(860, 600, 860, 400)
+        dc.DrawRectangle(818, 568, 84, 72) 
         dc.DrawBitmap(self.bitMaps['storage'], 820, 570, True)
+        dc.DrawText("Power Storage", 820, 650)
+
+        dc.DrawLines(((100, 420), (100, 470),(180, 470)))
+        dc.DrawRectangle(68, 378, 84, 72) 
+        dc.DrawBitmap(self.bitMaps['storage'], 70, 380, True)
+        dc.DrawText("Power Storage", 65, 353)
+
+        dc.DrawLines(((562, 670),(562, 780),(580, 780) ))
+        dc.DrawRectangle(570, 738, 84, 72)
+        dc.DrawBitmap(self.bitMaps['storage'], 572, 740, True)
+        dc.DrawText("Power Storage", 572, 710)
 
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item, imageKey, size=(60, 60)):
@@ -193,8 +202,10 @@ class PanelMap(wx.Panel):
             if pwState and swState:
                 dc.SetPen(self.dcDefPen)
                 dc.SetBrush(wx.Brush(wx.Colour('GREEN')))
-                engPt = item.getEnergyFlowPt()
-                if engPt: dc.DrawRectangle(engPt[0]-4, engPt[1]-4, 9, 9)
+                engPts = item.getEnergyFlowPt()
+                if engPts: 
+                    for pt in engPts:
+                        dc.DrawRectangle(pt[0]-4, pt[1]-4, 9, 9)
         if tgtPos:
             swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
             dc.SetTextForeground(swtichCol)

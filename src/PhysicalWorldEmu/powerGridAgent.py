@@ -115,6 +115,7 @@ class AgentGenerator(AgentTarget):
         self.current = 0
         self.enerygFlowPt = []
         self.enerygIdx = None
+        self.energyNum = 0
 
     def setPowerParm(self, volt, current, pUnit):
         self.valtage = volt
@@ -137,14 +138,16 @@ class AgentGenerator(AgentTarget):
     def setEnergyFlowPt(self, ptList):
         self.enerygFlowPt = ptList
         self.enerygIdx = 0
+        self.energyNum = len(ptList)
 
     def getEnergyFlowPt(self):
-        if self.enerygIdx is None:
+        if self.enerygIdx is None or self.energyNum == 0:
             return None
         if self.isPowerOutput():
-            pt = self.enerygFlowPt[self.enerygIdx]
+            pt0 = self.enerygFlowPt[self.enerygIdx]
+            pt1 = self.enerygFlowPt[int(self.enerygIdx+self.energyNum/2)%self.energyNum]
             self.enerygIdx = (self.enerygIdx + 1) % len(self.enerygFlowPt)
-            return pt
+            return (pt0, pt1)
         return None
 
 class AgentTransform(AgentTarget):
@@ -157,6 +160,7 @@ class AgentTransform(AgentTarget):
         self.current = 0
         self.enerygFlowPt = []
         self.enerygIdx = None
+        self.energyNum = 0
 
     def setPowerParm(self, volt, current, pUnit):
         self.valtage = volt
@@ -177,14 +181,16 @@ class AgentTransform(AgentTarget):
     def setEnergyFlowPt(self, ptList):
         self.enerygFlowPt = ptList
         self.enerygIdx = 0
+        self.energyNum = len(ptList)
 
     def getEnergyFlowPt(self):
-        if self.enerygIdx is None:
+        if self.enerygIdx is None or self.energyNum == 0:
             return None
         if self.isPowerOutput():
-            pt = self.enerygFlowPt[self.enerygIdx]
+            pt0 = self.enerygFlowPt[self.enerygIdx]
+            pt1 = self.enerygFlowPt[int(self.enerygIdx+self.energyNum/2)%self.energyNum]
             self.enerygIdx = (self.enerygIdx + 1) % len(self.enerygFlowPt)
-            return pt
+            return (pt0, pt1)
         return None
 
 

@@ -85,7 +85,6 @@ class UIFrame(wx.Frame):
         menubar.Append(helpMenu, '&About')
         self.SetMenuBar(menubar)
 
-
 #--UIFrame---------------------------------------------------------------------
     def _buidUISizer(self):
         """ Build the main UI Sizer. """
