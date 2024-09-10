@@ -144,6 +144,18 @@ class DataManager(threading.Thread):
         respDict['allswitch'] = self.switchesData.copy()
         return json.dumps(respDict)
 
+    #-----------------------------------------------------------------------------
+    def setCtrlSwitch(self, reqJsonStr):
+        respStr = json.dumps({'result': 'failed'})
+        try:
+            reqDict = json.loads(reqJsonStr)
+            if gv.iMapMgr:
+                print(reqJsonStr)
+                respStr = json.dumps({'result': 'success'})
+        except Exception as err:
+            gv.gDebugPrint("setTrainsPower() Error: %s" %str(err), logType=gv.LOG_EXCEPT)
+        return respStr
+
    #-----------------------------------------------------------------------------
     def msgHandler(self, msg):
         """ Function to handle the data-fetch/control request from the monitor-hub.
@@ -165,21 +177,11 @@ class DataManager(threading.Thread):
             elif reqType == 'powerPlc':
                 respStr = self.fetchSwitchesData()
                 resp =';'.join(('REP', 'switches', respStr))
-
         elif reqKey=='POST':
-            if reqType == 'signals':
-                respStr = self.setSignals(reqJsonStr)
-                resp =';'.join(('REP', 'signals', respStr))
-            elif reqType == 'stations':
-                respStr = self.setStationSignals(reqJsonStr)
-                resp =';'.join(('REP', 'stations', respStr))
-            elif reqType == 'trainsPlc':
-                respStr = self.setTrainsPower(reqJsonStr)
-                resp =';'.join(('REP', 'trainsPlc', respStr))
-            elif reqType == 'blockSignals':
-                respStr = self.setBlocks(reqJsonStr)
-                resp =';'.join(('REP', 'blockSignals', respStr))
-            pass
+            if reqType == 'powerPlc':
+                respStr = self.setCtrlSwitch(reqJsonStr)
+                resp =';'.join(('REP', 'powerPlc', respStr))
+
             # TODO: Handle all the control request here.
         if isinstance(resp, str): resp = resp.encode('utf-8')
         #gv.gDebugPrint('reply: %s' %str(resp), logType=gv.LOG_INFO )

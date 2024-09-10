@@ -470,8 +470,6 @@ class powerGridPWMapMgr(object):
     def getLoadRailway(self):
         return self.loadRailway
 
-
-
     def periodic(self, now):
         self.calculatePowerState()
         self.updateComponentsData()

@@ -1,0 +1,34 @@
+# This is the config file template for the module <plcSimulatorTrain.py>
+# Setup the paramter with below format (every line follow <key>:<val> format, the
+# key can not be changed):
+
+#-----------------------------------------------------------------------------
+# Set the master PLC's name 
+PLC_NAME:PLC-06
+
+#-----------------------------------------------------------------------------
+# Define the ip addresses allowed to read PLC state: 
+# json list fomat: ["masterIP", "slave1IP", ...]
+ALLOW_R_L:["127.0.0.1", "192.168.0.10"]
+
+# Define the ip addresses allowed to change PLC state: 
+# json list fomat: ["masterIP", "slave1IP", ...]
+ALLOW_W_L:["127.0.0.1"]
+
+#-----------------------------------------------------------------------------
+# Define Realworld emulator ip
+RW_IP:127.0.0.1
+
+# Define Realworld emulator connection port
+RW_PORT:3001
+
+# Define PLC clock interval
+CLK_INT:0.9
+
+#-----------------------------------------------------------------------------
+# Define modbus TCP host IP, use 0.0.0.0 if you need to connect from out side
+# or localhost if test in signal machine
+MD_BUS_IP:0.0.0.0
+
+# Define modbus TCP host Port, normally use 502
+MD_BUS_PORT:504
