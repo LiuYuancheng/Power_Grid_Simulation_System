@@ -22,6 +22,7 @@ import powerGridPWGlobal as gv
 import powerGridPWMap as pnlMap
 import powerGridPWPanel as pnlCtrl
 import powerGridPWMapMgr as mapMgr
+import powerGridPWDataMgr as dm
 
 FRAME_SIZE = (1820, 1030)
 
@@ -50,8 +51,8 @@ class UIFrame(wx.Frame):
         # Set the periodic call back
         self.updateLock = False
         # Define the data manager parallel thread.
-        #gv.iDataMgr = dm.DataManager(self)
-        #gv.iDataMgr.start()
+        gv.iDataMgr = dm.DataManager(self)
+        gv.iDataMgr.start()
 
         self.lastPeriodicTime = time.time()
         self.timer = wx.Timer(self)

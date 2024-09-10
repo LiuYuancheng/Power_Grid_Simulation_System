@@ -81,7 +81,7 @@ gTranspPct = 70     # Windows transparent percentage.
 UI_TITLE = CONFIG_DICT['UI_TITLE']
 # main frame update rate 0.5 sec.
 gUpdateRate = float(CONFIG_DICT['UI_INTERVAL']) if float(CONFIG_DICT['UI_INTERVAL']) > 0 else 0.5
-
+gUDPPort = int(CONFIG_DICT['UDP_PORT']) if 'UDP_PORT' in CONFIG_DICT.keys() else UDP_PORT
 
 iMapPanel = None
 iCtrlPanel = None

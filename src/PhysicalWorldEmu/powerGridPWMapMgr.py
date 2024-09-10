@@ -182,7 +182,7 @@ class powerGridPWMapMgr(object):
 
             {'id': 'Motor-3',
              'type': 'Moto-Pump',
-             'name': 'Gen-Driver-Motor_01',
+             'name': 'Gen-Driver-Motor_03[Backup]',
              'pos': (150, 750),
              'tgtpos': [(250, 750), (350, 750)],
              'pwrstate': 0,
@@ -331,8 +331,8 @@ class powerGridPWMapMgr(object):
                                              parm['tgtpos'], parm['type'])
         self.transmition.setPowerState(parm['pwrstate'])
         self.transmition.setSwitchState(parm['swstate'])
-        self.substations.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
         self.transmition.setName(parm['name'])
+        self.transmition.setPowerParm(parm['powerparm'][0], parm['powerparm'][1], parm['powerparm'][2])
         self.transmition.setEnergyFlowPt(parm['enegyPts'])
 
     #-----------------------------------------------------------------------------
@@ -436,17 +436,18 @@ class powerGridPWMapMgr(object):
         self.loadRailway.setSwitchState(parm['swstate'])
         self.loadRailway.setName(parm['name'])
 
+    #-----------------------------------------------------------------------------
+    def getSolarPanels(self):
+        return self.solarPl
+    
+    def getWindTurbines(self):
+        return self.windTb
+
     def getMotors(self):
         return self.motos
 
     def getGenerators(self):
         return self.generators
-
-    def getWindTurbines(self):
-        return self.windTb
-
-    def getSolarPanels(self):
-        return self.solarPl
 
     def getUpTF(self):
         return self.upTrans
