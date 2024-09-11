@@ -112,7 +112,6 @@ class UIFrame(wx.Frame):
         mSizer.Add(gv.iCtrlPanel, flag=flagsL, border=2)
         return mSizer
 
-
 #--UIFrame---------------------------------------------------------------------
     def periodic(self, event):
         """ Call back every periodic time."""

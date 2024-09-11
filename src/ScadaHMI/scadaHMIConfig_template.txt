@@ -1,0 +1,38 @@
+# This is the config file template for the module <hmiEmuApp.py>
+# Setup the paramter with below format (every line follows <key>:<val> format, the
+# key can not be changed):
+
+#-----------------------------------------------------------------------------
+# Test mode:
+# True: use the simulation data without currect to the PLC module.
+# False: connect to PLC via modbus TCP, fetch and set the PLC real state.
+TEST_MD:True
+
+#-----------------------------------------------------------------------------
+# Init the sensor-signal PLC set information
+SEN_PLC_ID:PLC-00
+SEN_PLC_IP:127.0.0.1
+SEN_PLC_PORT:502
+
+# Init the station PLC set information
+STN_PLC_ID:PLC-03
+STN_PLC_IP:127.0.0.1
+STN_PLC_PORT:503
+
+#-----------------------------------------------------------------------------
+# Define all the HMI UI config paramters
+
+# define UI title name 
+UI_TITLE:Railway System SCADA HMI
+
+# Define update clock interval
+CLK_INT:2
+
+#-----------------------------------------------------------------------------
+# Station config json file
+#WE_STATION_CFG:welineStations.json
+#NC_STATION_CFG:nslineStations.json
+#CC_STATION_CFG:cclineStations.json
+WE_STATION_CFG:welineStations_new.json
+NC_STATION_CFG:nslineStations_new.json
+CC_STATION_CFG:cclineStations_new.json
