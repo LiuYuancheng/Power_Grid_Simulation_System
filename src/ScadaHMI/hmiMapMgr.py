@@ -127,7 +127,104 @@ class MapMgr(object):
         self._initLoads()
 
 
+    def setItemsPwrState(self, registList):
+        motorState = registList[5:8]
+        for i, moto in enumerate(self.motors):
+            moto.setCtrlState(motorState[i])
+            moto.setOutState(motorState[i])
 
+        motorSWSate = registList[8:11]
+        for i, motoSW in enumerate(self.motorSw):
+            motoSW.setCtrlState(motorSWSate[i])
+            motoSW.setOutState(motorSWSate[i] and motorState[i])
+            self.generators[i].setCtrlState(motoSW.getOutState())
+            self.generators[i].setOutState(motoSW.getOutState())
+
+        genSwIdxList = [11, 12, 13, 0, 1]
+        for i, genSW in enumerate(self.generatorSw):
+            swState = registList[genSwIdxList[i]]
+            genSW.setCtrlState(swState)
+            genSW.setOutState(self.generators[i].getCtrlState() and swState)
+
+        #set generator bus
+        bus1 = self.powerbuses[0]
+        bus1In = self.generatorSw[0].getOutState() or self.generatorSw[1].getOutState() or self.generatorSw[2].getOutState()
+        bus1.setPowerState(bus1In)
+
+        self.transformers[0].setCtrlState(bus1.getPowerState())
+        self.transformers[0].setOutState(bus1.getPowerState())
+        self.transformers[1].setCtrlState(self.generatorSw[3].getOutState())
+        self.transformers[1].setOutState(self.generatorSw[3].getOutState())
+        self.transformers[2].setCtrlState(self.generatorSw[4].getOutState())
+        self.transformers[2].setOutState(self.generatorSw[4].getOutState())
+
+        self.transSw[0].setCtrlState(registList[4])
+        self.transSw[0].setOutState(registList[4] and self.transformers[0].getOutState())
+        self.transSw[1].setCtrlState(registList[2])
+        self.transSw[1].setOutState(registList[2] and self.transformers[1].getOutState())
+        self.transSw[2].setCtrlState(registList[3])
+        self.transSw[2].setOutState(registList[3] and self.transformers[2].getOutState())
+
+        bus2 = self.powerbuses[1]
+        bus2In = self.transSw[0].getOutState() or self.transSw[1].getOutState() or self.transSw[2].getOutState()
+        bus2.setPowerState(bus2In)
+        # Substation
+        self.transformers[3].setCtrlState(bus2.getPowerState())
+        self.transformers[3].setOutState(bus2.getPowerState())
+
+        self.transSw[3].setCtrlState(registList[14])
+        self.transSw[3].setOutState(registList[14] and self.transformers[3].getOutState())
+
+        bus3 = self.powerbuses[2]
+        bus3In = self.transSw[3].getOutState()
+        bus3.setPowerState(bus3In)
+
+        self.transSw[4].setCtrlState(registList[15])
+        self.transSw[4].setOutState(registList[15] and bus3.getPowerState())
+
+        self.transformers[4].setCtrlState(self.transSw[4].getOutState())
+        self.transformers[4].setOutState(self.transSw[4].getOutState())
+
+        bus4 = self.powerbuses[3]
+        bus4In = self.transformers[4].getOutState()
+        bus4.setPowerState(bus4In)
+
+        self.transSw[5].setCtrlState(registList[16])
+        self.transSw[5].setOutState(registList[16] and bus4.getPowerState())
+
+        self.transformers[5].setCtrlState(self.transSw[5].getOutState())
+        self.transformers[5].setOutState(self.transSw[5].getOutState())
+
+        bus5 = self.powerbuses[4]
+        bus5In = self.transformers[5].getOutState()
+        bus5.setPowerState(bus5In)
+
+        self.transSw[6].setCtrlState(registList[17])
+        self.transSw[6].setOutState(registList[17] and bus5.getPowerState())
+
+
+        self.transformers[6].setCtrlState(self.transSw[6].getOutState())
+        self.transformers[6].setOutState(self.transSw[6].getOutState())
+
+
+        bus6 = self.powerbuses[5]
+        bus6In = self.transformers[6].getOutState()
+        bus6.setPowerState(bus6In)
+
+        # set the load switch
+        self.loadSw[0].setCtrlState(registList[19])
+        self.loadSw[0].setOutState(registList[19] and bus4.getPowerState())
+
+        self.loadSw[1].setCtrlState(registList[20])
+        self.loadSw[1].setOutState(registList[20] and bus5.getPowerState())
+
+        self.loadSw[2].setCtrlState(registList[18])
+        self.loadSw[2].setOutState(registList[18] and bus6.getPowerState())
+
+
+        self.loads[0].setCtrlState(self.loadSw[0].getOutState())
+        self.loads[1].setCtrlState(self.loadSw[1].getOutState())
+        self.loads[2].setCtrlState(self.loadSw[2].getOutState())
 
 
     def _initTransSW(self):
@@ -297,21 +394,22 @@ class MapMgr(object):
             {'id': 'LoadSW-1',
              'name': '\nLoad-1-SW',
              'type': 'S',
-             'pos': (1050, 80),
-             'tgtpos': (1050, 160),
+             'pos': (1050, 420),
+             'tgtpos': (1050, 500),
              },
             {'id': 'LoadSW-2',
-             'name': '\nLoad-1-SW',
+             'name': '\nLoad-2-SW',
              'type': 'S',
              'pos': (1050, 240),
              'tgtpos':(1050, 320),
              },
             {'id': 'LoadSW-3',
-             'name': '\nLoad-1-SW',
+             'name': '\nLoad-3-SW',
              'type': 'S',
-             'pos': (1050, 420),
-             'tgtpos': (1050, 500),
-             }
+             'pos': (1050, 80),
+             'tgtpos': (1050, 160),
+             },
+
         ]
         for m in parm:
             loadSW = AgentTarget(self, m['id'], m['name'],  m['pos'], m['type'],
@@ -324,7 +422,7 @@ class MapMgr(object):
             {'id': 'load-1',
              'name': 'Station Load:\nRailway System',
              'type': 'L',
-             'pos': (1050, 160),
+             'pos': (1050, 500),
              'tgtpos': None,
              },
             {'id': 'load-2',
@@ -336,7 +434,7 @@ class MapMgr(object):
             {'id': 'load-3',
              'name': 'Secondary Load:\nSmart Hom',
              'type': 'L',
-             'pos': (1050, 500),
+             'pos': (1050, 160),
              'tgtpos': None,
              },
         ]
@@ -377,17 +475,17 @@ class MapMgr(object):
              'name': 'Solar-Gen',
              'type': 'G',
              'pos': (350, 180),
-             'tgtpos': (350, 360),
+             'tgtpos': (350, 250),
              'ctrlState': 1,
-             'outState': 0
+             'outState': 1
              },
             {'id': 'Gen-5',
              'name': 'Wind-Gen',
              'type': 'G',
              'pos': (450, 180),
-             'tgtpos': (450, 360),
+             'tgtpos': (450, 250),
              'ctrlState': 1,
-             'outState': 0
+             'outState': 1
              }
         ]
         for m in parm:
@@ -421,13 +519,13 @@ class MapMgr(object):
              'name': 'Gen-SW-S',
              'type': 'S',
              'pos': (350, 240),
-             'tgtpos': (350, 320),
+             'tgtpos': (350, 360),
              },
             {'id': 'GenSW-5',
              'name': 'Gen-SW-W',
              'type': 'S',
              'pos': (450, 240),
-             'tgtpos': (450, 320),
+             'tgtpos': (450, 360),
              }
         ]
         for m in parm:
@@ -537,25 +635,4 @@ class MapMgr(object):
     def getLoads(self):
         return self.loads
 
-#-----------------------------------------------------------------------------
-# Init all the set() function here:
-    def setSensors(self, trackID, stateList):
-        self.sensors[trackID].updateSensorsState(stateList)
 
-    def setSingals(self, trackID, stateList):
-        if trackID is None or stateList is None: return
-        if len(stateList) <= len(self.signals[trackID]):
-            for i, state in enumerate(stateList):
-                self.signals[trackID][i].setState(state)
-
-    def setStationsSensors(self, trackID, stateList):
-        if trackID is None or stateList is None: return
-        if trackID in self.stations.keys() and len(stateList) <= len(self.stations[trackID]):
-            for i, state in enumerate(stateList):
-                self.stations[trackID][i].setSensorState(state)
-
-    def setStationsSignals(self, trackID, stateList):
-        if trackID is None or stateList is None: return
-        if trackID in self.stations.keys() and len(stateList) <= len(self.stations[trackID]):
-            for i, state in enumerate(stateList):
-                self.stations[trackID][i].setSignalState(state)

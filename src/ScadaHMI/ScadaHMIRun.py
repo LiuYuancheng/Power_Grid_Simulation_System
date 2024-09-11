@@ -226,7 +226,6 @@ class UIFrame(wx.Frame):
                 self.updatePlcConIndicator()
                 self.updatePlcPanels()
                 self.updateMapJunctionData()
-                self.updateMapStationData()
             gv.iMapPanel.periodic(now)
 
 #-----------------------------------------------------------------------------
@@ -260,28 +259,8 @@ class UIFrame(wx.Frame):
         if gv.idataMgr is None: return False
         # update all the map junction sensor and signals
         signalTgtPlcID = 'PLC-00'
-        for key in gv.gTrackConfig.keys():
-            rsIdx, reIdx = gv.gTrackConfig[key]['sensorIdx']
-            registList = gv.idataMgr.getPlcHRegsData(signalTgtPlcID, rsIdx, reIdx)
-            #print(key)
-            gv.iMapMgr.setSensors(key, registList)
-            csIdx, ceIdx = gv.gTrackConfig[key]['signalIdx']
-            coilsList = gv.idataMgr.getPlcCoilsData(signalTgtPlcID, csIdx, ceIdx)
-            gv.iMapMgr.setSingals(key, coilsList)
-
-#-----------------------------------------------------------------------------
-    def updateMapStationData(self):
-        if gv.idataMgr is None: return False
-        # update all the station sensros and signals
-        tgtPlcID = 'PLC-03'
-        for key in gv.gTrackConfig.keys():
-            rsIdx, reIdx = gv.gTrackConfig[key]['stationSensorIdx']
-            registList = gv.idataMgr.getPlcHRegsData(tgtPlcID, rsIdx, reIdx)
-            #print(key)
-            gv.iMapMgr.setStationsSensors(key, registList)
-            csIdx, ceIdx = gv.gTrackConfig[key]['stationSignalIdx']
-            coilsList = gv.idataMgr.getPlcCoilsData(tgtPlcID, csIdx, ceIdx)
-            gv.iMapMgr.setStationsSignals(key, coilsList)
+        registList = gv.idataMgr.getPlcHRegsData(signalTgtPlcID, 0, 21)
+        gv.iMapMgr.setItemsPwrState(registList)
 
 #-----------------------------------------------------------------------------
     def onHelp(self, event):
