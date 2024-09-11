@@ -54,6 +54,37 @@ class PanelMap(wx.Panel):
         imgPath = os.path.join(gv.IMG_FD, 'time.png')
         self.labelDict['timelb'] = [wx.Bitmap(imgPath), (1450, 15)]
 
+    def _drawBG(self, dc):
+        dc.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        dc.SetTextForeground(wx.Colour(200, 210, 200))
+        dc.DrawText("Power Generation", 70, 20)
+        dc.DrawText("Power Transmission", 530, 520)
+        dc.DrawText("Power Distribution", 900, 20)
+
+        dc.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        dc.SetTextForeground(wx.Colour(255, 136, 0))
+        dc.DrawText("10kV Generators\nPower Bus", 30, 330)
+        dc.DrawText("33kV Substation Bus", 175, 400)
+        dc.DrawText("138kV-400kV High Voltage \nPower Transmission Bus", 50, 520)
+        dc.DrawText("26kV-69kV Step Down\nLvl-0 Distribution Bus", 680, 380)
+        dc.DrawText("4kV-13kV Step Down\nLvl-1 Distribution Bus", 680, 255)
+        dc.DrawText("120V-240V Step Down\nLvl-2 Distribution Bus", 680, 90)
+
+        dc.SetPen(wx.Pen(wx.Colour(156, 220, 254), 2, wx.PENSTYLE_LONG_DASH))
+        dc.SetBrush(wx.Brush(wx.Colour(64, 64, 64)))
+        dc.SetTextForeground(wx.Colour(200, 210, 200))
+        dc.DrawRectangle(1200, 60, 90, 45)
+        dc.DrawText("Secondary \nCustomers", 1210, 65)
+
+        dc.DrawRectangle(1200, 220, 90, 45)
+        dc.DrawText("Primary \nCustomers", 1210, 225)
+
+        dc.DrawRectangle(1200, 400, 90, 45)
+        dc.DrawText("Substation \nCustomers", 1210, 405)
+
+        dc.DrawRectangle(1200, 540, 90, 45)
+        dc.DrawText("Direct \nCustomers", 1210, 545)
+
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item):
         itemPos = item.getPos()
@@ -67,6 +98,10 @@ class PanelMap(wx.Panel):
             penCol = wx.Colour('GREEN') if outState else wx.Colour('RED')
             dc.SetPen(wx.Pen(penCol, 2, wx.PENSTYLE_SOLID))
             dc.DrawLine(itemPos[0], itemPos[1], tgtPos[0], tgtPos[1])
+        # Draw the selection highlight
+        if item.getID() == gv.iMapMgr.getSelectedID():
+            dc.SetPen(wx.Pen(wx.Colour('Blue'), 2, wx.PENSTYLE_SOLID))
+            dc.DrawRectangle(itemPos[0]-itemSize[0]//2-3, itemPos[1]-itemSize[1]//2-3, itemSize[0]+6, itemSize[1]+6)
         penCol = wx.Colour('GREEN') if ctrlState else wx.Colour('RED')
         dc.SetPen(wx.Pen(penCol, 2, wx.PENSTYLE_SOLID))
         dc.SetTextForeground(wx.Colour(200, 210, 200))
@@ -89,7 +124,7 @@ class PanelMap(wx.Panel):
                       ]
             dc.DrawLines(points)
             dc.DrawText(itemType, itemPos[0]-5, itemPos[1]-10)
-
+        
         dc.SetTextForeground(wx.Colour('WHITE'))
         dc.SetFont(self.dcDefFont)
         dc.DrawText(item.getName(), itemPos[0]+itemSize[0]//2+5, itemPos[1]-10)
@@ -258,6 +293,7 @@ class PanelMap(wx.Panel):
         dc = wx.PaintDC(self)
         self.dcDefPen = dc.GetPen()
         self.dcDefFont = dc.GetFont()
+        self._drawBG(dc)
         self._drawComponents(dc)
         # Draw all the components
         #self._drawRailWay(dc)

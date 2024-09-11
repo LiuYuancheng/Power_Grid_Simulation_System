@@ -126,6 +126,8 @@ class MapMgr(object):
         self.loads = []
         self._initLoads()
 
+        self.selectedID = None
+
 
     def setItemsPwrState(self, registList):
         motorState = registList[5:8]
@@ -202,10 +204,8 @@ class MapMgr(object):
         self.transSw[6].setCtrlState(registList[17])
         self.transSw[6].setOutState(registList[17] and bus5.getPowerState())
 
-
         self.transformers[6].setCtrlState(self.transSw[6].getOutState())
         self.transformers[6].setOutState(self.transSw[6].getOutState())
-
 
         bus6 = self.powerbuses[5]
         bus6In = self.transformers[6].getOutState()
@@ -220,7 +220,6 @@ class MapMgr(object):
 
         self.loadSw[2].setCtrlState(registList[18])
         self.loadSw[2].setOutState(registList[18] and bus6.getPowerState())
-
 
         self.loads[0].setCtrlState(self.loadSw[0].getOutState())
         self.loads[1].setCtrlState(self.loadSw[1].getOutState())
@@ -635,4 +634,5 @@ class MapMgr(object):
     def getLoads(self):
         return self.loads
 
-
+    def getSelectedID(self):
+        return self.selectedID
