@@ -1,16 +1,16 @@
 #!/usr/bin/python
 #-----------------------------------------------------------------------------
-# Name:        railWayPanelMap.py
+# Name:        powerGridPWMap.py
 #
-# Purpose:     This module is used to display the state animation of the railway 
-#              system, such as trains movement, sensors detection state, station
-#              docking state and singal changes ...
+# Purpose:     This module is used to display the state animation of the power 
+#              grid system, such as the generate state, power line state, and 
+#              the energy transmission.
 # 
 # Author:      Yuancheng Liu
 #
-# Version:     v0.1.2
-# Created:     2023/06/01
-# Copyright:   Copyright (c) 2023 Singapore National Cybersecurity R&D Lab LiuYuancheng
+# Version:     v0.0.2
+# Created:     2024/09/02
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 
@@ -25,14 +25,14 @@ DEF_PNL_SIZE = (1600, 900)
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 class PanelMap(wx.Panel):
-    """ RailWay system map panel."""
+    """ PowerGrid system map panel."""
     def __init__(self, parent, panelSize=DEF_PNL_SIZE):
         wx.Panel.__init__(self, parent, size=panelSize)
         self.bgColor = wx.Colour(64, 64, 64)
         self.SetBackgroundColour(self.bgColor)
         self.panelSize = panelSize
-        self.bitMaps = {}
-        self._loadBitMaps()
+        self.bitMaps = {} # panel image bit map dict.
+        self._loadBitMapImgs()
         self.toggle = False
         # Paint the map
         self.Bind(wx.EVT_PAINT, self.onPaint)
@@ -40,135 +40,100 @@ class PanelMap(wx.Panel):
         # Set the panel double buffer to void the panel flash during update.
         self.SetDoubleBuffered(True)
 
-        #--PanelMap--------------------------------------------------------------------
-    def onPaint(self, event):
-        """ Draw the whole panel by using the wx device context."""
-        dc = wx.PaintDC(self)
-        self.dcDefPen = dc.GetPen()
-        self.dcDefFont = dc.GetFont()
-        self._drawBG(dc)
-        self._drawSubStation(dc)
-        
     #-----------------------------------------------------------------------------
-    def _loadBitMaps(self):
+    def _loadImgFile(self, filename, size):
+        """Load the image file and convert to the bitmap base on the input size value"""
+        imgPath = os.path.join(gv.IMG_FD, filename)
+        if os.path.exists(imgPath):
+            img = wx.Image(imgPath, wx.BITMAP_TYPE_ANY).Scale(size[0], size[1], wx.IMAGE_QUALITY_HIGH)
+            return img.ConvertToBitmap()
+        else:
+            gv.gDebugPrint('Error: Image file not found: %s' % imgPath, logType=gv.LOG_ERR)
+            return None
+
+    #-----------------------------------------------------------------------------
+    def _loadBitMapImgs(self):
         """ Load the internal usage pictures as bitmaps."""
-        motorPath = os.path.join(gv.IMG_FD, 'pump.png')
-        motoImg = wx.Image(motorPath, wx.BITMAP_TYPE_ANY).Scale(60, 60, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['motor'] = motoImg.ConvertToBitmap()
+        self.bitMaps['motor'] = self._loadImgFile('pump.png', (60, 60))
+        self.bitMaps['gen'] = self._loadImgFile('gen.png', (60, 60))
+        self.bitMaps['wind'] = self._loadImgFile('wind.png', (200, 200))
+        self.bitMaps['solar'] = self._loadImgFile('solar.png', (200, 200))
+        self.bitMaps['trans'] = self._loadImgFile('transformer.png', (60, 60))
+        self.bitMaps['subST'] = self._loadImgFile('subStation.jpg', (200, 150))
+        self.bitMaps['transm'] = self._loadImgFile('transmission.png', (600, 130))
+        self.bitMaps['city'] = self._loadImgFile('city.png', (200, 110))
+        self.bitMaps['factory'] = self._loadImgFile('factory.png', (200, 100))
+        self.bitMaps['railway'] = self._loadImgFile('railway.png', (300, 180))
+        self.bitMaps['time'] = self._loadImgFile('time.png', (30, 30))
+        self.bitMaps['plc'] = self._loadImgFile('plcIcon.png', (50, 30))
+        self.bitMaps['rtu'] = self._loadImgFile('rtuIcon.png', (50, 30))
+        self.bitMaps['storage'] = self._loadImgFile('storage.png', (80, 68))
 
-        genPath = os.path.join(gv.IMG_FD, 'gen.png')
-        genImg = wx.Image(genPath, wx.BITMAP_TYPE_ANY).Scale(60, 60, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['gen'] = genImg.ConvertToBitmap()
-
-        windPath = os.path.join(gv.IMG_FD, 'wind.png')
-        windImg = wx.Image(windPath, wx.BITMAP_TYPE_ANY).Scale(200, 200, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['wind'] = windImg.ConvertToBitmap()
-
-        solarPath = os.path.join(gv.IMG_FD, 'solar.png')
-        solarImg = wx.Image(solarPath, wx.BITMAP_TYPE_ANY).Scale(200, 200, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['solar'] = solarImg.ConvertToBitmap()
-
-        transPath = os.path.join(gv.IMG_FD, 'transformer.png')
-        transImg = wx.Image(transPath, wx.BITMAP_TYPE_ANY).Scale(60, 60, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['trans'] = transImg.ConvertToBitmap()
-
-        subSTPath = os.path.join(gv.IMG_FD, 'subStation.jpg')
-        subSTImg = wx.Image(subSTPath, wx.BITMAP_TYPE_ANY).Scale(200, 150, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['subST'] = subSTImg.ConvertToBitmap()
-
-        transMPath = os.path.join(gv.IMG_FD, 'transmission.png')
-        transMImg = wx.Image(transMPath, wx.BITMAP_TYPE_ANY).Scale(600, 130, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['transm'] = transMImg.ConvertToBitmap()
-
-        cityPath = os.path.join(gv.IMG_FD, 'city.png')
-        cityImg = wx.Image(cityPath, wx.BITMAP_TYPE_ANY).Scale(200, 110, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['city'] = cityImg.ConvertToBitmap()
-
-        factoryPath = os.path.join(gv.IMG_FD, 'factory.png')
-        factoryImg = wx.Image(factoryPath, wx.BITMAP_TYPE_ANY).Scale(200, 100, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['factory'] = factoryImg.ConvertToBitmap()
-
-        railPath = os.path.join(gv.IMG_FD, 'railway.png')
-        railImg = wx.Image(railPath, wx.BITMAP_TYPE_ANY).Scale(300, 180, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['railway'] = railImg.ConvertToBitmap()
-
-        timePath = os.path.join(gv.IMG_FD, 'time.png')
-        timeImg = wx.Image(timePath, wx.BITMAP_TYPE_ANY).Scale(30, 30, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['time'] = timeImg.ConvertToBitmap()
-
-        plcPath = os.path.join(gv.IMG_FD, 'plcIcon.png')
-        plcImg = wx.Image(plcPath, wx.BITMAP_TYPE_ANY).Scale(50, 30, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['plc'] = plcImg.ConvertToBitmap()
-
-        rtuPath = os.path.join(gv.IMG_FD, 'rtuIcon.png')
-        rtuImg = wx.Image(rtuPath, wx.BITMAP_TYPE_ANY).Scale(50, 30, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['rtu'] = rtuImg.ConvertToBitmap()
-
-        engStorPath = os.path.join(gv.IMG_FD, 'storage.png')
-        engImg = wx.Image(engStorPath, wx.BITMAP_TYPE_ANY).Scale(80, 68, wx.IMAGE_QUALITY_HIGH)
-        self.bitMaps['storage'] = engImg.ConvertToBitmap()
-
-
+    #-----------------------------------------------------------------------------
     def _drawBG(self, dc):
+        """Draw back ground."""
         dc.SetPen(wx.Pen(wx.Colour(200, 210, 200), 1, wx.PENSTYLE_LONG_DASH))
         dc.SetBrush(wx.Brush(wx.Colour(30, 40, 62), wx.BRUSHSTYLE_TRANSPARENT))
-        genArea = ((40, 20), (680, 20), (680, 820), (40, 820), (40, 20))
-        dc.DrawLines(genArea)
-        distrubtionArea = ((950, 330), (1170,330), (1170, 870), (950, 870), (950, 330))        
-        dc.DrawLines(distrubtionArea)
-
-        loadArea = ((1180, 330), (1540,330), (1540, 870), (1180, 870), (1180, 330))  
-        dc.DrawLines(loadArea)
-
-        # Draw time stamp
         dc.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         dc.SetTextForeground(wx.Colour(200, 210, 200))
+        # power generation area
         dc.DrawText("Power Generation", 240, 280)
+        genArea = ((40, 20), (680, 20), (680, 820), (40, 820), (40, 20))
+        dc.DrawLines(genArea)
         dc.DrawText("Power Transmission", 900, 200)
+        # power disctribution area
         dc.DrawText("Power Distribution", 970, 820)
+        distrubtionArea = ((950, 330), (1170, 330),
+                           (1170, 870), (950, 870), (950, 330))
+        dc.DrawLines(distrubtionArea)
+        # power load area
         dc.DrawText("Power Customers", 1270, 350)
+        loadArea = ((1180, 330), (1540, 330),
+                    (1540, 870), (1180, 870), (1180, 330))
+        dc.DrawLines(loadArea)
+        # time stamp
         dc.DrawRectangle(35, 835, 40, 40)
         dc.DrawBitmap(self.bitMaps['time'], 40, 840, True)
         dc.SetTextForeground(wx.Colour('GREEN'))
         dc.DrawText('TIME : '+time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time())), 90, 840)
 
-
         # Draw PLC and RTU Icon
         dc.SetFont(self.dcDefFont)
         dc.SetTextForeground(wx.Colour("WHITE"))
-        dc.DrawRectangle(695, 715, 60, 40) 
+        dc.DrawRectangle(695, 715, 60, 40)
         dc.DrawBitmap(self.bitMaps['plc'], 700, 720, True)
         dc.DrawText("Power Control PLC Set", 690, 690)
 
-        dc.DrawRectangle(695, 815, 60, 40) 
+        dc.DrawRectangle(695, 815, 60, 40)
         dc.DrawBitmap(self.bitMaps['rtu'], 700, 820, True)
         dc.DrawText("Power Monitor RTU Set", 690, 790)
 
+        # Draw power storage
         dc.SetPen(wx.Pen(wx.Colour(254, 137, 2), 3, wx.PENSTYLE_SOLID))
         dc.SetBrush(wx.Brush(wx.Colour(254, 137, 2)))
         dc.DrawLine(860, 600, 860, 400)
-        dc.DrawRectangle(818, 568, 84, 72) 
+        dc.DrawRectangle(818, 568, 84, 72)
         dc.DrawBitmap(self.bitMaps['storage'], 820, 570, True)
         dc.DrawText("Power Storage", 820, 650)
-
-        dc.DrawLines(((100, 420), (100, 470),(180, 470)))
-        dc.DrawRectangle(68, 378, 84, 72) 
+        dc.DrawLines(((100, 420), (100, 470), (180, 470)))
+        dc.DrawRectangle(68, 378, 84, 72)
         dc.DrawBitmap(self.bitMaps['storage'], 70, 380, True)
         dc.DrawText("Power Storage", 65, 353)
-
-        dc.DrawLines(((562, 670),(562, 780),(580, 780) ))
+        dc.DrawLines(((562, 670), (562, 780), (580, 780)))
         dc.DrawRectangle(570, 738, 84, 72)
         dc.DrawBitmap(self.bitMaps['storage'], 572, 740, True)
         dc.DrawText("Power Storage", 572, 710)
 
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item, imageKey, size=(60, 60)):
+        """Draw an item."""
         itemPos = item.getPos()
         linkPos = item.getLink()
         tgtPos = linkPos[0] if linkPos else None
         pwState = item.getPowerState()
         swState = item.getSwitchState()
         itemBGCol = wx.Colour(67, 138, 85) if self.toggle else wx.Colour('GREEN')
+        # Draw item power 
         if not pwState: itemBGCol = wx.Colour(255, 0, 0)
         dc.SetPen(wx.Pen(itemBGCol, 3, wx.PENSTYLE_SOLID))
         dc.SetBrush(wx.Brush(itemBGCol))
@@ -176,25 +141,21 @@ class PanelMap(wx.Panel):
         w1, h1 = size[0]//2, size[1]//2
         dc.DrawRectangle(itemPos[0]-w1-2, itemPos[1]-h1-2, size[0]+4, size[1]+4)
         dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
-
+        # Draw item data 
         dataCol = wx.Colour('GREEN') if pwState else wx.Colour('RED')
         dc.SetTextForeground(dataCol)
-        x, y = itemPos[0]+w1+10, itemPos[1]+10
-        if imageKey == 'subST':
-            x, y = itemPos[0]+10, itemPos[1]-h1-40
-        off = 15
+        dataPos = (itemPos[0]+10, itemPos[1]-h1-40) if imageKey == 'subST' else (itemPos[0]+w1+10, itemPos[1]+10)
         dataDict = item.getDataDict()
+        dataStr = ''
         for key in dataDict.keys():
-            dc.DrawText(key+':'+str(dataDict[key]), x, y)
-            y += off
-
+            dataStr += key+':'+str(dataDict[key])+'\n'
+        dc.DrawText(dataStr, dataPos[0], dataPos[1])
         # Draw the label
-        ItemId = str(item.getID())
         ItemName = str(item.getName())
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawText(ItemName, itemPos[0]-w1-5, itemPos[1]-h1-20)
+        # Draw the power link and energy flow
         if linkPos:
-            #linkCol = wx.Colour('GREEN')  if self.toggle else wx.Colour(67, 138, 85)
             linkCol = wx.Colour(67, 138, 85)
             if not (pwState and swState): linkCol = wx.Colour(255, 0, 0)
             dc.SetPen(wx.Pen(linkCol, 3, wx.PENSTYLE_SOLID))
@@ -206,7 +167,9 @@ class PanelMap(wx.Panel):
                 if engPts: 
                     for pt in engPts:
                         dc.DrawRectangle(pt[0]-4, pt[1]-4, 9, 9)
+        # Draw the control swith
         if tgtPos:
+            ItemId = str(item.getID())
             swtichCol = wx.Colour(67, 138, 85) if swState else wx.Colour(255, 0, 0)
             dc.SetTextForeground(swtichCol)
             dc.SetBrush(wx.Brush(swtichCol))
@@ -216,49 +179,47 @@ class PanelMap(wx.Panel):
             dc.DrawText(switchLb, tgtPos[0]-40, tgtPos[1]-20)
 
     #-----------------------------------------------------------------------------
-    def _drawSubStation(self, dc):
+    def _drawComponents(self, dc):
+        """Draw all the components on the map"""
         dc.SetPen(self.dcDefPen)
         dc.SetFont(self.dcDefFont)
-        motors = gv.iMapMgr.getMotors()
-        for motor in motors:
+        # Motors
+        for motor in gv.iMapMgr.getMotors():
             self._drawItem(dc, motor, 'motor')
-
-        gens = gv.iMapMgr.getGenerators()
-        for gen in gens:
+        # Motor linked generators
+        for gen in gv.iMapMgr.getGenerators():
             self._drawItem(dc, gen, 'gen')
-
-        winds = gv.iMapMgr.getWindTurbines()
-        self._drawItem(dc, winds, 'wind', size=(200, 200))
-
-        solar = gv.iMapMgr.getSolarPanels()
-        self._drawItem(dc, solar, 'solar', size=(200, 200))
-
-        uptrans = gv.iMapMgr.getUpTF()
-        for trans in uptrans:
+        # Wind turbine
+        self._drawItem(dc, gv.iMapMgr.getWindTurbines(), 'wind', size=(200, 200))
+        # Solar panels 
+        self._drawItem(dc, gv.iMapMgr.getSolarPanels(), 'solar', size=(200, 200))
+        # Step up transformer
+        for trans in gv.iMapMgr.getUpTF():
             self._drawItem(dc, trans, 'trans')
-
-        subST = gv.iMapMgr.getSubST()
-        self._drawItem(dc, subST, 'subST', size=(200, 150))
-        
-        trainmistion = gv.iMapMgr.getTransmission()
-        self._drawItem(dc, trainmistion, 'transm', size=(600, 130))
-    
-        loadfactory = gv.iMapMgr.getLoadFactory()
-        self._drawItem(dc, loadfactory, 'factory', size=(200, 100))
-
-        loadrailway = gv.iMapMgr.getLoadRailway()
-        self._drawItem(dc, loadrailway, 'railway', size=(300, 180))
-
-        downtrans  = gv.iMapMgr.getDownTF()
-        for trans in downtrans:
+        # Power Substation
+        self._drawItem(dc, gv.iMapMgr.getSubST(), 'subST', size=(200, 150))
+        # Power Transmission tower 
+        self._drawItem(dc, gv.iMapMgr.getTransmission(), 'transm', size=(600, 130))
+        # factory
+        self._drawItem(dc, gv.iMapMgr.getLoadFactory(), 'factory', size=(200, 100))
+        # railway system
+        self._drawItem(dc, gv.iMapMgr.getLoadRailway(), 'railway', size=(300, 180))
+        # step down transformer
+        for trans in gv.iMapMgr.getDownTF():
             self._drawItem(dc, trans, 'trans')
-
-        loadhome = gv.iMapMgr.getLoadHome()
-        self._drawItem(dc, loadhome, 'city', size=(200, 110))
+        # Smart home load
+        self._drawItem(dc, gv.iMapMgr.getLoadHome(), 'city', size=(200, 110))
         
+    #-----------------------------------------------------------------------------
+    def onPaint(self, event):
+        """ Draw the whole panel by using the wx device context."""
+        dc = wx.PaintDC(self)
+        self.dcDefPen = dc.GetPen()
+        self.dcDefFont = dc.GetFont()
+        self._drawBG(dc)
+        self._drawComponents(dc)
 
-
-
+    #-----------------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 
             update the panel, if called as updateDisplay(updateFlag=?) the function

@@ -1,15 +1,15 @@
 #!/usr/bin/python
 #-----------------------------------------------------------------------------
-# Name:        DataMgr.py
+# Name:        powerGridPWDataMgr.py
 #
-# Purpose:     Data manager module is used to control all the other data processing 
-#              modules and store the interprocess/result data.
+# Purpose:     Data manager module is used to control all the PLC electrical I/O
+#              signal data processing  and store the interprocess/result data.
 #
 # Author:      Yuancheng Liu
 #
-# Created:     2023/06/07
-# Version:     v_0.1.2
-# Copyright:   Copyright (c) 2023 LiuYuancheng
+# Created:     2024/09/07
+# Version:     v_0.0.2
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 
@@ -18,7 +18,6 @@ import json
 import threading
 
 import powerGridPWGlobal as gv
-
 import Log
 import udpCom
 
@@ -35,7 +34,7 @@ def parseIncomeMsg(msg):
     except Exception as err:
         Log.error('parseIncomeMsg(): The income message format is incorrect.')
         Log.exception(err)
-        return('','',json.dumps({}))
+        return('', '', json.dumps({}))
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -51,73 +50,37 @@ class DataManager(threading.Thread):
         # Init a udp server to accept all the other plc module's data fetch/set request.
         self.server = udpCom.udpServer(None, gv.gUDPPort)
         self.daemon = True
-        self.switchesDataOld = {
-            'solarSW': 0,
-            'windSW': 0,
-            'transUSW1':0,
-            'transUSW2':0,
-            'transUSW3':0,
-            'moto1PW':0,
-            'moto2PW':0,
-            'moto3PW':0,
-            'moto1SW': 0, 
-            'moto2SW': 0,
-            'moto3SW': 0,
-            'gen1SW': 0,
-            'gen2SW': 0,
-            'gen3SW': 0,
-            'transMInSW': 0,
-            'transMOutSW': 0,
-            'transDSW1':0,
-            'transDSW2':0,
-            'transDSW3':0,
-            'loadRSW': 0,
-            'loadFSW': 0
-        }
+        # switches PLC electrical I/O sequence: 
+        # 0: Solar switch
+        # 1: Wind switch
+        # 2: Stepup Transformer switch 1
+        # 3: Stepup Transformer switch 2
+        # 4: Stepup Transformer switch 3
+        # 5: Motor 1 on/off switch
+        # 6: Motor 2 on/off switch
+        # 7: Motor 3 on/off switch
+        # 8: Motor 1 to Gen1 switch
+        # 9: Motor 2 to Gen2 switch
+        # 10: Motor 3 to Gen3 switch
+        # 11: Gen1 output switch
+        # 12: Gen2 output switch
+        # 13: Gen3 output switch
+        # 14: Transmission Input swith
+        # 15: Transmission Output swith
+        # 16: Distribution Transformer switch 1
+        # 17: Distribution Transformer switch 2
+        # 18: Distribution Transformer switch 3
+        # 19: Load railway switch
+        # 20: Load factory switch
         self.switchesData = [0]*21
-
-
-    #-----------------------------------------------------------------------------
-    def fetchSwitchesDataOld(self):
-        """ Fetch the current switches data from the data manager.
-        """
-        if gv.iMapMgr:
-            self.switchesData['solarSW'] = gv.iMapMgr.getSolarPanels().getSwitchState()
-            self.switchesData['windSW'] = gv.iMapMgr.getWindTurbines().getSwitchState()
-            transUps =  gv.iMapMgr.getUpTF()
-            self.switchesData['transUSW1'] = transUps[0].getSwitchState()
-            self.switchesData['transUSW2'] = transUps[1].getSwitchState()
-            self.switchesData['transUSW3'] = transUps[2].getSwitchState()
-            motorsPW = gv.iMapMgr.getMotors()
-            self.switchesData['moto1PW'] = motorsPW[0].getPowerState()
-            self.switchesData['moto2PW'] = motorsPW[1].getPowerState()
-            self.switchesData['moto3PW'] = motorsPW[2].getPowerState()
-            self.switchesData['moto1SW'] = motorsPW[0].getSwitchState()
-            self.switchesData['moto2SW'] = motorsPW[1].getSwitchState()
-            self.switchesData['moto3SW'] = motorsPW[2].getSwitchState()
-            gens = gv.iMapMgr.getGenerators()
-            self.switchesData['gen1SW'] = gens[0].getSwitchState()
-            self.switchesData['gen2SW'] = gens[1].getSwitchState()
-            self.switchesData['gen3SW'] = gens[2].getSwitchState()
-            self.switchesData['transMInSW'] = gv.iMapMgr.getSubST().getSwitchState()
-            self.switchesData['transMOutSW'] = gv.iMapMgr.getMainST().getTransmission()
-            transDowns = gv.iMapMgr.getDownTF()
-            self.switchesData['transDSW1'] = transDowns[0].getSwitchState()
-            self.switchesData['transDSW2'] = transDowns[1].getSwitchState()
-            self.switchesData['transDSW3'] = transDowns[2].getSwitchState()
-            self.switchesData['loadRSW'] = gv.iMapMgr.getLoadRailway().getSwitchState()
-            self.switchesData['loadFSW'] = gv.iMapMgr.getLoadFactory().getSwitchState()
-        return self.switchesData
 
     #-----------------------------------------------------------------------------
     def fetchSwitchesData(self):
-        """ Fetch the current switches data from the data manager.
-        """
-        respDict= {'allswitch': 'failed'}
+        """ Fetch the current switches data from the data manager."""
         if gv.iMapMgr:
             self.switchesData[0] = gv.iMapMgr.getSolarPanels().getSwitchState()
             self.switchesData[1] = gv.iMapMgr.getWindTurbines().getSwitchState()
-            transUps =  gv.iMapMgr.getUpTF()
+            transUps = gv.iMapMgr.getUpTF()
             self.switchesData[2] = transUps[0].getSwitchState()
             self.switchesData[3] = transUps[1].getSwitchState()
             self.switchesData[4] = transUps[2].getSwitchState()
@@ -140,8 +103,7 @@ class DataManager(threading.Thread):
             self.switchesData[18] = transDowns[2].getSwitchState()
             self.switchesData[19] = gv.iMapMgr.getLoadRailway().getSwitchState()
             self.switchesData[20] = gv.iMapMgr.getLoadFactory().getSwitchState()
-        
-        respDict['allswitch'] = self.switchesData.copy()
+        respDict = {'allswitch': self.switchesData.copy()}
         return json.dumps(respDict)
 
     #-----------------------------------------------------------------------------

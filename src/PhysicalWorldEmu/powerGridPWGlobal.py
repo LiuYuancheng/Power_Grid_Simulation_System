@@ -7,7 +7,7 @@
 # Author:      Yuancheng Liu
 #
 # Created:     2024/06/24
-# Version:     v_0.0.1
+# Version:     v_0.0.2
 # Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
@@ -62,6 +62,8 @@ LOG_WARN    = 1
 LOG_ERR     = 2
 LOG_EXCEPT  = 3
 
+#-------<GLOBAL VARIABLES (start with "g")>------------------------------------
+# VARIABLES are the built in data type.
 def gDebugPrint(msg, prt=True, logType=None):
     if prt: print(msg)
     if logType == LOG_WARN:
@@ -73,7 +75,6 @@ def gDebugPrint(msg, prt=True, logType=None):
     elif logType == LOG_INFO or DEBUG_FLG:
         Log.info(msg)
 
-
 gTestMD = CONFIG_DICT['TEST_MD']      # test mode flag, True: the simulator will operate with control logic itself. 
 # False: The simultor will connect to the PLC, PLC will implement the control logic.
 gTranspPct = 70     # Windows transparent percentage.
@@ -83,6 +84,7 @@ UI_TITLE = CONFIG_DICT['UI_TITLE']
 gUpdateRate = float(CONFIG_DICT['UI_INTERVAL']) if float(CONFIG_DICT['UI_INTERVAL']) > 0 else 0.5
 gUDPPort = int(CONFIG_DICT['UDP_PORT']) if 'UDP_PORT' in CONFIG_DICT.keys() else UDP_PORT
 
+#-------<GLOBAL PARAMTERS>-----------------------------------------------------
 iMapPanel = None
 iCtrlPanel = None
 iMapMgr = None      # map manager.

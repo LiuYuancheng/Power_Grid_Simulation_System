@@ -1,73 +1,88 @@
 #-----------------------------------------------------------------------------
-# Name:        railwayAgent.py
+# Name:        powerGridAgent.py
 #
 # Purpose:     This module is the agents module to init different items in the 
-#              railway system map. All the items on the Map are agent objects, each 
-#              agent's update() function is a self-driven function to update the 
-#              item's state.
+#              power grid system map. All the items on the Map are agent objects.
 # 
 # Author:      Yuancheng Liu
 #
-# Version:     v0.1.2
-# Created:     2023/05/26
-# Copyright:   Copyright (c) 2023 Singapore National Cybersecurity R&D Lab LiuYuancheng
+# Version:     v0.0.2
+# Created:     2024/09/09
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 
-import math
 import random
 from random import randint
-import powerGridPWGlobal as gv
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 class AgentTarget(object):
-    """ Create a agent target to generate all the elements in the metro system, 
+    """ Create a agent target to generate all the elements in the power grid system, 
         all the other 'things' in the system will be inheritance from this module.
     """
     def __init__(self, parent, tgtID, pos, targetPosList, tType):
+        """ init example: 
+            self.transmition = agent.AgentTransform(self, parm['id'], parm['pos'],
+                                            parm['tgtpos'], parm['type'])
+        Args:
+            parent (ref): parent object reference.
+            tgtID (str): unique target ID.
+            pos (tuple(int, int)): target position on map.
+            targetPosList (list()): list of link points, the switch will be at the 1st point
+            tType (str): target type.
+        """
         self.parent = parent
         self.id = tgtID
         self.name = None
         self.pos = pos      # target init position on the map.
-        self.targetPosList = list(targetPosList) if targetPosList else None  # target position on the map.
+        self.targetPosList = list(targetPosList) if targetPosList else None  # link line points
         self.tType = tType
-        self.switchState = 0
-        self.powerState = 0
-        self.dataDict = {}
+        self.powerState = 0     # Own power state
+        self.switchState = 0    # I/O swith state
+        self.dataDict = {}      # item special data dict
         self._initDataDict()
 
     def _initDataDict(self):
-        pass 
+        """ Overwirte this function to init the special paramters used by the 
+            children class.
+        """
+        pass
 
-#--AgentTarget-----------------------------------------------------------------
-# Define all the get() functions here:
+    #--AgentTarget-----------------------------------------------------------------
+    # Define all the get() functions here:
     def getID(self):
         return self.id
-    
+
     def getName(self):
         return self.name
 
     def getPos(self):
         return self.pos
 
+    def getLink(self):
+        return self.targetPosList.copy() if self.targetPosList else None
+
     def getType(self):
         return self.tType
-    
+
     def getPowerState(self):
         return self.powerState
-        
+
     def getSwitchState(self):
         return self.switchState
+
+    def getDataDict(self):
+        return self.dataDict
+
+    def getEnergyFlowPt(self):
+        return None
 
     def isPowerOutput(self):
         return self.powerState and self.switchState
 
-    def getLink(self):
-        if self.targetPosList:
-            return self.targetPosList.copy()
-        return None
-
+    #--AgentTarget-----------------------------------------------------------------
+    # Define all the set() functions here:
     def setName(self, name):
         self.name = name
 
@@ -78,20 +93,19 @@ class AgentTarget(object):
         self.switchState = state
 
     def updateDataDict(self):
-        pass 
+        """ Overwirte this function to auto update special paramters used by the 
+            children class.
+        """
+        pass
 
-    def getDataDict(self):
-        return self.dataDict
-
-    def getEnergyFlowPt(self):
-        return None
-
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 class AgentMotor(AgentTarget):
+    """ Generator driven motor class."""
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType='MOTO', maxRPM=5000):
         super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.maxRPM = maxRPM
-        self.powerState = 1
 
     def _initDataDict(self):
         self.dataDict['RPM'] = 0
@@ -99,50 +113,35 @@ class AgentMotor(AgentTarget):
 
     def updateDataDict(self):
         if self.isPowerOutput():
-            self.dataDict['RPM'] = self.maxRPM + randint(-1000, 1000)
+            self.dataDict['RPM'] = self.maxRPM + randint(-1000, 1000)  # Generate running RPM
         elif self.getPowerState():
-            self.dataDict['RPM'] = 1000 + randint(-100, 100)
+            self.dataDict['RPM'] = 1000 + randint(-100, 100)  # Genreate standby RPM
         else:
             self.dataDict['RPM'] = 0
 
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 class AgentGenerator(AgentTarget):
+    """ Power Generator class."""
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType='GEN'):
-        self.pUnit = ('V', 'A')
+        self.pUnit = ('V', 'A') # Power unit
         super().__init__(parent, tgtID, pos, targetPosList, tType)
-        self.powerState = 1
         self.valtage = 0
         self.current = 0
-        self.enerygFlowPt = []
-        self.enerygIdx = None
+        self.enerygFlowPt = []  # energy animation flow points.
+        self.enerygIdx = None   # current energy points highlight index.
         self.energyNum = 0
 
-    def setPowerParm(self, volt, current, pUnit):
-        self.valtage = volt
-        self.current = current
-        self.pUnit = pUnit
-
     def _initDataDict(self):
-        self.dataDict['State'] = 'standby'
+        self.dataDict['State'] = 'Standby'
         self.dataDict['Voltage'] = '0 ' + self.pUnit[0]
         self.dataDict['Current'] = '0 ' + self.pUnit[1]
         return super()._initDataDict()
 
-    def updateDataDict(self):
-        self.dataDict['State'] = 'Running' if self.getPowerState() else 'standby'
-        valVal = self.valtage if self.getPowerState() else 0
-        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
-        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
-        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
-
-    def setEnergyFlowPt(self, ptList):
-        self.enerygFlowPt = ptList
-        self.enerygIdx = 0
-        self.energyNum = len(ptList)
-
     def getEnergyFlowPt(self):
-        if self.enerygIdx is None or self.energyNum == 0:
-            return None
+        """Get the highligt energy flow point, return 2 points."""
+        if self.enerygIdx is None or self.energyNum == 0: return None
         if self.isPowerOutput():
             pt0 = self.enerygFlowPt[self.enerygIdx]
             pt1 = self.enerygFlowPt[int(self.enerygIdx+self.energyNum/2)%self.energyNum]
@@ -150,38 +149,46 @@ class AgentGenerator(AgentTarget):
             return (pt0, pt1)
         return None
 
+    def setPowerParm(self, voltage, current, pUnit):
+        """ Set the generator power parameters.
+            Args:
+                voltage (float): designed running output voltage 
+                current (float): designed running output current
+                pUnit (tuple(str, str)): voltage and current unit
+        """
+        self.valtage = voltage
+        self.current = current
+        self.pUnit = pUnit
+
+    def setEnergyFlowPt(self, ptList):
+        self.enerygFlowPt = ptList
+        self.enerygIdx = 0
+        self.energyNum = len(ptList)
+
+    def updateDataDict(self):
+        self.dataDict['State'] = 'Running' if self.getPowerState() else 'Standby'
+        valVal = self.valtage if self.getPowerState() else 0
+        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
+        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
+        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
+
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 class AgentTransform(AgentTarget):
 
     def __init__(self, parent, tgtID, pos, targetPosList, tType="TRANS"):
         self.pUnit = ('V', 'A')
         super().__init__(parent, tgtID, pos, targetPosList, tType)
-        self.powerState = 1
         self.valtage = 0
         self.current = 0
         self.enerygFlowPt = []
         self.enerygIdx = None
         self.energyNum = 0
 
-    def setPowerParm(self, volt, current, pUnit):
-        self.valtage = volt
-        self.current = current
-        self.pUnit = pUnit
-
     def _initDataDict(self):
         self.dataDict['Voltage'] = '0 ' + self.pUnit[0]
         self.dataDict['Current'] = '0 ' + self.pUnit[1]
         return super()._initDataDict()
-
-    def updateDataDict(self):
-        valVal = self.valtage if self.getPowerState() else 0
-        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
-        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
-        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
-
-    def setEnergyFlowPt(self, ptList):
-        self.enerygFlowPt = ptList
-        self.enerygIdx = 0
-        self.energyNum = len(ptList)
 
     def getEnergyFlowPt(self):
         if self.enerygIdx is None or self.energyNum == 0:
@@ -193,10 +200,18 @@ class AgentTransform(AgentTarget):
             return (pt0, pt1)
         return None
 
+    def setPowerParm(self, volt, current, pUnit):
+        self.valtage = volt
+        self.current = current
+        self.pUnit = pUnit
 
+    def setEnergyFlowPt(self, ptList):
+        self.enerygFlowPt = ptList
+        self.enerygIdx = 0
+        self.energyNum = len(ptList)
 
-class AgentSwitch(AgentTarget):
-
-    def __init__(self, parent, tgtID, pos, targetPosList, tType='SWITCH'):
-        super().__init__(parent, tgtID, pos, targetPosList, tType)
-        self.powerState = 1
+    def updateDataDict(self):
+        valVal = self.valtage if self.getPowerState() else 0
+        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
+        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
+        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
