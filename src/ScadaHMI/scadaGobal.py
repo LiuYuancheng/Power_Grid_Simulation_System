@@ -26,7 +26,7 @@ DIR_PATH = dirpath = os.path.dirname(os.path.abspath(__file__))
 print("Current source code location : %s" % dirpath)
 APP_NAME = ('ScadaSysHMI', 'scadaHMI')
 
-TOPDIRS = ['src', 'rail']
+TOPDIRS = ['src']
 LIBDIR = 'lib'
 CONFIG_FILE_NAME = 'scadaHMIConfig.txt'
 CONFIG_DIR_NAME = 'configFiles'

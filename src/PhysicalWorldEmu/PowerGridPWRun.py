@@ -80,7 +80,7 @@ class UIFrame(wx.Frame):
 
         # Add the about menu.
         helpMenu = wx.Menu()
-        aboutItem = wx.MenuItem(helpMenu, 200,text = "Help",kind = wx.ITEM_NORMAL)
+        aboutItem = wx.MenuItem(helpMenu, 200,text = "Help", kind = wx.ITEM_NORMAL)
         helpMenu.Append(aboutItem)
         self.Bind(wx.EVT_MENU, self.onHelp, aboutItem)
         menubar.Append(helpMenu, '&About')

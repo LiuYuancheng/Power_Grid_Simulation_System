@@ -167,7 +167,7 @@ class UIFrame(wx.Frame):
         mSizer.AddSpacer(5)
         # Added the map panel.
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
-        label = wx.StaticText(self, label=" Railway Sensor-Signal SCADA HMI ")
+        label = wx.StaticText(self, label="Power Grid SCADA System HMI ")
         label.SetFont(font)
         mSizer.Add(label, flag=flagsL, border=2)
         mSizer.AddSpacer(10)
@@ -182,7 +182,7 @@ class UIFrame(wx.Frame):
         self.plcPnls = {}
         self._initElectricalLbs()
         # junction sensor-signal plc sizer.
-        signalSz = self._buildPlcPnlsSizer("PLC Monitor [Junction sensor-signal]", 
+        signalSz = self._buildPlcPnlsSizer("PLC [Power System Control]", 
                                            ('PLC-00', 'PLC-01', 'PLC-02'))
         hbox1.Add(signalSz, flag=flagsL, border=2)
         hbox1.AddSpacer(10)
@@ -225,7 +225,6 @@ class UIFrame(wx.Frame):
                 if gv.idataMgr: gv.idataMgr.periodic(now)
                 self.updatePlcConIndicator()
                 self.updatePlcPanels()
-                self.updateMapJunctionData()
             gv.iMapPanel.periodic(now)
 
 #-----------------------------------------------------------------------------

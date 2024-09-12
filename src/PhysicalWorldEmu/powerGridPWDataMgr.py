@@ -67,8 +67,8 @@ class DataManager(threading.Thread):
         # 13: Gen3 output switch - GenSW-3
         # 14: Transmission Input swith - TranMSW-I
         # 15: Transmission Output swith - TranMSW-O
-        # 16: Distribution Transformer switch 1 - TransD-1
-        # 17: Distribution Transformer switch 2 - TransD-2
+        # 16: Distribution Transformer switch 1 - TransDSW-1
+        # 17: Distribution Transformer switch 2 - TransDSW-2
         # 18: Distribution Transformer switch 3 - LoadSW-3
         # 19: Load railway switch - LoadSW-1
         # 20: Load factory switch - LoadSW-2
@@ -106,14 +106,73 @@ class DataManager(threading.Thread):
         respDict = {'allswitch': self.switchesData.copy()}
         return json.dumps(respDict)
 
+    def fetchComponentsVal(self):
+        pass
+        
+
+
+
+    #-----------------------------------------------------------------------------
+    def setRealWorldItemState(self, idx, val):
+        """ Set the real world item state based on the index and value."""
+        if gv.iMapMgr:
+            if idx == 0:
+                gv.iMapMgr.getSolarPanels().setSwitchState(val)
+            elif idx == 1:
+                gv.iMapMgr.getWindTurbines().setSwitchState(val)
+            elif idx == 2:
+                gv.iMapMgr.getUpTF()[0].setSwitchState(val)
+            elif idx == 3:
+                gv.iMapMgr.getUpTF()[1].setSwitchState(val)
+            elif idx == 4:
+                gv.iMapMgr.getUpTF()[2].setSwitchState(val)
+            elif idx == 5:
+                gv.iMapMgr.getMotors()[0].setPowerState(val)
+            elif idx == 6:
+                gv.iMapMgr.getMotors()[1].setPowerState(val)
+            elif idx == 7:
+                gv.iMapMgr.getMotors()[2].setPowerState(val)
+            elif idx == 8:
+                gv.iMapMgr.getMotors()[0].setSwitchState(val)
+            elif idx == 9:
+                gv.iMapMgr.getMotors()[1].setSwitchState(val)
+            elif idx == 10:
+                gv.iMapMgr.getMotors()[2].setSwitchState(val)
+            elif idx == 11:
+                gv.iMapMgr.getGenerators()[0].setSwitchState(val)
+            elif idx == 12:
+                gv.iMapMgr.getGenerators()[1].setSwitchState(val)
+            elif idx == 13:
+                gv.iMapMgr.getGenerators()[2].setSwitchState(val)
+            elif idx == 14:
+                gv.iMapMgr.getSubST().setSwitchState(val)
+            elif idx == 15:
+                gv.iMapMgr.getTransmission().setSwitchState(val)
+            elif idx == 16:
+                gv.iMapMgr.getDownTF()[0].setSwitchState(val)
+            elif idx == 17:
+                gv.iMapMgr.getDownTF()[1].setSwitchState(val)
+            elif idx == 18:
+                gv.iMapMgr.getDownTF()[2].setSwitchState(val)
+            elif idx == 19:
+                gv.iMapMgr.getLoadRailway().setSwitchState(val)
+            elif idx == 20:
+                gv.iMapMgr.getLoadFactory().setSwitchState(val)
+        
     #-----------------------------------------------------------------------------
     def setCtrlSwitch(self, reqJsonStr):
         respStr = json.dumps({'result': 'failed'})
         try:
             reqDict = json.loads(reqJsonStr)
             if gv.iMapMgr:
-                print(reqJsonStr)
-                respStr = json.dumps({'result': 'success'})
+                coilStateList = reqDict['allswitch']
+                if len(coilStateList) == 21:
+                    for idx, coilState in enumerate(coilStateList):
+                        val = 1 if coilState else 0
+                        if self.switchesData[idx] != val:
+                            self.setRealWorldItemState(idx, val)
+
+                    respStr = json.dumps({'result': 'success'})
         except Exception as err:
             gv.gDebugPrint("setTrainsPower() Error: %s" %str(err), logType=gv.LOG_EXCEPT)
         return respStr

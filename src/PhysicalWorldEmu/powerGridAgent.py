@@ -72,7 +72,7 @@ class AgentTarget(object):
     def getSwitchState(self):
         return self.switchState
 
-    def getDataDict(self):
+    def getDataDict(self, toStr=True):
         return self.dataDict
 
     def getEnergyFlowPt(self):
@@ -135,9 +135,20 @@ class AgentGenerator(AgentTarget):
 
     def _initDataDict(self):
         self.dataDict['State'] = 'Standby'
-        self.dataDict['Voltage'] = '0 ' + self.pUnit[0]
-        self.dataDict['Current'] = '0 ' + self.pUnit[1]
+        self.dataDict['Voltage'] = 0
+        self.dataDict['Current'] = 0
         return super()._initDataDict()
+
+    def getDataDict(self, toStr=True):
+        if toStr:
+            valDict = {
+                'State' : str(self.dataDict['State']),
+                'Voltage': str(self.dataDict['Voltage']) + ' ' + self.pUnit[0],
+                'Current': '%.1f ' %self.dataDict['Current'] + ' ' + self.pUnit[1]
+            }
+            return valDict
+        else:
+            return self.dataDict
 
     def getEnergyFlowPt(self):
         """Get the highligt energy flow point, return 2 points."""
@@ -167,10 +178,8 @@ class AgentGenerator(AgentTarget):
 
     def updateDataDict(self):
         self.dataDict['State'] = 'Running' if self.getPowerState() else 'Standby'
-        valVal = self.valtage if self.getPowerState() else 0
-        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
-        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
-        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
+        self.dataDict['Voltage'] = self.valtage if self.getPowerState() else 0
+        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -186,9 +195,21 @@ class AgentTransform(AgentTarget):
         self.energyNum = 0
 
     def _initDataDict(self):
-        self.dataDict['Voltage'] = '0 ' + self.pUnit[0]
-        self.dataDict['Current'] = '0 ' + self.pUnit[1]
+        self.dataDict['Voltage'] = 0
+        self.dataDict['Current'] = 0
         return super()._initDataDict()
+
+
+    def getDataDict(self, toStr=True):
+        if toStr:
+            valDict = {
+                'Voltage': str(self.dataDict['Voltage']) + ' ' + self.pUnit[0],
+                'Current': '%.1f ' %self.dataDict['Current'] + ' ' + self.pUnit[1]
+            }
+            return valDict
+        else:
+            return self.dataDict
+
 
     def getEnergyFlowPt(self):
         if self.enerygIdx is None or self.energyNum == 0:
@@ -211,7 +232,5 @@ class AgentTransform(AgentTarget):
         self.energyNum = len(ptList)
 
     def updateDataDict(self):
-        valVal = self.valtage if self.getPowerState() else 0
-        curVal = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
-        self.dataDict['Voltage'] = '%s ' %str(valVal) + self.pUnit[0]
-        self.dataDict['Current'] = '%.1f ' %curVal + self.pUnit[1]
+        self.dataDict['Voltage'] = self.valtage if self.getPowerState() else 0
+        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0

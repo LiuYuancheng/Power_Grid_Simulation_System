@@ -273,6 +273,50 @@ class PanelCtrl(wx.Panel):
         sizer.Add(self.factoryCB, flag=flagsL, border=2)
         sizer.AddSpacer(10)
 
+    def updateCheckBoxState(self, idx, value):
+        if idx == 0:
+            self.solarSwCB.SetValue(value)
+        elif idx == 1:
+            self.windSwCB.SetValue(value)
+        elif idx == 2:
+            self.transU01CB.SetValue(value)
+        elif idx == 3:
+            self.transU02CB.SetValue(value)
+        elif idx == 4:
+            self.transU03CB.SetValue(value)
+        elif idx == 5:
+            self.motor01PwCB.SetValue(value)
+        elif idx == 6:
+            self.motor02PwCB.SetValue(value)
+        elif idx == 7:
+            self.motor03PwCB.SetValue(value)
+        elif idx == 8:
+            self.motor01SwCB.SetValue(value)
+        elif idx == 9:
+            self.motor02SwCB.SetValue(value)
+        elif idx == 10:
+            self.motor03SwCB.SetValue(value)
+        elif idx == 11:
+            self.gen01SwCB.SetValue(value)
+        elif idx == 12:
+            self.gen02SwCB.SetValue(value)
+        elif idx == 13:
+            self.gen03SwCB.SetValue(value)
+        elif idx == 14:
+            self.substSwCB.SetValue(value)
+        elif idx == 15:
+            self.transMSwCB.SetValue(value)
+        elif idx == 16:
+            self.transD01CB.SetValue(value)
+        elif idx == 17:
+            self.transD02CB.SetValue(value)
+        elif idx == 18:
+            self.transD03CB.SetValue(value)
+        elif idx == 19:
+            self.railwayCB.SetValue(value)
+        elif idx == 20:
+            self.factoryCB.SetValue(value)
+
 
     def onSetRailwaySw(self, event):
         flg = self.railwayCB.IsChecked()
