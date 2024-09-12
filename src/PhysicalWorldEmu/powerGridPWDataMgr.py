@@ -51,27 +51,27 @@ class DataManager(threading.Thread):
         self.server = udpCom.udpServer(None, gv.gUDPPort)
         self.daemon = True
         # switches PLC electrical I/O sequence: 
-        # 0: Solar switch
-        # 1: Wind switch
-        # 2: Stepup Transformer switch 1
-        # 3: Stepup Transformer switch 2
-        # 4: Stepup Transformer switch 3
-        # 5: Motor 1 on/off switch
-        # 6: Motor 2 on/off switch
-        # 7: Motor 3 on/off switch
-        # 8: Motor 1 to Gen1 switch
-        # 9: Motor 2 to Gen2 switch
-        # 10: Motor 3 to Gen3 switch
-        # 11: Gen1 output switch
-        # 12: Gen2 output switch
-        # 13: Gen3 output switch
-        # 14: Transmission Input swith
-        # 15: Transmission Output swith
-        # 16: Distribution Transformer switch 1
-        # 17: Distribution Transformer switch 2
-        # 18: Distribution Transformer switch 3
-        # 19: Load railway switch
-        # 20: Load factory switch
+        # 0: Solar switch - GenSW-4
+        # 1: Wind switch - GenSW-5
+        # 2: Stepup Transformer switch 1 - TransUp-2
+        # 3: Stepup Transformer switch 2 - TransUp-3
+        # 4: Stepup Transformer switch 3 - TransUp-1
+        # 5: Motor 1 on/off switch - Motor-1
+        # 6: Motor 2 on/off switch - Motor-2
+        # 7: Motor 3 on/off switch - Motor-3
+        # 8: Motor 1 to Gen1 switch - MotorSW-1
+        # 9: Motor 2 to Gen2 switch - MotorSW-2
+        # 10: Motor 3 to Gen3 switch - MotorSW-3
+        # 11: Gen1 output switch - GenSW-1
+        # 12: Gen2 output switch - GenSW-2
+        # 13: Gen3 output switch - GenSW-3
+        # 14: Transmission Input swith - TranMSW-I
+        # 15: Transmission Output swith - TranMSW-O
+        # 16: Distribution Transformer switch 1 - TransD-1
+        # 17: Distribution Transformer switch 2 - TransD-2
+        # 18: Distribution Transformer switch 3 - LoadSW-3
+        # 19: Load railway switch - LoadSW-1
+        # 20: Load factory switch - LoadSW-2
         self.switchesData = [0]*21
 
     #-----------------------------------------------------------------------------

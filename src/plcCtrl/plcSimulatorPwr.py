@@ -52,6 +52,7 @@ class onlyCoilLadderLogic(modbusTcpCom.ladderLogic):
 
 #-----------------------------------------------------------------------------
     def runLadderLogic(self, regsList, coilList=None):
+        if gv.gCoilSychCount == 0: return None 
         coilsRsl = []
         if len(regsList) != 21:
             gv.gDebugPrint('runLadderLogic(): input not valid', logType=gv.LOG_WARN)
@@ -59,6 +60,7 @@ class onlyCoilLadderLogic(modbusTcpCom.ladderLogic):
         else:
             # direct connection copy the register state to coil directly:
             coilsRsl = list(regsList).copy()
+            gv.gCoilSychCount -=1
         gv.gDebugPrint('Finished calculate all coils: %s' %str(coilsRsl), logType=gv.LOG_INFO)
         return coilsRsl
         

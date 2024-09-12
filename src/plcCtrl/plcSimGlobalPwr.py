@@ -70,6 +70,8 @@ gRealWorldKey = 'powerPlc'
 gInterval = float(CONFIG_DICT['CLK_INT'])
 gModBusIP = (CONFIG_DICT['MD_BUS_IP'], int(CONFIG_DICT['MD_BUS_PORT']))
 
+gCoilSychCount = 1
+
 def gDebugPrint(msg, prt=True, logType=None):
     if prt: print(msg)
     if logType == LOG_WARN:

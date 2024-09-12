@@ -24,7 +24,6 @@ import powerGridAgent as agent
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 
-
 class powerGridPWMapMgr(object):
     """ Map manager to init/control differet elements state on the map."""
 
@@ -248,7 +247,7 @@ class powerGridPWMapMgr(object):
         parm = [
             {'id': 'Transformer-01',
              'type': 'Trans',
-             'name': 'DC-AC-StepUp-Transformer',
+             'name': 'DC-AC-StepUp-Transformer1',
              'pos': (200, 450),
              'tgtpos': [(300, 450), (420, 450), (420, 480), (800, 480)],
              'pwrstate': 0,
@@ -260,7 +259,7 @@ class powerGridPWMapMgr(object):
 
             {'id': 'Transformer-02',
              'type': 'Trans',
-             'name': 'AC-AC-StepUp-Transformer',
+             'name': 'AC-AC-StepUp-Transformer2',
              'pos': (500, 380),
              'tgtpos': [(360, 380), (360, 420), (800, 420)],
              'pwrstate': 1,
@@ -272,7 +271,7 @@ class powerGridPWMapMgr(object):
 
             {'id': 'Transformer-03',
              'type': 'Trans',
-             'name': 'AC-AC-StepUp-Transformer',
+             'name': 'AC-AC-StepUp-Transformer3',
              'pos': (550, 650),
              'tgtpos': [(650, 650), (800, 650), (800, 450)],
              'pwrstate': 0,

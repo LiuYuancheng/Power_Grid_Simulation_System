@@ -35,6 +35,13 @@ class PanelMap(wx.Panel):
         self._loadLabelsImg()
         # Paint the map
         self.Bind(wx.EVT_PAINT, self.onPaint)
+        self.Bind(wx.EVT_LEFT_DOWN, self.onLeftDown)
+        # Added the item control pop up manual:
+        self.popupmenu = wx.Menu()
+        self.switchOnPop = self.popupmenu.Append(-1, 'Turn [ON]')
+        self.Bind(wx.EVT_MENU, self.onPopupItemSelected, self.switchOnPop)
+        self.switchOffPop = self.popupmenu.Append(-1, 'Turn [OFF]')
+        self.Bind(wx.EVT_MENU, self.onPopupItemSelected, self.switchOffPop)
         self.SetDoubleBuffered(True)  # Set the panel double buffer to void the panel flash during update.
 
 #-----------------------------------------------------------------------------
@@ -300,6 +307,23 @@ class PanelMap(wx.Panel):
         #self._drawSignals(dc)
         #self._drawSensors(dc)
         #self._drawStations(dc)
+
+    def onLeftDown(self, event):
+        pos = event.GetPosition()
+        wxPointTuple = pos.Get()
+        if gv.iMapMgr: 
+            rst = gv.iMapMgr.checkSelected((wxPointTuple[0], wxPointTuple[1]))
+            if rst: 
+                self.updateDisplay()
+                self.PopupMenu(self.popupmenu, pos)
+
+    def onPopupItemSelected(self, event):
+        item = self.popupmenu.FindItemById(event.GetId())
+        text = item.GetItemLabel()
+        state = text == 'Turn [ON]'
+        idx = gv.iMapMgr.getSelectedPlcCoilIdx()
+        if not idx is None :
+            gv.idataMgr.setPlcCoilsData('PLC-00', int(idx), state)
 
 #-----------------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):

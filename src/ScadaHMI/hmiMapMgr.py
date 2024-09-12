@@ -66,6 +66,13 @@ class AgentTarget(object):
     def setOutState(self, state):
         self.outState = state
 
+    def checkSelect(self, pos):
+        """ Check if the target is selected by mouse click. """
+        if self.pos[0] -self.size[0]//2 <= pos[0] <= self.pos[0] + self.size[0]//2:
+            if self.pos[1]-self.size[1]//2< pos[1] <= self.pos[1] + self.size[1]//2:
+                return True
+        return False
+
 
 class AgentBus(object):
 
@@ -125,9 +132,57 @@ class MapMgr(object):
         self._initLoadSW()
         self.loads = []
         self._initLoads()
-
+        
+        self.plcCoilItemList = [
+            'GenSW-4',
+            'GenSW-5',
+            'TransSW-2', 
+            'TransSW-3', 
+            'TransSW-1',
+            'Motor-1',
+            'Motor-2',
+            'Motor-3',
+            'MotorSW-1',
+            'MotorSW-2',
+            'MotorSW-3',
+            'GenSW-1',
+            'GenSW-2',
+            'GenSW-3',
+            'TranMSW-I',
+            'TranMSW-O',
+            'TransD-1',
+            'TransD-2',
+            'LoadSW-3',
+            'LoadSW-1',
+            'LoadSW-2'
+        ]
         self.selectedID = None
 
+    #-----------------------------------------------------------------------------
+    def checkSelected(self, clickPos):
+        """ Check if the click position is in the range of the element. """
+        for tgt in self.motors:
+            if tgt.checkSelect(clickPos):
+                self.selectedID = tgt.getID()
+                return True
+        for tgt in self.motorSw:
+            if tgt.checkSelect(clickPos):
+                self.selectedID = tgt.getID()
+                return True
+        for tgt in self.generatorSw:
+            if tgt.checkSelect(clickPos):
+                self.selectedID = tgt.getID()
+                return True
+        for tgt in self.transSw:
+            if tgt.checkSelect(clickPos):
+                self.selectedID = tgt.getID()
+                return True
+        for tgt in self.loadSw:
+            if tgt.checkSelect(clickPos):
+                self.selectedID = tgt.getID()
+                return True
+        self.selectedID = None 
+        return False 
 
     def setItemsPwrState(self, registList):
         motorState = registList[5:8]
@@ -636,3 +691,10 @@ class MapMgr(object):
 
     def getSelectedID(self):
         return self.selectedID
+    
+    def getSelectedPlcCoilIdx(self):
+        if self.selectedID is None: return None
+        print(self.selectedID)
+        if self.selectedID in self.plcCoilItemList:
+            return self.plcCoilItemList.index(self.selectedID)
+        return None
