@@ -2,20 +2,18 @@
 #-----------------------------------------------------------------------------
 # Name:        PowerGridPWRun.py
 #
-# Purpose:     This module is the main wx-frame for the metro railway and signal
-#              sysetm emulator.
+# Purpose:     This module is the main wx-frame for the power grid system's 
+#              physical world simulation.
 #
 # Author:      Yuancheng Liu
 #
-# Version:     v0.1.2
-# Created:     2023/05/26
-# Copyright:   Copyright (c) 2023 Singapore National Cybersecurity R&D Lab LiuYuancheng
+# Version:     v0.0.2
+# Created:     2024/07/26
+# Copyright:   Copyright (c) 2024 Liu Yuancheng
 # License:     MIT License 
 #-----------------------------------------------------------------------------
 
-import os 
 import time
-import json
 
 import wx
 import powerGridPWGlobal as gv
@@ -25,6 +23,13 @@ import powerGridPWMapMgr as mapMgr
 import powerGridPWDataMgr as dm
 
 FRAME_SIZE = (1820, 1030)
+HELP_MSG="""
+If there is any bug, please contact:
+ - Author:      Yuancheng Liu 
+ - Email:       liu_yuan_cheng@hotmail.com 
+ - Created:     2024/08/02 
+ - GitHub Link: https://github.com/LiuYuancheng/Power_Grid_Simulation_System
+"""
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -53,31 +58,30 @@ class UIFrame(wx.Frame):
         # Define the data manager parallel thread.
         gv.iDataMgr = dm.DataManager(self)
         gv.iDataMgr.start()
-
+        # Init the UI update parameters
         self.lastPeriodicTime = time.time()
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.periodic)
         self.timer.Start(gv.PERIODIC)
         self.Bind(wx.EVT_CLOSE, self.onClose)
-        gv.gDebugPrint("Metro-System real world main frame inited.", logType=gv.LOG_INFO)
+        gv.gDebugPrint("Power Grid System  Physical World Simulation main frame inited.", 
+                       logType=gv.LOG_INFO)
 
+    #-----------------------------------------------------------------------------
     def _initGlobals(self):
         """ Init the global variables """
         gv.iMapMgr = mapMgr.powerGridPWMapMgr(self)
 
-
-#--UIFrame---------------------------------------------------------------------
+    #--UIFrame---------------------------------------------------------------------
     def _buildMenuBar(self):
         menubar = wx.MenuBar()  # Creat the function menu bar.
         # Add the config menu
-        
         # load scenario
         configMenu = wx.Menu()
         scenarioItem = wx.MenuItem(configMenu, 100, text = "Load Scenario",kind = wx.ITEM_NORMAL)
         configMenu.Append(scenarioItem)
         #self.Bind(wx.EVT_MENU, self.onLoadScenario, scenarioItem)
         menubar.Append(configMenu, '&Config')
-
         # Add the about menu.
         helpMenu = wx.Menu()
         aboutItem = wx.MenuItem(helpMenu, 200,text = "Help", kind = wx.ITEM_NORMAL)
@@ -86,7 +90,7 @@ class UIFrame(wx.Frame):
         menubar.Append(helpMenu, '&About')
         self.SetMenuBar(menubar)
 
-#--UIFrame---------------------------------------------------------------------
+    #--UIFrame---------------------------------------------------------------------
     def _buidUISizer(self):
         """ Build the main UI Sizer. """
         flagsL = wx.LEFT
@@ -107,7 +111,6 @@ class UIFrame(wx.Frame):
         mSizer.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 900),
                                  style=wx.LI_VERTICAL), flag=flagsL, border=2)
         mSizer.AddSpacer(10)
-
         gv.iCtrlPanel = pnlCtrl.PanelCtrl(self)
         mSizer.Add(gv.iCtrlPanel, flag=flagsL, border=2)
         return mSizer
@@ -127,12 +130,7 @@ class UIFrame(wx.Frame):
 #-----------------------------------------------------------------------------
     def onHelp(self, event):
         """ Pop-up the Help information window. """
-        wx.MessageBox(' If there is any bug, please contact: \n\n \
-                        Author:      Yuancheng Liu \n \
-                        Email:       liu_yuan_cheng@hotmail.com \n \
-                        Created:     2024/06/24 \n \
-                        GitHub Link: https://github.com/LiuYuancheng/Metro_emulator \n', 
-                    'Help', wx.OK)
+        wx.MessageBox(HELP_MSG, 'Help', wx.OK)
 
 #-----------------------------------------------------------------------------
     def onClose(self, evt):
