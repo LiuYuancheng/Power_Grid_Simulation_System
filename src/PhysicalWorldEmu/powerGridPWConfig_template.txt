@@ -1,0 +1,25 @@
+# This is the config file template for the module <MetroEmuRun.py>
+# Setup the paramter with below format (every line follow <key>:<val> format, the
+# key can not be changed):
+
+#-----------------------------------------------------------------------------
+# Config section 00: Basic general parameter config.
+
+# Test mode:
+# True: use the real word internal logic to simulator the control logic. 
+# False: connect to PLC let plc control the signals 
+TEST_MD:True
+
+#-----------------------------------------------------------------------------
+# define UI title name 
+UI_TITLE:2D Physical Power Grid System Simulator
+
+# Init the dataManager port for PLC to fetch and set data. 
+UDP_PORT:3001
+
+# Init the UI update interval:
+UI_INTERVAL:0.8
+
+# Init Plc connection time out, if plc is not connect in num of seconds, the system will
+# treate it as offline
+PLC_TIMEOUT: 3

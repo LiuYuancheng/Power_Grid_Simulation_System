@@ -99,16 +99,34 @@ class PanelMap(wx.Panel):
 
         # Draw PLC and RTU Icon
         dc.SetFont(self.dcDefFont)
+        dc.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
+        plcStateDict = gv.iDataMgr.getLastPlcsConnectionState()
+        rtuStateDict = gv.iDataMgr.getLastRtusConnectionState()
+        # PLC connection state
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawRectangle(695, 715, 60, 40)
         dc.DrawBitmap(self.bitMaps['plc'], 700, 720, True)
         dc.DrawText("Power Control PLC Set", 690, 690)
-
+        timeStr, state = plcStateDict['powerPlc']
+        textColor = wx.Colour('GREEN') if state else wx.Colour('RED')
+        dc.SetTextForeground(textColor)
+        connState = 'online' if state else 'offline'
+        textStr = '- [ PLC-00, PLC-01, PLC-02 ]\n- Last Update Time:%s\n- Connection State:%s' % (timeStr, connState)
+        dc.DrawText(textStr, 765, 710)
+        # Rtu connection state
+        dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawRectangle(695, 815, 60, 40)
         dc.DrawBitmap(self.bitMaps['rtu'], 700, 820, True)
         dc.DrawText("Power Monitor RTU Set", 690, 790)
+        timeStr, state = rtuStateDict['powerRtu']
+        textColor = wx.Colour('GREEN') if state else wx.Colour('RED')
+        dc.SetTextForeground(textColor)
+        connState = 'online' if state else 'offline'
+        textStr = '- [ RTU-01-08 ]\n- Last Update Time:%s\n- Connection State:%s' % (timeStr, connState)
+        dc.DrawText(textStr, 765, 815)
 
         # Draw power storage
+        dc.SetTextForeground(wx.Colour("WHITE"))
         dc.SetPen(wx.Pen(wx.Colour(254, 137, 2), 3, wx.PENSTYLE_SOLID))
         dc.SetBrush(wx.Brush(wx.Colour(254, 137, 2)))
         dc.DrawLine(860, 600, 860, 400)

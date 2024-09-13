@@ -73,6 +73,8 @@ class DataManager(threading.Thread):
         # 19: Load railway switch - LoadSW-1
         # 20: Load factory switch - LoadSW-2
         self.switchesData = [0]*21
+        self.powerPlcUpdateT = 0
+        self.powerRtuUpdateT = 0
 
     #-----------------------------------------------------------------------------
     def fetchSwitchesData(self):
@@ -103,6 +105,7 @@ class DataManager(threading.Thread):
             self.switchesData[18] = transDowns[2].getSwitchState()
             self.switchesData[19] = gv.iMapMgr.getLoadRailway().getSwitchState()
             self.switchesData[20] = gv.iMapMgr.getLoadFactory().getSwitchState()
+        self.powerPlcUpdateT = time.time() 
         respDict = {'allswitch': self.switchesData.copy()}
         return json.dumps(respDict)
 
@@ -188,7 +191,24 @@ class DataManager(threading.Thread):
             'load2': load2Val.copy()
         }
         #respDict = {'rtuVal': data}
+        self.powerRtuUpdateT = time.time()
         return json.dumps(data)
+
+    #-----------------------------------------------------------------------------
+    def getLastPlcsConnectionState(self):
+        #print time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time))
+        crtTime = time.time()
+        powerPlcOnline = crtTime - self.powerPlcUpdateT < gv.gPlcTimeout
+        return {
+            'powerPlc': (time.strftime("%H:%M:%S", time.localtime(self.powerPlcUpdateT)), powerPlcOnline), 
+        }
+
+    def getLastRtusConnectionState(self):
+        crtTime = time.time()
+        powerRtuOnline = crtTime - self.powerRtuUpdateT < gv.gPlcTimeout
+        return {
+            'powerRtu': (time.strftime("%H:%M:%S", time.localtime(self.powerRtuUpdateT)), powerRtuOnline), 
+        }
 
     #-----------------------------------------------------------------------------
     def setRealWorldItemState(self, idx, val):

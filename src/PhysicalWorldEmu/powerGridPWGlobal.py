@@ -53,7 +53,8 @@ PERIODIC = 300      # update the main in every 300ms
 
 #------<IMAGES PATH>-------------------------------------------------------------
 IMG_FD = os.path.join(dirpath, 'img')
-ICO_PATH = os.path.join(IMG_FD, "metro.ico")
+
+UDP_PORT = 3000
 
 # Init the log type parameters.
 DEBUG_FLG   = False
@@ -83,9 +84,12 @@ UI_TITLE = CONFIG_DICT['UI_TITLE']
 # main frame update rate 0.5 sec.
 gUpdateRate = float(CONFIG_DICT['UI_INTERVAL']) if float(CONFIG_DICT['UI_INTERVAL']) > 0 else 0.5
 gUDPPort = int(CONFIG_DICT['UDP_PORT']) if 'UDP_PORT' in CONFIG_DICT.keys() else UDP_PORT
+gPlcTimeout = int(CONFIG_DICT['PLC_TIMEOUT'])
+
 
 #-------<GLOBAL PARAMTERS>-----------------------------------------------------
 iMapPanel = None
 iCtrlPanel = None
+iDataMgr = None
 iMapMgr = None      # map manager.
 iMainFrame = None
