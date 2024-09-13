@@ -9,4 +9,4 @@ if %errorlevel% neq 0 (
 )
 
 REM Run the Python script
-call rtuSimulatorTrain.py
+call rtuSimulatorPower.py

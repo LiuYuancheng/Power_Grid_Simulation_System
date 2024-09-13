@@ -14,6 +14,7 @@
 
 import wx
 import os
+import wx.gizmos as gizmos
 
 import scadaGobal as gv
 
@@ -169,6 +170,156 @@ class PanelPLC(wx.Panel):
             if plcdata:
                 self.updateHoldingRegs(plcdata[0])
                 self.updateCoils(plcdata[1])
+
+#--PanelPLC--------------------------------------------------------------------
+    def updateDisplay(self, updateFlag=None):
+        """ Set/Update the display: if called as updateDisplay() the function will 
+            update the panel, if called as updateDisplay(updateFlag=?) the function
+            will set the self update flag.
+        """
+        self.Refresh(False)
+
+
+class PanelDataDisplay(wx.Panel):
+    """ PLC panel UI to show PLC input feedback state and the relay connected 
+        to the related output pin.
+    """
+    def __init__(self, parent):
+        """ Init the panel."""
+        wx.Panel.__init__(self, parent)
+        self.SetBackgroundColour(wx.Colour(200, 200, 200))
+        self.dataleds = []
+        self.SetSizer(self.buidUISizer())
+
+    def _addTitleToGridSizer(self, sizer, title, flag):
+        title = wx.StaticText(self, -1, title)
+        title.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+        sizer.Add(title, 0, flag)
+        sizer.AddSpacer(10)
+
+    def _addDisplayLed(self, sizer, name, flag):
+        sizer.Add(wx.StaticText(self, -1, str(name)), 0, flag)
+        dataled = gizmos.LEDNumberCtrl(self, -1, size=(70, 30), style=gizmos.LED_ALIGN_CENTER)
+        dataled.SetValue('0000')
+        self.dataleds.append(dataled)
+        sizer.Add(dataled)
+
+    def updateLedData(self):
+        if gv.idataMgr:
+            dataDict = gv.idataMgr.getAllRtuDataDict()
+            self.dataleds[0].SetValue(str(dataDict['solar'][0]))
+            self.dataleds[1].SetValue(str(dataDict['solar'][1]))
+            self.dataleds[2].SetValue(str(dataDict['solar'][2]))
+            self.dataleds[3].SetValue(str(dataDict['solar'][3]))
+
+            self.dataleds[4].SetValue(str(dataDict['wind'][0]))
+            self.dataleds[5].SetValue(str(dataDict['wind'][1]))
+            self.dataleds[6].SetValue(str(dataDict['wind'][2]))
+            self.dataleds[7].SetValue(str(dataDict['wind'][3]))
+
+            self.dataleds[8].SetValue(str(dataDict['load1'][0]))
+            self.dataleds[9].SetValue(str(dataDict['load1'][1]))
+
+            self.dataleds[10].SetValue(str(dataDict['gen1'][0]))
+            self.dataleds[11].SetValue(str(dataDict['gen1'][1]))
+            self.dataleds[12].SetValue(str(dataDict['gen1'][2]))
+
+            self.dataleds[13].SetValue(str(dataDict['gen2'][0]))
+            self.dataleds[14].SetValue(str(dataDict['gen2'][1]))
+            self.dataleds[15].SetValue(str(dataDict['gen2'][2]))
+
+            self.dataleds[16].SetValue(str(dataDict['gen3'][0]))
+            self.dataleds[17].SetValue(str(dataDict['gen3'][1]))
+            self.dataleds[18].SetValue(str(dataDict['gen3'][2]))
+
+            self.dataleds[19].SetValue(str(dataDict['transM'][0]))
+            self.dataleds[20].SetValue(str(dataDict['transM'][1]))
+
+            self.dataleds[21].SetValue(str(dataDict['load1'][2]))
+            self.dataleds[22].SetValue(str(dataDict['load1'][3]))
+            self.dataleds[23].SetValue(str(dataDict['load2'][0]))
+            self.dataleds[24].SetValue(str(dataDict['load2'][1]))
+
+            self.dataleds[25].SetValue(str(dataDict['load2'][0]))
+            self.dataleds[26].SetValue(str(dataDict['load2'][1]))
+
+    def buidUISizer(self):
+        """ Build the UI layout."""
+        flagsL = wx.LEFT
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        lSizer = self._buildLeftUISizer()
+        sizer.Add(lSizer, 0, flagsL, 5)
+        sizer.AddSpacer(5)
+        rSizer = self._buildRightUISizer()
+        sizer.Add(rSizer, 0, flagsL, 5)
+        return sizer
+
+    def _buildLeftUISizer(self):
+        """ Build the UI layout."""
+        flagsL = wx.LEFT | wx.ALIGN_CENTER_VERTICAL
+        sizer = wx.GridSizer(19, 2, 2, 2)
+        self._addTitleToGridSizer(sizer, 'Solar Panel', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[DC-V]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transformer2', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Wind Turbine', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transformer3', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transformer1', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Generator1', flagsL)
+        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+
+        return sizer
+
+    def _buildRightUISizer(self):
+        """ Build the UI layout."""
+        flagsL = wx.LEFT | wx.ALIGN_CENTER_VERTICAL
+        sizer = wx.GridSizer(19, 2, 2, 2)
+        self._addTitleToGridSizer(sizer, 'Generator2', flagsL)
+        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Generator3', flagsL)
+        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transmission', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Loads', flagsL)
+        self._addDisplayLed(sizer, 'lvl0-Vol[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'lvl0-Crt[A]: ' ,flagsL)
+
+        self._addDisplayLed(sizer, 'lvl1-Vol[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'lvl1-Crt[A]: ' ,flagsL)
+
+        self._addDisplayLed(sizer, 'lvl2-Vol[V]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'lvl2-Crt[A]: ' ,flagsL)
+
+        return sizer
+
+    def periodic(self, now):
+        """ Periodic function called by the timer."""
+        self.updateLedData()
+        self.updateDisplay()
 
 #--PanelPLC--------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):

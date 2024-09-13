@@ -171,9 +171,19 @@ class UIFrame(wx.Frame):
         label.SetFont(font)
         mSizer.Add(label, flag=flagsL, border=2)
         mSizer.AddSpacer(10)
+
+        hbox0 = wx.BoxSizer(wx.HORIZONTAL)
         gv.iMapPanel = pnlMap.PanelMap(self)
-        mSizer.Add(gv.iMapPanel, flag=wx.LEFT, border=2)
-        mSizer.AddSpacer(10)
+        hbox0.Add(gv.iMapPanel, flag=wx.LEFT, border=2)
+        hbox0.AddSpacer(10)
+        hbox0.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 600),
+                                style=wx.LI_VERTICAL), flag=flagsL, border=5)
+        hbox0.AddSpacer(10)
+        # Add the PLC display panels
+        gv.iDataDisPanel = pnlFunction.PanelDataDisplay(self)
+        hbox0.Add(gv.iDataDisPanel, flag=wx.LEFT, border=2)
+        mSizer.Add(hbox0, flag=flagsL, border=2)
+        mSizer.AddSpacer(5)
         mSizer.Add(wx.StaticLine(self, wx.ID_ANY, size=(1790, -1),
                                 style=wx.LI_HORIZONTAL), flag=flagsL, border=5)
         mSizer.AddSpacer(5)
@@ -225,7 +235,10 @@ class UIFrame(wx.Frame):
                 if gv.idataMgr: gv.idataMgr.periodic(now)
                 self.updatePlcConIndicator()
                 self.updatePlcPanels()
+                self.updateMapComponents()
+                
             gv.iMapPanel.periodic(now)
+            gv.iDataDisPanel.periodic(now)
 
 #-----------------------------------------------------------------------------
     def updatePlcConIndicator(self):
@@ -254,7 +267,7 @@ class UIFrame(wx.Frame):
             self.plcPnls[key].updateDisplay()
 
 #-----------------------------------------------------------------------------
-    def updateMapJunctionData(self):
+    def updateMapComponents(self):
         if gv.idataMgr is None: return False
         # update all the map junction sensor and signals
         signalTgtPlcID = 'PLC-00'

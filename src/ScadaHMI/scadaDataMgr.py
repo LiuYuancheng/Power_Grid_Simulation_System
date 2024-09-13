@@ -18,6 +18,8 @@ from collections import OrderedDict
 
 import scadaGobal as gv
 import modbusTcpCom
+import snap7Comm
+from snap7Comm import BOOL_TYPE, INT_TYPE, REAL_TYPE
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -44,6 +46,31 @@ class DataManager(object):
                 self.plcConnectionState[key] = False
             self.regsDict[key] = []
             self.coilsDict[key] = []
+
+        # Init the RTU client
+        self.rtuClient = snap7Comm.s7CommClient(gv.RTU_IP, rtuPort=gv.RTU_PORT, 
+                                                snapLibPath=gv.gS7snapDllPath)
+        self.rtuConnectionState = self.rtuClient.checkConn()
+        self.regsStateRW = OrderedDict()
+        self.regsStateRW['solar'] = 1
+        self.regsStateRW['wind'] = 2
+        self.regsStateRW['gen1'] = 3
+        self.regsStateRW['gen2'] = 4
+        self.regsStateRW['gen3'] = 5
+        self.regsStateRW['transM'] = 6
+        self.regsStateRW['load1'] = 7
+        self.regsStateRW['load2'] = 8
+        
+        self.rtuDataDict = {
+            'solar': [0, 0, 0, 0],
+            'wind': [0, 0, 0, 0],
+            'gen1': [0, 0, 0, 0],
+            'gen2': [0, 0, 0, 0],
+            'gen3': [0, 0, 0, 0],
+            'transM': [0, 0, 0, 0],
+            'load1': [0, 0, 0, 0],
+            'load2': [0, 0, 0, 0]
+        }
         gv.gDebugPrint('ScadaHMI dataMgr inited', logType=gv.LOG_INFO)
 
     #-----------------------------------------------------------------------------
@@ -59,6 +86,7 @@ class DataManager(object):
                 self.plcConnectionState[key] = False
             else:
                 self.plcConnectionState[key] = True
+        self.fetchRTUdata()
 
     #-----------------------------------------------------------------------------
     # define all the get() function here.
@@ -94,6 +122,19 @@ class DataManager(object):
                            logType=gv.LOG_INFO)
             self.plcClients[plcid].setCoilsBit(idx, val)
             time.sleep(0.1)
+
+    #-----------------------------------------------------------------------------
+    def fetchRTUdata(self):
+        for key in self.regsStateRW.keys():
+            memoryIdx = self.regsStateRW[key]
+            rtuDataList = self.rtuClient.readAddressVal(memoryIdx, dataIdxList = (0, 2, 4, 6), 
+                                                        dataTypeList=[INT_TYPE, INT_TYPE, INT_TYPE, INT_TYPE])
+            self.rtuDataDict[key] = rtuDataList.copy()
+        print(self.rtuDataDict)
+
+    def getAllRtuDataDict(self):
+        return self.rtuDataDict
+
 
     def stop(self):
         for client in self.plcClients.values():

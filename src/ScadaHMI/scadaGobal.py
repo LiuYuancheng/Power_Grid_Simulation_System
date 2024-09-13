@@ -19,6 +19,7 @@ For good coding practice, follow the following naming convention:
 """
 
 import os, sys
+import platform
 from collections import OrderedDict
 
 print("Current working directory is : %s" % os.getcwd())
@@ -46,6 +47,11 @@ for topdir in TOPDIRS:
 
 import Log
 Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLogsUnderDate=True)
+
+
+# Set the S7comm dll lib
+gS7snapDllPath = os.path.join(dirpath, 'snap7.dll') if platform.system() == 'Windows' else None
+
 
 # Init the log type parameters.
 DEBUG_FLG   = False
@@ -133,10 +139,14 @@ gWeStationFile = os.path.join(DIR_PATH, CONFIG_DIR_NAME, CONFIG_DICT['WE_STATION
 gNsStationFile = os.path.join(DIR_PATH, CONFIG_DIR_NAME, CONFIG_DICT['NC_STATION_CFG'])
 gCcStationFile = os.path.join(DIR_PATH, CONFIG_DIR_NAME, CONFIG_DICT['CC_STATION_CFG'])
 
+RTU_ID = CONFIG_DICT['RTU_ID']
+RTU_IP = CONFIG_DICT['RTU_IP']
+RTU_PORT = int(CONFIG_DICT['RTU_PORT'])
 
 #-------<GLOBAL PARAMTERS>-----------------------------------------------------
 iMainFrame = None   # UI MainFrame.
 iCtrlPanel = None   # UI function control panel.
+iDataDisPanel = None
 iMapPanel = None    # UI map display panel
 iMapMgr = None
 idataMgr = None
