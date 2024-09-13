@@ -6,9 +6,9 @@
 #              
 # Author:      Yuancheng Liu
 #
-# Created:     2010/08/26
-# Version:     v0.1.2
-# Copyright:   Copyright (c) 2023 Singapore National Cybersecurity R&D Lab LiuYuancheng
+# Created:     2025/08/26
+# Version:     v0.0.2
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 """
@@ -84,6 +84,4 @@ def gDebugPrint(msg, prt=True, logType=None):
         Log.info(msg)
 
 #-------<GLOBAL PARAMTERS>-----------------------------------------------------
-iMBhandler = None   # modbus TCP data handler.
-iMBservice = None   # modbus TCP service
 iLadderLogic = None

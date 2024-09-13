@@ -1,23 +1,31 @@
 #!/usr/bin/python
 #-----------------------------------------------------------------------------
-# Name:        rtuSimulatorTrain.py
+# Name:        rtuSimulatorPower.py
 #
 # Purpose:     A simple rtu simulation module to collect the sensor data from 
-#              real-world emulation App via UDP (to simulate the eletrical signals 
-#              change) and handle SCADA system S7COmm request.
+#              power grid physical real-world emulation App via UDP (to simulate 
+#              the eletrical signals change) and handle SCADA system S7COmm request.
 #                       
 # Author:      Yuancheng Liu
 #
-# Created:     2024/04/05
-# Version:     v0.1.4
+# Created:     2024/08/05
+# Version:     v0.0.2
 # Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 """ Program design:
         We want to create a RTU simulator which can simulate a on Train RTU to 
-        collect 10 trains's 40 sensor data includes train speed, fron train 
-        collision sensor state, train voltage, train current and send to the train 
-        control HMI via S7comm protocol.
+        collect 32 power grid data includes motor RPM, generator output voltage 
+        and currents end to the power system control HMI via S7comm protocol.
+        The RTU data dict:
+        'solar':[solarGen-Volt, solarGen-Crt, solar-Transform1-Volt, solar-Transform1-Crt],
+        'wind': [windGen-Volt, windGen-Crt, wind-Transform2-Volt, wind-Transform2-Crt],
+        'gen1': [motor1-RPM, gen1-Volt, gen1-Crt, 0],
+        'gen2': [motor2-RPM, gen2-Volt, gen2-Crt, 0],
+        'gen3': [motor3-RPM, gen3-Volt, gen3-Crt, 0],
+        'transM': [substation-Volt, substation-Crt, transmission-Volt, transmission-Crt],
+        'load1': [transform3-Volt, transform3-Crt, stepDownTF1-volt, stepDownTF1-Crt],
+        'load2': [stepDownTF2-volt, stepDownTF2-Crt, stepDownTF3-volt, stepDownTF3-Crt]
 """
 
 from collections import OrderedDict
@@ -25,7 +33,7 @@ import rtuSimGlobalPower as gv
 
 import snap7Comm
 import rtuSimulator
-from snap7Comm import BOOL_TYPE, INT_TYPE, REAL_TYPE
+from snap7Comm import INT_TYPE
         
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -83,8 +91,8 @@ class trainPowerRtu(rtuSimulator.rtuSimuInterface):
 def main():
     gv.gDebugPrint("Start Init the RTU: %s" %str(gv.RTU_NAME), logType=gv.LOG_INFO)
     addressInfoDict = {
-        'hostaddress': gv.gS7serverIP,
-        'realworld': gv.gRealWorldIP,
+        'hostaddress':  gv.gS7serverIP,
+        'realworld':    gv.gRealWorldIP,
     }
     rtu = trainPowerRtu(None, gv.RTU_NAME, addressInfoDict,
                         dllPath=gv.gS7snapDllPath, updateInt=gv.gInterval)

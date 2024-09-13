@@ -24,9 +24,9 @@ import platform
 print("Current working directory is : %s" % os.getcwd())
 DIR_PATH = dirpath = os.path.dirname(os.path.abspath(__file__))
 print("Current source code location : %s" % dirpath)
-APP_NAME = ('rtuSimulator', 'TrainRtu')
+APP_NAME = ('rtuSimulator', 'PowerRtu')
 
-TOPDIRS = ['src', 'rail']
+TOPDIRS = ['src']
 LIBDIR = 'lib'
 CONFIG_FILE_NAME = 'rtuConfig.txt'
 

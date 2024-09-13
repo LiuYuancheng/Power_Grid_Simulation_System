@@ -4,7 +4,7 @@
 
 #-----------------------------------------------------------------------------
 # Set the master PLC's name 
-PLC_NAME:PLC-06
+PLC_NAME:PLC-01
 
 #-----------------------------------------------------------------------------
 # Define the ip addresses allowed to read PLC state: 
@@ -26,9 +26,8 @@ RW_PORT:3001
 CLK_INT:0.9
 
 #-----------------------------------------------------------------------------
-# Define modbus TCP host IP, use 0.0.0.0 if you need to connect from out side
-# or localhost if test in signal machine
+# Define modbus TCP host IP, use 0.0.0.0 or localhost
 MD_BUS_IP:0.0.0.0
 
 # Define modbus TCP host Port, normally use 502
-MD_BUS_PORT:504
+MD_BUS_PORT:502
