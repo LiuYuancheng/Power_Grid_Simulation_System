@@ -1,0 +1,24 @@
+# This is the config file template for the module <rtuSimulatorTrain.py>
+# Setup the paramter with below format (every line follow <key>:<val> format, the
+# key can not be changed):
+
+#-----------------------------------------------------------------------------
+# Set the master RTU's name 
+RTU_NAME:RTU-01-10
+
+#-----------------------------------------------------------------------------
+# Define Realworld emulator ip
+RW_IP:127.0.0.1
+
+# Define Realworld emulator connection port
+RW_PORT:3001
+
+# Define PLC clock interval
+CLK_INT:2
+
+#-----------------------------------------------------------------------------
+# Define modbus TCP host IP, use 0.0.0.0 or localhost
+S7COMM_IP:0.0.0.0
+
+# Define modbus TCP host Port, normally use 502
+S7COMM_PORT:102

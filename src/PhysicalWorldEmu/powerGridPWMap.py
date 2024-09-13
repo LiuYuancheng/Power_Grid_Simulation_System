@@ -148,7 +148,7 @@ class PanelMap(wx.Panel):
         dataDict = item.getDataDict()
         dataStr = ''
         for key in dataDict.keys():
-            dataStr += key+':'+str(dataDict[key])+'\n'
+            dataStr += key+': '+str(dataDict[key])+'\n'
         dc.DrawText(dataStr, dataPos[0], dataPos[1])
         # Draw the label
         ItemName = str(item.getName())

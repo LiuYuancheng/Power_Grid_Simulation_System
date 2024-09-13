@@ -143,8 +143,8 @@ class AgentGenerator(AgentTarget):
         if toStr:
             valDict = {
                 'State' : str(self.dataDict['State']),
-                'Voltage': str(self.dataDict['Voltage']) + ' ' + self.pUnit[0],
-                'Current': '%.1f ' %self.dataDict['Current'] + ' ' + self.pUnit[1]
+                'Voltage': str(self.dataDict['Voltage']) + self.pUnit[0],
+                'Current': '%.1f' %self.dataDict['Current'] + self.pUnit[1]
             }
             return valDict
         else:
@@ -203,8 +203,8 @@ class AgentTransform(AgentTarget):
     def getDataDict(self, toStr=True):
         if toStr:
             valDict = {
-                'Voltage': str(self.dataDict['Voltage']) + ' ' + self.pUnit[0],
-                'Current': '%.1f ' %self.dataDict['Current'] + ' ' + self.pUnit[1]
+                'Voltage': str(self.dataDict['Voltage']) + self.pUnit[0],
+                'Current': '%.1f' %self.dataDict['Current'] + self.pUnit[1]
             }
             return valDict
         else:

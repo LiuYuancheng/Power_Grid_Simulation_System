@@ -106,11 +106,89 @@ class DataManager(threading.Thread):
         respDict = {'allswitch': self.switchesData.copy()}
         return json.dumps(respDict)
 
+    #-----------------------------------------------------------------------------
     def fetchComponentsVal(self):
-        pass
-        
 
+        # solar power val
+        solarVal = []
+        solarDict = gv.iMapMgr.getSolarPanels().getDataDict(toStr=False)
+        solarVal.append(solarDict['Voltage'])
+        solarVal.append(solarDict['Current'])
+        solarTFDict = gv.iMapMgr.getUpTF()[0].getDataDict(toStr=False)
+        solarVal.append(solarTFDict['Voltage'])
+        solarVal.append(solarTFDict['Current'])
 
+        # wind power val
+        windVal = []
+        windDict = gv.iMapMgr.getWindTurbines().getDataDict(toStr=False)
+        windVal.append(windDict['Voltage'])
+        windVal.append(windDict['Current'])
+        windTFDict = gv.iMapMgr.getUpTF()[1].getDataDict(toStr=False)
+        windVal.append(windTFDict['Voltage'])
+        windVal.append(windTFDict['Current'])
+
+        # generator 1 val
+        gen1Val = []
+        motor1Dict = gv.iMapMgr.getMotors()[0].getDataDict(toStr=False)
+        gen1Val.append(motor1Dict['RPM'])
+        gen1Dict = gv.iMapMgr.getGenerators()[0].getDataDict(toStr=False)
+        gen1Val.append(gen1Dict['Voltage'])
+        gen1Val.append(gen1Dict['Current'])
+        gen1Val.append(0)
+        # generator 2 val
+        gen2Val = []
+        motor1Dict = gv.iMapMgr.getMotors()[1].getDataDict(toStr=False)
+        gen2Val.append(motor1Dict['RPM'])
+        gen2Dict = gv.iMapMgr.getGenerators()[1].getDataDict(toStr=False)
+        gen2Val.append(gen2Dict['Voltage'])
+        gen2Val.append(gen2Dict['Current'])
+        gen2Val.append(0)
+        # genrator 3 val
+        gen3Val = []
+        motor1Dict = gv.iMapMgr.getMotors()[2].getDataDict(toStr=False)
+        gen3Val.append(motor1Dict['RPM'])
+        gen3Dict = gv.iMapMgr.getGenerators()[2].getDataDict(toStr=False)
+        gen3Val.append(gen3Dict['Voltage'])
+        gen3Val.append(gen3Dict['Current'])    
+        gen3Val.append(0)
+        # trainsmit val
+        transMVal = []
+        transMInDict = gv.iMapMgr.getSubST().getDataDict(toStr=False)
+        transMVal.append(transMInDict['Voltage'])
+        transMVal.append(transMInDict['Current'])
+        transMOutDict = gv.iMapMgr.getTransmission().getDataDict(toStr=False)
+        transMVal.append(transMOutDict['Voltage'])
+        transMVal.append(transMOutDict['Current'])
+
+        # load val
+        load1Val = []
+        loadUDict = gv.iMapMgr.getUpTF()[2].getDataDict(toStr=False)
+        load1Val.append(loadUDict['Voltage'])
+        load1Val.append(loadUDict['Current'])
+        loadD1Dict = gv.iMapMgr.getDownTF()[0].getDataDict(toStr=False)
+        load1Val.append(loadD1Dict['Voltage'])
+        load1Val.append(loadD1Dict['Current'])
+
+        load2Val = []
+        loadD2Dict = gv.iMapMgr.getDownTF()[1].getDataDict(toStr=False)
+        load2Val.append(loadD2Dict['Voltage'])
+        load2Val.append(loadD2Dict['Current'])
+        loadD3Dict = gv.iMapMgr.getUpTF()[2].getDataDict(toStr=False)
+        load2Val.append(loadD3Dict['Voltage'])
+        load2Val.append(loadD3Dict['Current'])
+
+        data = {
+            'solar': solarVal.copy(),
+            'wind': windVal.copy(),
+            'gen1': gen1Val.copy(),
+            'gen2': gen2Val.copy(),
+            'gen3': gen3Val.copy(),
+            'transM': transMVal.copy(),
+            'load1': load1Val.copy(),
+            'load2': load2Val.copy()
+        }
+        #respDict = {'rtuVal': data}
+        return json.dumps(data)
 
     #-----------------------------------------------------------------------------
     def setRealWorldItemState(self, idx, val):
@@ -198,11 +276,13 @@ class DataManager(threading.Thread):
             elif reqType == 'powerPlc':
                 respStr = self.fetchSwitchesData()
                 resp =';'.join(('REP', 'switches', respStr))
+            elif reqType == 'powerRtu':
+                respStr = self.fetchComponentsVal()
+                resp =';'.join(('REP', 'powerRtu', respStr))
         elif reqKey=='POST':
             if reqType == 'powerPlc':
                 respStr = self.setCtrlSwitch(reqJsonStr)
                 resp =';'.join(('REP', 'powerPlc', respStr))
-
             # TODO: Handle all the control request here.
         if isinstance(resp, str): resp = resp.encode('utf-8')
         #gv.gDebugPrint('reply: %s' %str(resp), logType=gv.LOG_INFO )
