@@ -82,15 +82,21 @@ class PanelMap(wx.Panel):
         dc.SetTextForeground(wx.Colour(200, 210, 200))
         dc.DrawRectangle(1200, 60, 90, 45)
         dc.DrawText("Secondary \nCustomers", 1210, 65)
-
         dc.DrawRectangle(1200, 220, 90, 45)
         dc.DrawText("Primary \nCustomers", 1210, 225)
-
         dc.DrawRectangle(1200, 400, 90, 45)
         dc.DrawText("Substation \nCustomers", 1210, 405)
-
         dc.DrawRectangle(1200, 540, 90, 45)
         dc.DrawText("Direct \nCustomers", 1210, 545)
+
+        # Draw power Info:
+        if gv.idataMgr:
+            dc.SetTextForeground(wx.Colour(156, 220, 254))
+            pwrgenVal = gv.idataMgr.getPowerGenerated()
+            dc.DrawText("Total Apparent Power : %s KW" %str(pwrgenVal), 380, 70)
+            dc.SetTextForeground(wx.Colour(255, 136, 0))
+            pwrUsgVal = gv.idataMgr.getPowerConsumed()
+            dc.DrawText("Total Consumed Power : %s KW" %str(pwrUsgVal), 380, 100)
 
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item):

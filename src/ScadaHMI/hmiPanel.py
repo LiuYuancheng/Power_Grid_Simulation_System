@@ -257,18 +257,96 @@ class PanelRTU(wx.Panel):
         self.Refresh(False)
 
     def updateSenIndicator(self):
-        resultList = []
-        for key in gv.gTrackConfig.keys():
-            trainsInfo = gv.iMapMgr.getTrainsInfo(key)
-            for data in trainsInfo:
-                resultList.append(data['fsensor'])
-        for idx, val in enumerate(resultList):
-            color = wx.Colour('GOLD') if val else wx.Colour('FOREST GREEN')
-            self.rtuSensorIndicators[idx].SetBackgroundColour(color)
+        color = wx.Colour('GOLD') if self.connectedFlg else wx.Colour('FOREST GREEN')
+        for indicator in self.rtuSensorIndicators:
+            indicator.SetBackgroundColour(color)
         self.Refresh(False)
 
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+class PanelChart(wx.Panel):
+    """ This function is used to provide lineChart wxPanel to show the history 
+        of the people counting sensor's data.
+        example: http://manwhocodes.blogspot.com/2013/04/graphics-device-interface-in-wxpython.html
+    """
+    def __init__(self, parent, recNum=30):
+        """ Init the panel."""
+        wx.Panel.__init__(self, parent, size=(380, 270))
+        self.SetBackgroundColour(wx.Colour(200, 210, 200))
+        self.recNum = recNum
+        self.updateFlag = True  # flag whether we update the diaplay area
+        # [(current num, average num, final num)]*60
+        self.data = [(0, 0)] * self.recNum
+        self.times = ('-30s', '-25s', '-20s', '-15s', '-10s', '-5s', '0s')
+        self.Bind(wx.EVT_PAINT, self.OnPaint)
 
+#--PanelChart--------------------------------------------------------------------
+    def appendData(self, numsList):
+        """ Append the data into the data hist list.
+            numsList Fmt: [(current num, average num, final num)]
+        """
+        self.data.append(numsList)
+        self.data.pop(0) # remove the first oldest recode in the list.
+    
+#--PanelChart--------------------------------------------------------------------
+    def drawBG(self, dc):
+        """ Draw the line chart background."""
+        dc.SetPen(wx.Pen('WHITE'))
+        dc.DrawRectangle(40, 50, 300, 200)
+        # DrawTitle:
+        font = dc.GetFont()
+        font.SetPointSize(8)
+        dc.SetFont(font)
+        dc.DrawText('Power History', 5, 5)
+        # Draw Axis and Grids:(Y-people count X-time)
+        dc.SetPen(wx.Pen('#D5D5D5')) #dc.SetPen(wx.Pen('#0AB1FF'))
+        for i in range(2, 22, 2):
+            dc.DrawLine(35, 250-i*10, 340, 250-i*10) # Y-Grid
+            dc.DrawText(str(i).zfill(2)+'k', 5, 250-i*10-5)  # format to ## int, such as 02
+        for i in range(len(self.times)): 
+            dc.DrawLine(i*50+40, 50, i*50+40, 250) # X-Grid
+            dc.DrawText(self.times[i], i*50+40, 255)
+        
+#--PanelChart--------------------------------------------------------------------
+    def drawFG(self, dc):
+        """ Draw the front ground data chart line."""
+        # draw item (Label, color)
+        item = (('Apparent_Pwr(KW)', '#0AB1FF'), ('Consumed_Pwr(KW)', '#CE8349'))
+        for idx in range(2):
+            (label, color) = item[idx]
+            # Draw the line sample.
+            dc.SetPen(wx.Pen(color, width=2, style=wx.PENSTYLE_SOLID))
+            dc.DrawText(label, idx*120+60, 30)
+            dc.DrawLine(40+idx*120, 35, 40+idx*120+8, 35)
+            # Create the point list and draw.
+            dc.DrawSpline([(i*10+40, 250-self.data[i][idx]*10) for i in range(self.recNum)])
 
+#--PanelChart--------------------------------------------------------------------
+    def updateDisplay(self, updateFlag=None):
+        """ Set/Update the display: if called as updateDisplay() the function will 
+            update the panel, if called as updateDisplay(updateFlag=?) the function 
+            will set the self update flag.
+        """
+        if updateFlag is None and self.updateFlag: 
+            self.Refresh(True)
+            self.Update()
+        else:
+            self.updateFlag = updateFlag
+
+#--PanelChart--------------------------------------------------------------------
+    def OnPaint(self, event):
+        """ Main panel drawing function."""
+        dc = wx.PaintDC(self)
+        # set the axis orientation area and fmt to up + right direction.
+        self.drawBG(dc)
+        self.drawFG(dc)
+
+    def periodic(self, now):
+        if gv.idataMgr:
+            pwrgenVal = int(gv.idataMgr.getPowerGenerated()/1000)
+            pwrUsgVal = int(gv.idataMgr.getPowerConsumed()/1000)
+            self.appendData((pwrgenVal,pwrUsgVal))
+            self.updateDisplay()
 
 class PanelDataDisplay(wx.Panel):
     """ PLC panel UI to show PLC input feedback state and the relay connected 

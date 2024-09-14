@@ -88,6 +88,21 @@ class DataManager(object):
                 self.plcConnectionState[key] = True
         self.fetchRTUdata()
 
+    def getPowerGenerated(self):
+        solarVal = self.rtuDataDict['solar'][2]*self.rtuDataDict['solar'][3]
+        windVal = self.rtuDataDict['wind'][2]*self.rtuDataDict['wind'][3]
+        gen1Val = self.rtuDataDict['gen1'][1]*self.rtuDataDict['gen1'][2]
+        gen2Val = self.rtuDataDict['gen2'][1]*self.rtuDataDict['gen2'][2]
+        gen3Val = self.rtuDataDict['gen3'][1]*self.rtuDataDict['gen3'][2]
+        return int(solarVal+windVal+gen1Val+gen2Val+gen3Val)
+    
+    def getPowerConsumed(self):
+        loadAgents = gv.iMapMgr.getLoads()
+        load1Val = self.rtuDataDict['load1'][2]*self.rtuDataDict['load1'][3] if loadAgents[0].getCtrlState() else 0
+        load2Val = self.rtuDataDict['load2'][0]*self.rtuDataDict['load2'][1] if loadAgents[1].getCtrlState() else 0
+        load3Val = self.rtuDataDict['load2'][2]*self.rtuDataDict['load2'][3]//1000 if loadAgents[2].getCtrlState() else 0
+        return int (load1Val+load2Val+load3Val)
+
     #-----------------------------------------------------------------------------
     # define all the get() function here.
     def getConntionState(self, plcID):
@@ -135,6 +150,8 @@ class DataManager(object):
     def getAllRtuDataDict(self):
         return self.rtuDataDict
 
+    def getRtuConnectionState(self):
+        return self.rtuConnectionState
 
     def stop(self):
         for client in self.plcClients.values():

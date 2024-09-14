@@ -213,6 +213,11 @@ class UIFrame(wx.Frame):
         self.detailTC.AppendText(" --------Log Formage: Timestamp, Event Detail-------------\n")
         vbox1.Add(self.detailTC, flag=wx.CENTER, border=10)
         hbox1.Add(vbox1, flag=flagsL, border=2)
+        hbox1.AddSpacer(10)
+        hbox1.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 400),
+                                style=wx.LI_VERTICAL), flag=flagsL, border=5)
+        gv.iHistoryPanel = pnlFunction.PanelChart(self)
+        hbox1.Add(gv.iHistoryPanel, flag=flagsL, border=2)
 
         mSizer.Add(hbox1, flag=flagsL, border=2)
         return mSizer
@@ -250,11 +255,16 @@ class UIFrame(wx.Frame):
             if not gv.TEST_MD:
                 if gv.idataMgr: gv.idataMgr.periodic(now)
                 self.updatePlcConIndicator()
+                self.updateRtuConIndicator()
                 self.updatePlcPanels()
                 self.updateMapComponents()
                 
             gv.iMapPanel.periodic(now)
             gv.iDataDisPanel.periodic(now)
+            gv.iHistoryPanel.periodic(now)
+
+            if (not gv.TEST_MD) and self.rtuOnline:
+                gv.iRtuPanel.updateSenIndicator()
 
 #-----------------------------------------------------------------------------
     def updatePlcConIndicator(self):
@@ -264,6 +274,11 @@ class UIFrame(wx.Frame):
             plcID = gv.gPlcPnlInfo[key]['tgt']
             self.plcPnls[key].setConnection(gv.idataMgr.getConntionState(plcID))
         return True
+    
+    def updateRtuConIndicator(self):
+        if gv.idataMgr is None: return False 
+        self.rtuOnline = gv.idataMgr.getRtuConnectionState()
+        gv.iRtuPanel.setConnection(self.rtuOnline)
 
 #-----------------------------------------------------------------------------
     def updatePlcPanels(self):
