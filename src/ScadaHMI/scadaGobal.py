@@ -148,5 +148,6 @@ iMainFrame = None   # UI MainFrame.
 iCtrlPanel = None   # UI function control panel.
 iDataDisPanel = None
 iMapPanel = None    # UI map display panel
+iRtuPanel = None 
 iMapMgr = None
 idataMgr = None

@@ -198,6 +198,22 @@ class UIFrame(wx.Frame):
         hbox1.AddSpacer(10)
         hbox1.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 400),
                                 style=wx.LI_VERTICAL), flag=flagsL, border=5)
+        vbox1 = wx.BoxSizer(wx.VERTICAL)
+        font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
+        label = wx.StaticText(self, label="RTU and MU [System Monitor]")
+        label.SetFont(font)
+        vbox1.Add(label, flag=flagsL, border=2)
+        vbox1.AddSpacer(10)
+        gv.iRtuPanel = pnlFunction.PanelRTU(self, gv.RTU_ID, gv.RTU_IP+ ' : ' + str(gv.RTU_PORT))
+        vbox1.Add(gv.iRtuPanel, flag=flagsL, border=2)
+        label2 = wx.StaticText(self, label="System Event Log")
+        label2.SetFont(font)
+        vbox1.Add(label2, flag=flagsL, border=2)
+        self.detailTC = wx.TextCtrl(self, size=(490, 150), style=wx.TE_MULTILINE)
+        self.detailTC.AppendText(" --------Log Formage: Timestamp, Event Detail-------------\n")
+        vbox1.Add(self.detailTC, flag=wx.CENTER, border=10)
+        hbox1.Add(vbox1, flag=flagsL, border=2)
+
         mSizer.Add(hbox1, flag=flagsL, border=2)
         return mSizer
 

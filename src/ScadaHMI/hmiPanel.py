@@ -179,6 +179,96 @@ class PanelPLC(wx.Panel):
         """
         self.Refresh(False)
 
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
+class PanelRTU(wx.Panel):
+    """_summary_
+
+    Args:
+        wx (_type_): _description_
+
+    Returns:
+        _type_: _description_
+    """
+    def __init__(self, parent, name, ipAddr, icon=None):
+        """ Init the panel."""
+        wx.Panel.__init__(self, parent)
+        self.SetBackgroundColour(wx.Colour(200, 200, 200))
+        self.rtuName = name
+        self.ipAddr = ipAddr
+        self.connectedFlg = False
+        self.rtuSensorIndicators = []
+        # Init the UI.
+        img = os.path.join(gv.IMG_FD, 'rtuIcon.png')
+        self.lbBmap = wx.Image(img, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
+        self.SetSizer(self.buidUISizer())
+
+    def buidUISizer(self):
+        """ Build the UI sizer."""
+        mSizer = wx.BoxSizer(wx.HORIZONTAL) # main sizer
+        flagsR = wx.LEFT
+        # Row idx = 0 : set the basic PLC informaiton.
+        titleSZ = self._buildTitleSizer()
+        mSizer.Add(titleSZ, flag=flagsR, border=5)
+        mSizer.AddSpacer(5)
+
+        mSizer.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 60),
+                                 style=wx.LI_VERTICAL), flag=flagsR, border=5)
+        mSizer.AddSpacer(6)
+        indicatorsSZ = self._buildFsenserSizer()
+        mSizer.Add(indicatorsSZ, flag=flagsR, border=5)
+        mSizer.AddSpacer(10)
+        return mSizer
+
+    def _buildTitleSizer(self):
+        hsizer = wx.BoxSizer(wx.HORIZONTAL)
+        flagsR = wx.LEFT
+        btnSample = wx.StaticBitmap(self, -1, self.lbBmap, (0, 0), (self.lbBmap.GetWidth(), self.lbBmap.GetHeight()))
+        hsizer.Add(btnSample, flag=flagsR, border=5)
+        vsizer = wx.BoxSizer(wx.VERTICAL)
+        self.nameLb = wx.StaticText(self, label=" RTU Name: ".ljust(15)+self.rtuName)
+        vsizer.Add(self.nameLb, flag=flagsR, border=5)
+        self.ipaddrLb = wx.StaticText( self, label=" RTU IPaddr: ".ljust(15)+self.ipAddr)
+        vsizer.Add(self.ipaddrLb, flag=flagsR, border=5)
+        hbox0 = wx.BoxSizer(wx.HORIZONTAL)
+        hbox0.Add(wx.StaticText(self, label=" Connection:".ljust(15)), flag=flagsR)
+        self.connLb = wx.StaticText(self, label=' Connected ' if self.connectedFlg else ' Unconnected ')
+        self.connLb.SetBackgroundColour( wx.Colour('GREEN') if self.connectedFlg else wx.Colour(120, 120, 120))
+        hbox0.Add(self.connLb, flag=flagsR, border=5)
+        vsizer.Add(hbox0, flag=flagsR, border=5)
+        hsizer.Add(vsizer, flag=flagsR, border=5)
+        return hsizer
+
+    def _buildFsenserSizer(self):
+        szier = wx.GridSizer(3, 3, 2, 2)
+        for idx in range(1, 9):
+            sensBt = wx.Button(self, label="IED-MU-%02d" %(idx,), size=(70, 20))
+            #sensBt.SetBackgroundColour(wx.Colour("GOLD")) 
+            self.rtuSensorIndicators.append(sensBt)
+            szier.Add(sensBt)
+        return szier
+
+    def setConnection(self, state):
+        """ Update the connection state on the UI."""
+        self.connectedFlg = state
+        self.connLb.SetLabel(' Connected ' if self.connectedFlg else ' Unconnected ')
+        self.connLb.SetBackgroundColour(
+            wx.Colour('GREEN') if self.connectedFlg else wx.Colour(120, 120, 120))
+        self.Refresh(False)
+
+    def updateSenIndicator(self):
+        resultList = []
+        for key in gv.gTrackConfig.keys():
+            trainsInfo = gv.iMapMgr.getTrainsInfo(key)
+            for data in trainsInfo:
+                resultList.append(data['fsensor'])
+        for idx, val in enumerate(resultList):
+            color = wx.Colour('GOLD') if val else wx.Colour('FOREST GREEN')
+            self.rtuSensorIndicators[idx].SetBackgroundColour(color)
+        self.Refresh(False)
+
+
+
 
 class PanelDataDisplay(wx.Panel):
     """ PLC panel UI to show PLC input feedback state and the relay connected 
