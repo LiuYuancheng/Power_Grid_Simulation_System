@@ -134,11 +134,6 @@ gPlcPnlInfo['PLC-02'] = {'id': 'PLC-02',  'label': 'PLC-02[Slave:slot-2]',
 
 gUpdateRate = float(CONFIG_DICT['CLK_INT'])    # main frame update rate 1 sec.
 
-gStataionNameDict = {}
-gWeStationFile = os.path.join(DIR_PATH, CONFIG_DIR_NAME, CONFIG_DICT['WE_STATION_CFG'])
-gNsStationFile = os.path.join(DIR_PATH, CONFIG_DIR_NAME, CONFIG_DICT['NC_STATION_CFG'])
-gCcStationFile = os.path.join(DIR_PATH, CONFIG_DIR_NAME, CONFIG_DICT['CC_STATION_CFG'])
-
 RTU_ID = CONFIG_DICT['RTU_ID']
 RTU_IP = CONFIG_DICT['RTU_IP']
 RTU_PORT = int(CONFIG_DICT['RTU_PORT'])

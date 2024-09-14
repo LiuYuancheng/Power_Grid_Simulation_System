@@ -32,7 +32,6 @@ class PanelMap(wx.Panel):
         self.SetBackgroundColour(self.bgColor)
         self.panelSize = panelSize
         self.toggle = False
-        self._loadLabelsImg()
         # Paint the map
         self.Bind(wx.EVT_PAINT, self.onPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.onLeftDown)
@@ -43,23 +42,6 @@ class PanelMap(wx.Panel):
         self.switchOffPop = self.popupmenu.Append(-1, 'Turn [OFF]')
         self.Bind(wx.EVT_MENU, self.onPopupItemSelected, self.switchOffPop)
         self.SetDoubleBuffered(True)  # Set the panel double buffer to void the panel flash during update.
-
-#-----------------------------------------------------------------------------
-    def _loadLabelsImg(self):
-        """ Load the label image file and create the bitmap dict."""
-        self.labelDict = { # (bitmap, location)
-            'weline': [None, (70, 25)],
-            'ccline': [None, (70, 175)],
-            'nsline': [None, (1550, 335)],
-        }
-        for key in gv.gTrackConfig.keys():
-            imgName = gv.gTrackConfig[key]['icon']
-            imgPath = os.path.join(gv.IMG_FD, imgName)
-            if os.path.exists(imgPath):
-                self.labelDict[key][0] = wx.Bitmap(imgPath)
-        # Draw the current date and time
-        imgPath = os.path.join(gv.IMG_FD, 'time.png')
-        self.labelDict['timelb'] = [wx.Bitmap(imgPath), (1450, 15)]
 
     def _drawBG(self, dc):
         dc.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.BOLD))
@@ -239,68 +221,6 @@ class PanelMap(wx.Panel):
                     dc.DrawRectangle(pos[0]-4, pos[1]-4, 8, 8)
 
 #-----------------------------------------------------------------------------
-    def _drawSignals(self, dc):
-        """ Draw the signals with the State on track."""
-        dc.SetPen(self.dcDefPen)
-        dc.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
-        dc.SetTextForeground(wx.Colour('White'))
-        dc.SetBrush(wx.Brush('Green'))
-        for signals in gv.iMapMgr.getSignals().values():
-            for signalAgent in signals:
-                id = signalAgent.getID()
-                pos = signalAgent.getPos()
-                state = signalAgent.getState()
-                # draw the trigger relation line to link the sensors
-                tgOnlineStype = wx.PENSTYLE_SOLID if state else wx.PENSTYLE_LONG_DASH
-                dc.SetPen(wx.Pen('RED', width=1, style=tgOnlineStype))
-                for sensorPos in signalAgent.getTGonPos():
-                    dc.DrawLine(pos[0]-10, pos[1], sensorPos[0], sensorPos[1])
-
-                tgOfflineStype = wx.PENSTYLE_SOLID if not state else wx.PENSTYLE_LONG_DASH
-                dc.SetPen(wx.Pen('GREEN', width=1, style=tgOfflineStype))
-                for sensorPos in signalAgent.getTGoffPos():
-                    dc.DrawLine(pos[0]+10, pos[1], sensorPos[0], sensorPos[1])
-                # draw the signal sample.
-                dc.SetPen(self.dcDefPen)
-                x, y = pos[0], pos[1]
-                dc.DrawText("S-"+str(id), x, y-25)
-                color = 'RED' if state else 'GREEN'
-                dc.SetBrush(wx.Brush(color))
-                dc.DrawRectangle(x-10, y-4, 20, 8)
-
-#-----------------------------------------------------------------------------
-    def _drawStations(self, dc):
-        """ Draw the station sensor and signal state."""
-        dc.SetPen(self.dcDefPen)
-        dc.SetFont(wx.Font(11, wx.DEFAULT, wx.NORMAL, wx.BOLD))
-        for key, stations in gv.iMapMgr.getStations().items():
-            dc.SetTextForeground(gv.gTrackConfig[key]['color'])
-            for i, station in enumerate(stations):
-                id = station.getID()
-                pos = station.getPos()
-                sensorState = station.getSensorState()
-                signalState = station.getSignalState()
-                dc.SetPen(wx.Pen(gv.gTrackConfig[key]['color']))
-                lboffset = 30 if station.getlabelLayout() == gv.LAY_D else -45
-                lioffest = 25 if station.getlabelLayout() == gv.LAY_D else -25
-                dc.DrawLine(pos[0], pos[1], pos[0], pos[1]+lioffest)
-                dc.DrawText("ST[%s]:%s" % (str(i), str(id)), pos[0]-30, pos[1]+lboffset)
-                dc.SetPen(self.dcDefPen)
-                dc.SetBrush(wx.Brush('GRAY'))
-                # Draw the station sensor state
-                if sensorState:
-                    color = 'YELLOW' if self.toggle else 'BLUE'
-                    dc.SetBrush(wx.Brush(color))
-                    dc.DrawRectangle(pos[0]-5, pos[1]-5, 10, 10)
-                else:
-                    dc.DrawRectangle(pos[0]-5, pos[1]-5, 10, 10)
-                # Draw the station signal state
-                color = 'RED' if signalState else 'GREEN'
-                dc.SetPen(wx.Pen(color, width=2, style=wx.PENSTYLE_SOLID))
-                dc.SetBrush(wx.Brush(color, wx.TRANSPARENT))
-                dc.DrawRectangle(pos[0]-10, pos[1]-10, 20, 20)
-
-#-----------------------------------------------------------------------------
     def onPaint(self, event):
         """ Draw the whole panel by using the wx device context."""
         dc = wx.PaintDC(self)
@@ -308,11 +228,6 @@ class PanelMap(wx.Panel):
         self.dcDefFont = dc.GetFont()
         self._drawBG(dc)
         self._drawComponents(dc)
-        # Draw all the components
-        #self._drawRailWay(dc)
-        #self._drawSignals(dc)
-        #self._drawSensors(dc)
-        #self._drawStations(dc)
 
     def onLeftDown(self, event):
         pos = event.GetPosition()

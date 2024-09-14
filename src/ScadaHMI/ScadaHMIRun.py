@@ -2,17 +2,15 @@
 #-----------------------------------------------------------------------------
 # Name:        ScadaHMIRun.py
 #
-# Purpose:     This module is the main wx-frame for the railway tracks-junction 
-#              and station SCADA system human machine interface. It will be used 
-#              to display the real-time status of the railway junctions automated 
-#              trains protection(ATP) and station's train docking and departure 
-#              situation.
+# Purpose:     This module is the main wx-frame for the power grid SCADA system 
+#              human machine interface. It will be used by the operators to monitor
+#              the power grid status and control the circuit breakers.
 #
 # Author:      Yuancheng Liu
 #
-# Version:     v0.1.3
-# Created:     2023/06/13
-# Copyright:   Copyright (c) 2023 LiuYuancheng
+# Version:     v0.0.2
+# Created:     2024/09/03
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License    
 #-----------------------------------------------------------------------------
 
@@ -30,8 +28,8 @@ HELP_MSG="""
 If there is any bug, please contact:
  - Author:      Yuancheng Liu 
  - Email:       liu_yuan_cheng@hotmail.com 
- - Created:     2024/06/03 
- - GitHub Link: https://github.com/LiuYuancheng/Railway_IT_OT_System_Cyber_Security_Platform
+ - Created:     2024/09/03 
+ - GitHub Link: https://github.com/LiuYuancheng/Power_Grid_Simulation_System
 """
 
 #-----------------------------------------------------------------------------
@@ -43,7 +41,7 @@ class UIFrame(wx.Frame):
         """ Init the UI and parameters """
         wx.Frame.__init__(self, parent, id, title, size=FRAME_SIZE)
         self.SetBackgroundColour(wx.Colour(200, 210, 200))
-        self.SetIcon(wx.Icon(gv.ICO_PATH))
+        #self.SetIcon(wx.Icon(gv.ICO_PATH))
         self._initGlobals()
         # Build UI sizer
         self._buildMenuBar()
@@ -52,8 +50,8 @@ class UIFrame(wx.Frame):
         self.statusbar.SetStatusText('Test mode: %s' % str(gv.TEST_MD))
         # Init the local parameters:
         self.updateLock = False
-        # Set the periodic call back
         self.updatePlcConIndicator()
+        # Set the periodic call back
         self.lastPeriodicTime = time.time()
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.periodic)
@@ -63,29 +61,20 @@ class UIFrame(wx.Frame):
 #-----------------------------------------------------------------------------
     def _initGlobals(self):
         """ Init the global parameters used only by this module."""
-        gv.gTrackConfig['weline'] = {'id': 'weline',
-                                    # weline junction sensors connected to holding register idx on PLC-00/01/02
-                                    'sensorIdx': (0, 17), 'signalIdx': (0, 8), 
-                                    # weline station sensors connected to holding register idx on PLC-03/04/05
-                                    'stationSensorIdx': (0, 10), 'stationSignalIdx': (0, 10),
-                                    'color': wx.Colour(52, 169, 129), 
-                                    'icon': 'welabel.png'}
+        gv.gTrackConfig['generation'] = {'id': 'generation',
+                                    # power generation connected to holding register idx on PLC-00/01/02
+                                    'registerIdx': (0, 14), 'coilIdx': (0, 14), 
+                                    'color': wx.Colour(52, 169, 129)}
         
-        gv.gTrackConfig['nsline'] = {'id': 'nsline',
-                                    # nsline junction sensors connected to holding register idx on PLC-00/01/02
-                                    'sensorIdx': (17, 25), 'signalIdx': (8, 12),
-                                    # nsline station sensors connected to holding register idx on PLC-03/04/05
-                                    'stationSensorIdx': (10, 16), 'stationSignalIdx': (10, 16),
-                                    'color': wx.Colour(233, 0, 97), 
-                                    'icon': 'nslabel.png'}
+        gv.gTrackConfig['transmission'] = {'id': 'transmission',
+                                    # power tranmission connected to holding register idx on PLC-00/01/02
+                                    'registerIdx': (14, 16), 'coilIdx': (14, 16),
+                                    'color': wx.Colour(233, 0, 97)}
         
-        gv.gTrackConfig['ccline'] = {'id': 'ccline', 
-                                    # ccline junction sensors connected to holding register idx on PLC-00/01/02
-                                    'sensorIdx': (25, 39), 'signalIdx': (12, 19),
-                                    # ccline station sensors connected to holding register idx on PLC-03/04/05
-                                    'stationSensorIdx': (16, 22), 'stationSignalIdx': (16, 22),
-                                    'color': wx.Colour(255, 136, 0), 
-                                    'icon': 'cclabel.png'}
+        gv.gTrackConfig['distribution'] = {'id': 'distribution', 
+                                    # power distribuition connected to holding register idx on PLC-00/01/02
+                                    'registerIdx': (16, 21), 'signalIdx': (16, 21),
+                                    'color': wx.Colour(255, 136, 0)}
         # Init the display manager
         gv.iMapMgr = mapMgr.MapMgr(self)
         # Init the data manager if we are under real mode.(need to connect to PLC module.)
@@ -96,54 +85,47 @@ class UIFrame(wx.Frame):
         """ Init the plc digital in and digital out labels."""
         self.digitalInLBList = {}
         self.digitalOutLBList = {}
-        welineColor = gv.gTrackConfig['weline']['color']
-        nslineColor = gv.gTrackConfig['nsline']['color']
-        cclineColor = gv.gTrackConfig['ccline']['color']
+        genColor = gv.gTrackConfig['generation']['color']
+        transColor = gv.gTrackConfig['transmission']['color']
+        disColor = gv.gTrackConfig['distribution']['color']
         # init the PLC-00
         self.digitalInLBList['PLC-00'] = []
-        for i in range(0, 15):
-            data = {'item': 'wes'+str(i).zfill(2), 'color': welineColor}
+        for i in range(0, 8):
+            data = {'item': 'gs'+str(i).zfill(2), 'color': genColor}
             self.digitalInLBList['PLC-00'].append(data)
 
         self.digitalOutLBList['PLC-00'] = []
-        for i in range(0, 7):
-            data = {'item': 'Swe'+str(i).zfill(2), 'color': welineColor}
+        for i in range(0, 8):
+            data = {'item': 'gS'+str(i).zfill(2), 'color': genColor}
             self.digitalOutLBList['PLC-00'].append(data)
 
         # init the PLC-01
         self.digitalInLBList['PLC-01'] = []
-        for i in range(0, 2):
-            data = {'item': 'wes'+str(i+14).zfill(2), 'color': welineColor}
+        for i in range(8, 14):
+            data = {'item': 'gs'+str(i).zfill(2), 'color': genColor}
             self.digitalInLBList['PLC-01'].append(data)
-        for i in range(0, 8):
-            data = {'item': 'nss'+str(i).zfill(2), 'color': nslineColor}
-            self.digitalInLBList['PLC-01'].append(data)
-        for i in range(0, 5):
-            data = {'item': 'ccs'+str(i).zfill(2), 'color': cclineColor}
+        for i in range(14, 16):
+            data = {'item': 'ts'+str(i).zfill(2), 'color': transColor}
             self.digitalInLBList['PLC-01'].append(data)
 
         self.digitalOutLBList['PLC-01'] = []
-
-        data = {'item': 'Swe'+str(7).zfill(2), 'color': welineColor}
-        self.digitalOutLBList['PLC-01'].append(data)
-        for i in range(0, 4):
-            data = {'item': 'Sns'+str(i).zfill(2), 'color': nslineColor}
+        for i in range(8, 14):
+            data = {'item': 'gS'+str(i).zfill(2), 'color': genColor}
             self.digitalOutLBList['PLC-01'].append(data)
-        for i in range(0, 2):
-            data = {'item': 'Scc'+str(i).zfill(2), 'color': cclineColor}
+        for i in range(14, 16):
+            data = {'item': 'tS'+str(i).zfill(2), 'color': transColor}
             self.digitalOutLBList['PLC-01'].append(data)
 
         # init the PLC-02
         self.digitalInLBList['PLC-02'] = []
-        for i in range(4, 13):
-            data = {'item': 'Scc'+str(i).zfill(2), 'color': cclineColor}
+        for i in range(16, 21):
+            data = {'item': 'ds'+str(i).zfill(2), 'color': disColor}
             self.digitalInLBList['PLC-02'].append(data)
 
         self.digitalOutLBList['PLC-02'] = []
-        for i in range(2, 7):
-            data = {'item': 'Scc'+str(i).zfill(2), 'color': cclineColor}
+        for i in range(16, 21):
+            data = {'item': 'dS'+str(i).zfill(2), 'color': disColor}
             self.digitalOutLBList['PLC-02'].append(data)
-
 
 #-----------------------------------------------------------------------------
     def _buildMenuBar(self):
@@ -165,21 +147,22 @@ class UIFrame(wx.Frame):
         flagsL = wx.LEFT
         mSizer = wx.BoxSizer(wx.VERTICAL)
         mSizer.AddSpacer(5)
-        # Added the map panel.
+        # Add the title 
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         label = wx.StaticText(self, label="Power Grid SCADA System HMI ")
         label.SetFont(font)
         mSizer.Add(label, flag=flagsL, border=2)
         mSizer.AddSpacer(10)
-
+        # Row 0
         hbox0 = wx.BoxSizer(wx.HORIZONTAL)
+        # Add the map panel.
         gv.iMapPanel = pnlMap.PanelMap(self)
         hbox0.Add(gv.iMapPanel, flag=wx.LEFT, border=2)
         hbox0.AddSpacer(10)
         hbox0.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 600),
                                 style=wx.LI_VERTICAL), flag=flagsL, border=5)
         hbox0.AddSpacer(10)
-        # Add the PLC display panels
+        # Add the PLC data display panels
         gv.iDataDisPanel = pnlFunction.PanelDataDisplay(self)
         hbox0.Add(gv.iDataDisPanel, flag=wx.LEFT, border=2)
         mSizer.Add(hbox0, flag=flagsL, border=2)
@@ -187,8 +170,9 @@ class UIFrame(wx.Frame):
         mSizer.Add(wx.StaticLine(self, wx.ID_ANY, size=(1790, -1),
                                 style=wx.LI_HORIZONTAL), flag=flagsL, border=5)
         mSizer.AddSpacer(5)
-        # Add the PLC display panels
+        # Row 1
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        # Add the PLC panels
         self.plcPnls = {}
         self._initElectricalLbs()
         # junction sensor-signal plc sizer.
@@ -198,7 +182,9 @@ class UIFrame(wx.Frame):
         hbox1.AddSpacer(10)
         hbox1.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 400),
                                 style=wx.LI_VERTICAL), flag=flagsL, border=5)
+        
         vbox1 = wx.BoxSizer(wx.VERTICAL)
+        # Added the RTU Panel and the log text field.
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         label = wx.StaticText(self, label="RTU and MU [System Monitor]")
         label.SetFont(font)
@@ -216,6 +202,7 @@ class UIFrame(wx.Frame):
         hbox1.AddSpacer(10)
         hbox1.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 400),
                                 style=wx.LI_VERTICAL), flag=flagsL, border=5)
+        # Add the power system history panel
         gv.iHistoryPanel = pnlFunction.PanelChart(self)
         hbox1.Add(gv.iHistoryPanel, flag=flagsL, border=2)
 
@@ -263,24 +250,24 @@ class UIFrame(wx.Frame):
             gv.iDataDisPanel.periodic(now)
             gv.iHistoryPanel.periodic(now)
 
-            if (not gv.TEST_MD) and self.rtuOnline:
-                gv.iRtuPanel.updateSenIndicator()
-
-#-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    # All the update function when plc and rtu are connected.
+    def updateMapComponents(self):
+        if gv.idataMgr is None: return
+        # update all the map junction sensor and signals
+        signalTgtPlcID = 'PLC-00'
+        registList = gv.idataMgr.getPlcHRegsData(signalTgtPlcID, 0, 21)
+        gv.iMapMgr.setItemsPwrState(registList)
+    
+    #-----------------------------------------------------------------------------
     def updatePlcConIndicator(self):
         """ Update the PLC's state panel connection state."""
-        if gv.idataMgr is None: return False
+        if gv.idataMgr is None: return
         for key in self.plcPnls.keys():
             plcID = gv.gPlcPnlInfo[key]['tgt']
             self.plcPnls[key].setConnection(gv.idataMgr.getConntionState(plcID))
-        return True
     
-    def updateRtuConIndicator(self):
-        if gv.idataMgr is None: return False 
-        self.rtuOnline = gv.idataMgr.getRtuConnectionState()
-        gv.iRtuPanel.setConnection(self.rtuOnline)
-
-#-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
     def updatePlcPanels(self):
         if gv.idataMgr is None: return False
         # update the PLC display panel
@@ -297,20 +284,30 @@ class UIFrame(wx.Frame):
             self.plcPnls[key].updateCoils(coilsList)
             self.plcPnls[key].updateDisplay()
 
-#-----------------------------------------------------------------------------
-    def updateMapComponents(self):
-        if gv.idataMgr is None: return False
-        # update all the map junction sensor and signals
-        signalTgtPlcID = 'PLC-00'
-        registList = gv.idataMgr.getPlcHRegsData(signalTgtPlcID, 0, 21)
-        gv.iMapMgr.setItemsPwrState(registList)
+    #-----------------------------------------------------------------------------
+    def updateRtuConIndicator(self):
+        if gv.idataMgr is None: return 
+        self.rtuOnline = gv.idataMgr.getRtuConnectionState()
+        gv.iRtuPanel.setConnection(self.rtuOnline)
+        gv.iRtuPanel.updateSenIndicator()
 
-#-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
+    def updateTFDetail(self, data):
+        """ Update the data in the detail text field. Input 'None' will clear the 
+            detail information in text field.
+        """
+        if data is None:
+            self.detailTC.Clear()
+        else:
+            timeStr = time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time()))
+            self.detailTC.AppendText(" %s  -  %s \n" %(timeStr, str(data)))
+
+    #-----------------------------------------------------------------------------
     def onHelp(self, event):
         """ Pop-up the Help information window. """
         wx.MessageBox(HELP_MSG, 'Help', wx.OK)
 
-#-----------------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
     def onClose(self, evt):
         """ Pop up the confirm close dialog when the user close the UI from 'x'."""
         try:
