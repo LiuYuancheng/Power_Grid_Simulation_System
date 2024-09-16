@@ -14,6 +14,7 @@
 # License:     MIT License 
 #-----------------------------------------------------------------------------
 
+import os
 import wx
 import time
 
@@ -29,7 +30,9 @@ class PanelMap(wx.Panel):
         self.bgColor = wx.Colour(0, 0, 0)
         self.SetBackgroundColour(self.bgColor)
         self.panelSize = panelSize
+        self.bitMaps = {} # panel image bit map dict.
         self.toggle = False # display toggle flag.
+        self.bitMaps['time'] = self._loadImgFile('time.png', (30, 30))
         # Paint the map
         self.Bind(wx.EVT_PAINT, self.onPaint)
         self.Bind(wx.EVT_LEFT_DOWN, self.onLeftDown)
@@ -42,13 +45,24 @@ class PanelMap(wx.Panel):
         self.SetDoubleBuffered(True)  # Set the panel double buffer to void the panel flash during update.
 
     #-----------------------------------------------------------------------------
+    def _loadImgFile(self, filename, size):
+        """Load the image file and convert to the bitmap base on the input size value"""
+        imgPath = os.path.join(gv.IMG_FD, filename)
+        if os.path.exists(imgPath):
+            img = wx.Image(imgPath, wx.BITMAP_TYPE_ANY).Scale(size[0], size[1], wx.IMAGE_QUALITY_HIGH)
+            return img.ConvertToBitmap()
+        else:
+            gv.gDebugPrint('Error: Image file not found: %s' % imgPath, logType=gv.LOG_ERR)
+            return None
+
+    #-----------------------------------------------------------------------------
     def _drawBG(self, dc):
         """Draw the HMI background."""
         dc.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         dc.SetTextForeground(wx.Colour(200, 210, 200))
         dc.DrawText("Power Generation", 70, 20)
         dc.DrawText("Power Transmission", 530, 520)
-        dc.DrawText("Power Distribution", 900, 20)
+        dc.DrawText("Power Distribution", 700, 20)
         # Draw the power bus label
         dc.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.BOLD))
         dc.SetTextForeground(wx.Colour(255, 136, 0))
@@ -71,13 +85,22 @@ class PanelMap(wx.Panel):
         dc.DrawRectangle(1200, 540, 90, 45)
         dc.DrawText("Direct\nCustomers", 1210, 545)
         # Draw power Info:
+        pwrgenVal = 0
+        pwrUsgVal = 0
         if gv.idataMgr:
-            dc.SetTextForeground(wx.Colour(156, 220, 254))
             pwrgenVal = gv.idataMgr.getPowerGenerated()
-            dc.DrawText("Total Apparent Power : %s kW" %str(pwrgenVal), 380, 70)
-            dc.SetTextForeground(wx.Colour(255, 136, 0))
             pwrUsgVal = gv.idataMgr.getPowerConsumed()
-            dc.DrawText("Total Consumed Power : %s kW" %str(pwrUsgVal), 380, 100)
+        dc.SetTextForeground(wx.Colour(156, 220, 254))
+        dc.DrawText("Total Apparent Power : %s kW" %str(pwrgenVal), 380, 70)
+        dc.SetTextForeground(wx.Colour(255, 136, 0))
+        dc.DrawText("Total Consumed Power : %s kW" %str(pwrUsgVal), 380, 100)
+        # Draw time
+        dc.SetPen(wx.Pen(wx.Colour(200, 210, 200), 1, wx.PENSTYLE_LONG_DASH))
+        dc.SetFont(wx.Font(14, wx.DEFAULT, wx.NORMAL, wx.BOLD))
+        dc.DrawRectangle(1000, 5, 40, 40)
+        dc.DrawBitmap(self.bitMaps['time'], 1005, 10, True)
+        dc.SetTextForeground(wx.Colour('GREEN'))
+        dc.DrawText('TIME : '+time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time())), 1050, 10)
 
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item):
@@ -206,7 +229,7 @@ class PanelMap(wx.Panel):
         if idx is None : return
         if gv.idataMgr: gv.idataMgr.setPlcCoilsData('PLC-00', int(idx), state)
         itemName = gv.iMapMgr.getSelectedItemName()
-        gv.iMainFrame.updateTFDetail(itemName+' : '+text)
+        gv.iMainFrame.updateTFDetail(itemName+' : '+text) # add user control action to event log
 
     #-----------------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):

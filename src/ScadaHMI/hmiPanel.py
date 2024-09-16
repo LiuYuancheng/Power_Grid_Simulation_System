@@ -2,13 +2,15 @@
 #-----------------------------------------------------------------------------
 # Name:        hmiPanel.py
 #
-# Purpose:     This module is used to create different function panels.
+# Purpose:     This module is used to create different function panels for the 
+#              power grid SCADA HMI to display the related information and handle
+#              the user's control request.
 #
 # Author:      Yuancheng Liu
 #
-# Version:     v0.1.3
-# Created:     2023/07/12
-# Copyright:   Copyright (c) 2023 Singapore National Cybersecurity R&D Lab LiuYuancheng
+# Version:     v0.0.2
+# Created:     2024/09/12
+# Copyright:   Copyright (c) 2024LiuYuancheng
 # License:     MIT License 
 #-----------------------------------------------------------------------------
 
@@ -47,7 +49,7 @@ class PanelPLC(wx.Panel):
         self.SetSizer(self.buidUISizer())
         #self.Layout() # must call the layout if the panel size is set to fix.
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def buidUISizer(self):
         """ Build the UI and the return the wx.sizer. """
         mSizer = wx.BoxSizer(wx.VERTICAL) # main sizer
@@ -107,7 +109,7 @@ class PanelPLC(wx.Panel):
             mSizer.AddSpacer(3)
         return mSizer
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def _buildTitleSizer(self):
         hsizer = wx.BoxSizer(wx.HORIZONTAL)
         flagsR = wx.LEFT
@@ -127,7 +129,7 @@ class PanelPLC(wx.Panel):
         hsizer.Add(vsizer, flag=flagsR, border=5)
         return hsizer
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def setConnection(self, state):
         """ Update the connection state on the UI."""
         self.connectedFlg = state
@@ -136,7 +138,7 @@ class PanelPLC(wx.Panel):
             wx.Colour('GREEN') if self.connectedFlg else wx.Colour(120, 120, 120))
         self.Refresh(False)
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def updateHoldingRegs(self, regList):
         """ Update the holding register's data and UI indicator's state if there 
             is new register chagne.
@@ -149,7 +151,7 @@ class PanelPLC(wx.Panel):
                 self.gpioInLbList[idx].SetBackgroundColour(
                     wx.Colour('GREEN') if status else wx.Colour(120, 120, 120))
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def updateCoils(self, coilsList):
         """ Update the coils data and UI indicator's state if there is new coils
             state chagne.
@@ -163,7 +165,7 @@ class PanelPLC(wx.Panel):
                 self.gpioOuLbList[idx].SetBackgroundColour(
                     wx.Colour('GREEN') if status else wx.Colour(253, 253, 253))
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def updataPLCdata(self):
         if gv.idataMgr:
             plcdata =  gv.idataMgr.getPLCInfo(self.plcName)
@@ -171,7 +173,7 @@ class PanelPLC(wx.Panel):
                 self.updateHoldingRegs(plcdata[0])
                 self.updateCoils(plcdata[1])
 
-#--PanelPLC--------------------------------------------------------------------
+    #--PanelPLC--------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 
             update the panel, if called as updateDisplay(updateFlag=?) the function
@@ -182,13 +184,8 @@ class PanelPLC(wx.Panel):
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
 class PanelRTU(wx.Panel):
-    """_summary_
-
-    Args:
-        wx (_type_): _description_
-
-    Returns:
-        _type_: _description_
+    """ Panel to show the RTU connection state and the IED-MU connection to the 
+        RTU unit.
     """
     def __init__(self, parent, name, ipAddr, icon=None):
         """ Init the panel."""
@@ -203,6 +200,7 @@ class PanelRTU(wx.Panel):
         self.lbBmap = wx.Image(img, wx.BITMAP_TYPE_ANY).ConvertToBitmap()
         self.SetSizer(self.buidUISizer())
 
+    #-----------------------------------------------------------------------------
     def buidUISizer(self):
         """ Build the UI sizer."""
         mSizer = wx.BoxSizer(wx.HORIZONTAL) # main sizer
@@ -220,6 +218,7 @@ class PanelRTU(wx.Panel):
         mSizer.AddSpacer(10)
         return mSizer
 
+    #-----------------------------------------------------------------------------
     def _buildTitleSizer(self):
         hsizer = wx.BoxSizer(wx.HORIZONTAL)
         flagsR = wx.LEFT
@@ -239,6 +238,7 @@ class PanelRTU(wx.Panel):
         hsizer.Add(vsizer, flag=flagsR, border=5)
         return hsizer
 
+    #-----------------------------------------------------------------------------
     def _buildFsenserSizer(self):
         szier = wx.GridSizer(3, 3, 2, 2)
         for idx in range(1, 9):
@@ -248,6 +248,7 @@ class PanelRTU(wx.Panel):
             szier.Add(sensBt)
         return szier
 
+    #-----------------------------------------------------------------------------
     def setConnection(self, state):
         """ Update the connection state on the UI."""
         self.connectedFlg = state
@@ -256,6 +257,7 @@ class PanelRTU(wx.Panel):
             wx.Colour('GREEN') if self.connectedFlg else wx.Colour(120, 120, 120))
         self.Refresh(False)
 
+    #-----------------------------------------------------------------------------
     def updateSenIndicator(self):
         color = wx.Colour('GOLD') if self.connectedFlg else wx.Colour('FOREST GREEN')
         for indicator in self.rtuSensorIndicators:
@@ -266,8 +268,7 @@ class PanelRTU(wx.Panel):
 #-----------------------------------------------------------------------------
 class PanelChart(wx.Panel):
     """ This function is used to provide lineChart wxPanel to show the history 
-        of the people counting sensor's data.
-        example: http://manwhocodes.blogspot.com/2013/04/graphics-device-interface-in-wxpython.html
+        of the power generation and consumption. 
     """
     def __init__(self, parent, recNum=30):
         """ Init the panel."""
@@ -280,7 +281,7 @@ class PanelChart(wx.Panel):
         self.times = ('-30s', '-25s', '-20s', '-15s', '-10s', '-5s', '0s')
         self.Bind(wx.EVT_PAINT, self.OnPaint)
 
-#--PanelChart--------------------------------------------------------------------
+    #--PanelChart--------------------------------------------------------------------
     def appendData(self, numsList):
         """ Append the data into the data hist list.
             numsList Fmt: [(current num, average num, final num)]
@@ -288,7 +289,7 @@ class PanelChart(wx.Panel):
         self.data.append(numsList)
         self.data.pop(0) # remove the first oldest recode in the list.
     
-#--PanelChart--------------------------------------------------------------------
+    #--PanelChart--------------------------------------------------------------------
     def drawBG(self, dc):
         """ Draw the line chart background."""
         dc.SetPen(wx.Pen('WHITE'))
@@ -307,7 +308,7 @@ class PanelChart(wx.Panel):
             dc.DrawLine(i*50+40, 50, i*50+40, 250) # X-Grid
             dc.DrawText(self.times[i], i*50+40, 255)
         
-#--PanelChart--------------------------------------------------------------------
+    #--PanelChart--------------------------------------------------------------------
     def drawFG(self, dc):
         """ Draw the front ground data chart line."""
         # draw item (Label, color)
@@ -321,7 +322,7 @@ class PanelChart(wx.Panel):
             # Create the point list and draw.
             dc.DrawSpline([(i*10+40, 250-self.data[i][idx]*10) for i in range(self.recNum)])
 
-#--PanelChart--------------------------------------------------------------------
+    #--PanelChart--------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 
             update the panel, if called as updateDisplay(updateFlag=?) the function 
@@ -333,7 +334,7 @@ class PanelChart(wx.Panel):
         else:
             self.updateFlag = updateFlag
 
-#--PanelChart--------------------------------------------------------------------
+    #--PanelChart--------------------------------------------------------------------
     def OnPaint(self, event):
         """ Main panel drawing function."""
         dc = wx.PaintDC(self)
@@ -341,6 +342,7 @@ class PanelChart(wx.Panel):
         self.drawBG(dc)
         self.drawFG(dc)
 
+    #--PanelChart--------------------------------------------------------------------
     def periodic(self, now):
         if gv.idataMgr:
             pwrgenVal = int(gv.idataMgr.getPowerGenerated()/1000)
@@ -348,10 +350,10 @@ class PanelChart(wx.Panel):
             self.appendData((pwrgenVal,pwrUsgVal))
             self.updateDisplay()
 
+#-----------------------------------------------------------------------------
+#-----------------------------------------------------------------------------
 class PanelDataDisplay(wx.Panel):
-    """ PLC panel UI to show PLC input feedback state and the relay connected 
-        to the related output pin.
-    """
+    """  Panel to show all the RTU feedback data. """
     def __init__(self, parent):
         """ Init the panel."""
         wx.Panel.__init__(self, parent)
@@ -372,6 +374,81 @@ class PanelDataDisplay(wx.Panel):
         self.dataleds.append(dataled)
         sizer.Add(dataled)
 
+    def _buildLeftUISizer(self):
+        """ Build left colum UI layout."""
+        flagsL = wx.LEFT | wx.ALIGN_CENTER_VERTICAL
+        sizer = wx.GridSizer(19, 2, 2, 2)
+        self._addTitleToGridSizer(sizer, 'Solar Panel', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[DC-V]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transformer2', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Wind Turbine', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transformer3', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transformer1', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Generator1', flagsL)
+        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        return sizer
+
+    #-----------------------------------------------------------------------------
+    def _buildRightUISizer(self):
+        """ Build the UI layout."""
+        flagsL = wx.LEFT | wx.ALIGN_CENTER_VERTICAL
+        sizer = wx.GridSizer(19, 2, 2, 2)
+        self._addTitleToGridSizer(sizer, 'Generator2', flagsL)
+        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Generator3', flagsL)
+        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Transmission', flagsL)
+        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
+
+        self._addTitleToGridSizer(sizer, 'Loads', flagsL)
+        self._addDisplayLed(sizer, 'lvl0-Vol[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'lvl0-Crt[A]: ' ,flagsL)
+
+        self._addDisplayLed(sizer, 'lvl1-Vol[kV]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'lvl1-Crt[A]: ' ,flagsL)
+
+        self._addDisplayLed(sizer, 'lvl2-Vol[V]: ' ,flagsL)
+        self._addDisplayLed(sizer, 'lvl2-Crt[A]: ' ,flagsL)
+
+        return sizer
+
+    #-----------------------------------------------------------------------------
+    def buidUISizer(self):
+        """ Build the UI layout."""
+        flagsL = wx.LEFT
+        sizer = wx.BoxSizer(wx.HORIZONTAL)
+        lSizer = self._buildLeftUISizer()
+        sizer.Add(lSizer, 0, flagsL, 5)
+        sizer.AddSpacer(5)
+        rSizer = self._buildRightUISizer()
+        sizer.Add(rSizer, 0, flagsL, 5)
+        return sizer
+
+    #-----------------------------------------------------------------------------
     def updateLedData(self):
         if gv.idataMgr:
             dataDict = gv.idataMgr.getAllRtuDataDict()
@@ -411,85 +488,13 @@ class PanelDataDisplay(wx.Panel):
             self.dataleds[25].SetValue(str(dataDict['load2'][0]))
             self.dataleds[26].SetValue(str(dataDict['load2'][1]))
 
-    def buidUISizer(self):
-        """ Build the UI layout."""
-        flagsL = wx.LEFT
-        sizer = wx.BoxSizer(wx.HORIZONTAL)
-        lSizer = self._buildLeftUISizer()
-        sizer.Add(lSizer, 0, flagsL, 5)
-        sizer.AddSpacer(5)
-        rSizer = self._buildRightUISizer()
-        sizer.Add(rSizer, 0, flagsL, 5)
-        return sizer
-
-    def _buildLeftUISizer(self):
-        """ Build the UI layout."""
-        flagsL = wx.LEFT | wx.ALIGN_CENTER_VERTICAL
-        sizer = wx.GridSizer(19, 2, 2, 2)
-        self._addTitleToGridSizer(sizer, 'Solar Panel', flagsL)
-        self._addDisplayLed(sizer, 'Voltage[DC-V]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Transformer2', flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Wind Turbine', flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Transformer3', flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Transformer1', flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Generator1', flagsL)
-        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-
-        return sizer
-
-    def _buildRightUISizer(self):
-        """ Build the UI layout."""
-        flagsL = wx.LEFT | wx.ALIGN_CENTER_VERTICAL
-        sizer = wx.GridSizer(19, 2, 2, 2)
-        self._addTitleToGridSizer(sizer, 'Generator2', flagsL)
-        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Generator3', flagsL)
-        self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Transmission', flagsL)
-        self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
-        self._addTitleToGridSizer(sizer, 'Loads', flagsL)
-        self._addDisplayLed(sizer, 'lvl0-Vol[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'lvl0-Crt[A]: ' ,flagsL)
-
-        self._addDisplayLed(sizer, 'lvl1-Vol[kV]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'lvl1-Crt[A]: ' ,flagsL)
-
-        self._addDisplayLed(sizer, 'lvl2-Vol[V]: ' ,flagsL)
-        self._addDisplayLed(sizer, 'lvl2-Crt[A]: ' ,flagsL)
-
-        return sizer
-
+    #-----------------------------------------------------------------------------
     def periodic(self, now):
         """ Periodic function called by the timer."""
         self.updateLedData()
         self.updateDisplay()
 
-#--PanelPLC--------------------------------------------------------------------
+    #-----------------------------------------------------------------------------
     def updateDisplay(self, updateFlag=None):
         """ Set/Update the display: if called as updateDisplay() the function will 
             update the panel, if called as updateDisplay(updateFlag=?) the function
