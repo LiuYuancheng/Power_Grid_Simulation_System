@@ -6,9 +6,9 @@
 #              
 # Author:      Yuancheng Liu
 #
-# Created:     2010/08/26
-# Version:     v0.1.2
-# Copyright:   Copyright (c) 2023 LiuYuancheng
+# Created:     2024/08/26
+# Version:     v0.0.2
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 """
@@ -30,7 +30,6 @@ APP_NAME = ('ScadaSysHMI', 'scadaHMI')
 TOPDIRS = ['src']
 LIBDIR = 'lib'
 CONFIG_FILE_NAME = 'scadaHMIConfig.txt'
-CONFIG_DIR_NAME = 'configFiles'
 
 #-----------------------------------------------------------------------------
 # Init the logger:
@@ -48,10 +47,8 @@ for topdir in TOPDIRS:
 import Log
 Log.initLogger(gTopDir, 'Logs', APP_NAME[0], APP_NAME[1], historyCnt=100, fPutLogsUnderDate=True)
 
-
 # Set the S7comm dll lib
 gS7snapDllPath = os.path.join(dirpath, 'snap7.dll') if platform.system() == 'Windows' else None
-
 
 # Init the log type parameters.
 DEBUG_FLG   = False
@@ -88,22 +85,9 @@ UI_TITLE = CONFIG_DICT['UI_TITLE']
 TEST_MD = CONFIG_DICT['TEST_MD']      # test mode flag, True: the simulator will operate with control logic itself. 
 PERIODIC = 500      # update the main in every 300ms
 
-# Init the agent object type
-RAILWAY_TYPE_LINE   = 'RL'
-RAILWAY_TYPE_CYCLE  = 'RC'
-TRAIN_TYPE          = 'TR'
-LABEL_TYPE          = 'LB'
-SENSOR_TYPE         = 'SS'
-SINGAL_TYPE         = "SG"
-
-# Init the UI layout flags
-LAY_U = 0   # layout at up position  
-LAY_D = 1   # layout at down position 
-LAY_L = 2   # layout at left position
-LAY_R = 3   # layout at right position
-LAY_C = 4   # layout at center 
-LAY_H = 5   # horizontal layout
-LAY_V = 6   # vertical layout
+RTU_ID = CONFIG_DICT['RTU_ID']
+RTU_IP = CONFIG_DICT['RTU_IP']
+RTU_PORT = int(CONFIG_DICT['RTU_PORT'])
 
 #-------<GLOBAL VARIABLES (start with "g")>------------------------------------
 # VARIABLES are the built in data type.
@@ -116,7 +100,6 @@ gPowerPlcIP = CONFIG_DICT['PWR_PLC_IP']
 gPowerPlcPort = int(CONFIG_DICT['PWR_PLC_PORT'])
 gPlcInfo['PLC-00'] = {'id': gPowerPlcID, 'ipaddress': gPowerPlcIP, 'port': gPowerPlcPort, 
                       'hRegsInfo': (0, 21), 'coilsInfo': (0, 21)}
-
 
 # PLC display panel information.
 gPlcPnlInfo = OrderedDict()
@@ -134,16 +117,13 @@ gPlcPnlInfo['PLC-02'] = {'id': 'PLC-02',  'label': 'PLC-02[Slave:slot-2]',
 
 gUpdateRate = float(CONFIG_DICT['CLK_INT'])    # main frame update rate 1 sec.
 
-RTU_ID = CONFIG_DICT['RTU_ID']
-RTU_IP = CONFIG_DICT['RTU_IP']
-RTU_PORT = int(CONFIG_DICT['RTU_PORT'])
-
 #-------<GLOBAL PARAMTERS>-----------------------------------------------------
 iMainFrame = None   # UI MainFrame.
+iMapMgr = None      # Map manager.
+idataMgr = None     # data manager 
 iCtrlPanel = None   # UI function control panel.
 iDataDisPanel = None
 iMapPanel = None    # UI map display panel
 iRtuPanel = None
 iHistoryPanel = None
-iMapMgr = None
-idataMgr = None
+

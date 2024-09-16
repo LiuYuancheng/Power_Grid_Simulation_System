@@ -3,8 +3,8 @@
 # Name:        ScadaHMIRun.py
 #
 # Purpose:     This module is the main wx-frame for the power grid SCADA system 
-#              human machine interface. It will be used by the operators to monitor
-#              the power grid status and control the circuit breakers.
+#              human machine interface (HMI). It will be used by the HQ operators 
+#              to monitor the power grid status and control the circuit breakers.
 #
 # Author:      Yuancheng Liu
 #
@@ -147,7 +147,7 @@ class UIFrame(wx.Frame):
         flagsL = wx.LEFT
         mSizer = wx.BoxSizer(wx.VERTICAL)
         mSizer.AddSpacer(5)
-        # Add the title 
+        # Add the title
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         label = wx.StaticText(self, label="Power Grid SCADA System HMI ")
         label.SetFont(font)
@@ -168,21 +168,20 @@ class UIFrame(wx.Frame):
         mSizer.Add(hbox0, flag=flagsL, border=2)
         mSizer.AddSpacer(5)
         mSizer.Add(wx.StaticLine(self, wx.ID_ANY, size=(1790, -1),
-                                style=wx.LI_HORIZONTAL), flag=flagsL, border=5)
+                                 style=wx.LI_HORIZONTAL), flag=flagsL, border=5)
         mSizer.AddSpacer(5)
         # Row 1
         hbox1 = wx.BoxSizer(wx.HORIZONTAL)
         # Add the PLC panels
         self.plcPnls = {}
         self._initElectricalLbs()
-        # junction sensor-signal plc sizer.
-        signalSz = self._buildPlcPnlsSizer("PLC [Power System Control]", 
+        signalSz = self._buildPlcPnlsSizer("PLC [Power System Control]",
                                            ('PLC-00', 'PLC-01', 'PLC-02'))
         hbox1.Add(signalSz, flag=flagsL, border=2)
         hbox1.AddSpacer(10)
         hbox1.Add(wx.StaticLine(self, wx.ID_ANY, size=(-1, 400),
                                 style=wx.LI_VERTICAL), flag=flagsL, border=5)
-        
+
         vbox1 = wx.BoxSizer(wx.VERTICAL)
         # Added the RTU Panel and the log text field.
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
@@ -190,12 +189,14 @@ class UIFrame(wx.Frame):
         label.SetFont(font)
         vbox1.Add(label, flag=flagsL, border=2)
         vbox1.AddSpacer(10)
-        gv.iRtuPanel = pnlFunction.PanelRTU(self, gv.RTU_ID, gv.RTU_IP+ ' : ' + str(gv.RTU_PORT))
+        gv.iRtuPanel = pnlFunction.PanelRTU(
+            self, gv.RTU_ID, gv.RTU_IP + ' : ' + str(gv.RTU_PORT))
         vbox1.Add(gv.iRtuPanel, flag=flagsL, border=2)
         label2 = wx.StaticText(self, label="System Event Log")
         label2.SetFont(font)
         vbox1.Add(label2, flag=flagsL, border=2)
-        self.detailTC = wx.TextCtrl(self, size=(490, 150), style=wx.TE_MULTILINE)
+        self.detailTC = wx.TextCtrl(
+            self, size=(490, 150), style=wx.TE_MULTILINE)
         self.detailTC.AppendText(" --------Log Formage: Timestamp, Event Detail-------------\n")
         vbox1.Add(self.detailTC, flag=wx.CENTER, border=10)
         hbox1.Add(vbox1, flag=flagsL, border=2)
@@ -211,6 +212,7 @@ class UIFrame(wx.Frame):
 
 #-----------------------------------------------------------------------------
     def _buildPlcPnlsSizer(self, PanelTitle, panelKeySeq):
+        """ Build the PLC display panel sizer."""
         flagsL = wx.LEFT
         font = wx.Font(12, wx.DECORATIVE, wx.NORMAL, wx.BOLD)
         vSizer = wx.BoxSizer(wx.VERTICAL)
@@ -237,26 +239,24 @@ class UIFrame(wx.Frame):
         """ Call back every periodic time."""
         now = time.time()
         if (not self.updateLock) and now - self.lastPeriodicTime >= gv.gUpdateRate:
-            print("main frame update at %s" % str(now))
-            self.lastPeriodicTime = now
+            print("App: main frame update at %s" % str(now))
             if not gv.TEST_MD:
                 if gv.idataMgr: gv.idataMgr.periodic(now)
                 self.updatePlcConIndicator()
                 self.updateRtuConIndicator()
                 self.updatePlcPanels()
                 self.updateMapComponents()
-                
             gv.iMapPanel.periodic(now)
             gv.iDataDisPanel.periodic(now)
             gv.iHistoryPanel.periodic(now)
+            # Updat the last update time stamp.
+            self.lastPeriodicTime = now
 
     #-----------------------------------------------------------------------------
     # All the update function when plc and rtu are connected.
     def updateMapComponents(self):
         if gv.idataMgr is None: return
-        # update all the map junction sensor and signals
-        signalTgtPlcID = 'PLC-00'
-        registList = gv.idataMgr.getPlcHRegsData(signalTgtPlcID, 0, 21)
+        registList = gv.idataMgr.getPlcHRegsData('PLC-00', 0, 21)
         gv.iMapMgr.setItemsPwrState(registList)
     
     #-----------------------------------------------------------------------------
@@ -265,7 +265,7 @@ class UIFrame(wx.Frame):
         if gv.idataMgr is None: return
         for key in self.plcPnls.keys():
             plcID = gv.gPlcPnlInfo[key]['tgt']
-            self.plcPnls[key].setConnection(gv.idataMgr.getConntionState(plcID))
+            self.plcPnls[key].setConnection(gv.idataMgr.getPlcConntionState(plcID))
     
     #-----------------------------------------------------------------------------
     def updatePlcPanels(self):

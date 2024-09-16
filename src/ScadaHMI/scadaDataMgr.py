@@ -2,14 +2,16 @@
 #-----------------------------------------------------------------------------
 # Name:        scadaDataMgr.py
 #
-# Purpose:     Data manager module used to control all the other data processing 
-#              modules and store the interprocess /result data.
+# Purpose:     Data manager module used for connecting to the OT device module 
+#              (PLC and RTU) to set and monitor the device state. It will also 
+#              control all the other data processing modules and store the result 
+#              or interprocess data.
 #
 # Author:      Yuancheng Liu
 #
-# Created:     2023/06/13
-# Version:     v0.1.2
-# Copyright:   Copyright (c) 2023 Singapore National Cybersecurity R&D Lab LiuYuancheng
+# Created:     2024/09/03
+# Version:     v0.0.2
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 #-----------------------------------------------------------------------------
 
@@ -29,6 +31,8 @@ class DataManager(object):
     """
     def __init__(self, parent, plcInfo) -> None:
         self.parent = parent
+
+        # Init the PLC client to connect to the PLC.
         self.plcClients = OrderedDict()
         self.regsDict = {}
         self.coilsDict = {}
@@ -39,37 +43,39 @@ class DataManager(object):
             plcPort = val['port']
             self.plcClients[key] = modbusTcpCom.modbusTcpClient(plcIpaddr, tgtPort=plcPort)
             if self.plcClients[key].checkConn():
-                gv.gDebugPrint('DataManager: Connected to PLC', logType=gv.LOG_INFO)
+                gv.gDebugPrint('DataManager: Connected to PLC %s' %str(plcIpaddr), 
+                               logType=gv.LOG_INFO)
                 self.plcConnectionState[key] = True
             else:
-                gv.gDebugPrint('DataManager: Fail to connect to PLC', logType=gv.LOG_INFO)
+                gv.gDebugPrint('DataManager: Fail to connect to PLC %s' %str(plcIpaddr),
+                               logType=gv.LOG_INFO)
                 self.plcConnectionState[key] = False
             self.regsDict[key] = []
             self.coilsDict[key] = []
 
-        # Init the RTU client
+        # Init the RTU client to connect to the RTU.
         self.rtuClient = snap7Comm.s7CommClient(gv.RTU_IP, rtuPort=gv.RTU_PORT, 
                                                 snapLibPath=gv.gS7snapDllPath)
         self.rtuConnectionState = self.rtuClient.checkConn()
-        self.regsStateRW = OrderedDict()
-        self.regsStateRW['solar'] = 1
-        self.regsStateRW['wind'] = 2
-        self.regsStateRW['gen1'] = 3
-        self.regsStateRW['gen2'] = 4
-        self.regsStateRW['gen3'] = 5
-        self.regsStateRW['transM'] = 6
-        self.regsStateRW['load1'] = 7
-        self.regsStateRW['load2'] = 8
-        
+        self.regsStateRW = OrderedDict() # RTU index to read/write
+        self.regsStateRW['solar']   = 1
+        self.regsStateRW['wind']    = 2
+        self.regsStateRW['gen1']    = 3
+        self.regsStateRW['gen2']    = 4
+        self.regsStateRW['gen3']    = 5
+        self.regsStateRW['transM']  = 6
+        self.regsStateRW['load1']   = 7
+        self.regsStateRW['load2']   = 8
+        # RTU data dictionary
         self.rtuDataDict = {
-            'solar': [0, 0, 0, 0],
-            'wind': [0, 0, 0, 0],
-            'gen1': [0, 0, 0, 0],
-            'gen2': [0, 0, 0, 0],
-            'gen3': [0, 0, 0, 0],
-            'transM': [0, 0, 0, 0],
-            'load1': [0, 0, 0, 0],
-            'load2': [0, 0, 0, 0]
+            'solar':    [0, 0, 0, 0],
+            'wind':     [0, 0, 0, 0],
+            'gen1':     [0, 0, 0, 0],
+            'gen2':     [0, 0, 0, 0],
+            'gen3':     [0, 0, 0, 0],
+            'transM':   [0, 0, 0, 0],
+            'load1':    [0, 0, 0, 0],
+            'load2':    [0, 0, 0, 0]
         }
         gv.gDebugPrint('ScadaHMI dataMgr inited', logType=gv.LOG_INFO)
 
@@ -88,24 +94,10 @@ class DataManager(object):
                 self.plcConnectionState[key] = True
         self.fetchRTUdata()
 
-    def getPowerGenerated(self):
-        solarVal = self.rtuDataDict['solar'][2]*self.rtuDataDict['solar'][3]
-        windVal = self.rtuDataDict['wind'][2]*self.rtuDataDict['wind'][3]
-        gen1Val = self.rtuDataDict['gen1'][1]*self.rtuDataDict['gen1'][2]
-        gen2Val = self.rtuDataDict['gen2'][1]*self.rtuDataDict['gen2'][2]
-        gen3Val = self.rtuDataDict['gen3'][1]*self.rtuDataDict['gen3'][2]
-        return int(solarVal+windVal+gen1Val+gen2Val+gen3Val)
-    
-    def getPowerConsumed(self):
-        loadAgents = gv.iMapMgr.getLoads()
-        load1Val = self.rtuDataDict['load1'][2]*self.rtuDataDict['load1'][3] if loadAgents[0].getCtrlState() else 0
-        load2Val = self.rtuDataDict['load2'][0]*self.rtuDataDict['load2'][1] if loadAgents[1].getCtrlState() else 0
-        load3Val = self.rtuDataDict['load2'][2]*self.rtuDataDict['load2'][3]//1000 if loadAgents[2].getCtrlState() else 0
-        return int (load1Val+load2Val+load3Val)
-
     #-----------------------------------------------------------------------------
     # define all the get() function here.
-    def getConntionState(self, plcID):
+    def getPlcConntionState(self, plcID):
+        """ Return the PLC connection state."""
         if plcID in self.plcClients.keys():
             return self.plcClients[plcID].checkConn() and self.plcConnectionState[plcID]
         return False
@@ -125,6 +117,47 @@ class DataManager(object):
         return None
 
     #-----------------------------------------------------------------------------
+    def fetchRTUdata(self):
+        """ Connect to RTU to fetch the data."""
+        for key in self.regsStateRW.keys():
+            memoryIdx = self.regsStateRW[key]
+            rtuDataList = self.rtuClient.readAddressVal(memoryIdx, dataIdxList = (0, 2, 4, 6), 
+                                                        dataTypeList=[INT_TYPE, INT_TYPE, INT_TYPE, INT_TYPE])
+            self.rtuDataDict[key] = rtuDataList.copy()
+        print(self.rtuDataDict)
+
+    #-----------------------------------------------------------------------------
+    def getRtuConnectionState(self):
+        return self.rtuConnectionState
+
+    #-----------------------------------------------------------------------------
+    def getAllRtuDataDict(self):
+        return self.rtuDataDict
+
+    #-----------------------------------------------------------------------------
+    def getPowerGenerated(self):
+        """ Return the total power generated KW (int) by all the generators based 
+            on the RTU reading data.
+        """
+        solarVal = self.rtuDataDict['solar'][2]*self.rtuDataDict['solar'][3]
+        windVal = self.rtuDataDict['wind'][2]*self.rtuDataDict['wind'][3]
+        gen1Val = self.rtuDataDict['gen1'][1]*self.rtuDataDict['gen1'][2]
+        gen2Val = self.rtuDataDict['gen2'][1]*self.rtuDataDict['gen2'][2]
+        gen3Val = self.rtuDataDict['gen3'][1]*self.rtuDataDict['gen3'][2]
+        return int(solarVal+windVal+gen1Val+gen2Val+gen3Val)
+    
+    #-----------------------------------------------------------------------------
+    def getPowerConsumed(self):
+        """ Return the total power consumed KW (int) by all the loads based on the 
+            RTU reading data.
+        """
+        loadAgents = gv.iMapMgr.getLoads()
+        load1Val = self.rtuDataDict['load1'][2]*self.rtuDataDict['load1'][3] if loadAgents[0].getCtrlState() else 0
+        load2Val = self.rtuDataDict['load2'][0]*self.rtuDataDict['load2'][1] if loadAgents[1].getCtrlState() else 0
+        load3Val = self.rtuDataDict['load2'][2]*self.rtuDataDict['load2'][3]//1000 if loadAgents[2].getCtrlState() else 0
+        return int (load1Val+load2Val+load3Val)
+
+    #-----------------------------------------------------------------------------
     def setPlcCoilsData(self, plcid, idx, val):
         """ Set the PLC coils state
             Args:
@@ -139,20 +172,6 @@ class DataManager(object):
             time.sleep(0.1)
 
     #-----------------------------------------------------------------------------
-    def fetchRTUdata(self):
-        for key in self.regsStateRW.keys():
-            memoryIdx = self.regsStateRW[key]
-            rtuDataList = self.rtuClient.readAddressVal(memoryIdx, dataIdxList = (0, 2, 4, 6), 
-                                                        dataTypeList=[INT_TYPE, INT_TYPE, INT_TYPE, INT_TYPE])
-            self.rtuDataDict[key] = rtuDataList.copy()
-        print(self.rtuDataDict)
-
-    def getAllRtuDataDict(self):
-        return self.rtuDataDict
-
-    def getRtuConnectionState(self):
-        return self.rtuConnectionState
-
     def stop(self):
         for client in self.plcClients.values():
             client.close()

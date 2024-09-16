@@ -157,6 +157,7 @@ class MapMgr(object):
             'LoadSW-2'
         ]
         self.selectedID = None
+        self.selectedItemName= None
 
     #-----------------------------------------------------------------------------
     def checkSelected(self, clickPos):
@@ -164,24 +165,30 @@ class MapMgr(object):
         for tgt in self.motors:
             if tgt.checkSelect(clickPos):
                 self.selectedID = tgt.getID()
+                self.selectedItemName = tgt.getName()
                 return True
         for tgt in self.motorSw:
             if tgt.checkSelect(clickPos):
                 self.selectedID = tgt.getID()
+                self.selectedItemName = tgt.getName()
                 return True
         for tgt in self.generatorSw:
             if tgt.checkSelect(clickPos):
                 self.selectedID = tgt.getID()
+                self.selectedItemName = tgt.getName()
                 return True
         for tgt in self.transSw:
             if tgt.checkSelect(clickPos):
                 self.selectedID = tgt.getID()
+                self.selectedItemName = tgt.getName()
                 return True
         for tgt in self.loadSw:
             if tgt.checkSelect(clickPos):
                 self.selectedID = tgt.getID()
+                self.selectedItemName = tgt.getName()
                 return True
         self.selectedID = None 
+        self.selectedItemName = None
         return False 
 
     def setItemsPwrState(self, registList):
@@ -691,7 +698,10 @@ class MapMgr(object):
 
     def getSelectedID(self):
         return self.selectedID
-    
+
+    def getSelectedItemName(self):
+        return str(self.selectedItemName).replace('\n', ' ')
+
     def getSelectedPlcCoilIdx(self):
         if self.selectedID is None: return None
         print(self.selectedID)
