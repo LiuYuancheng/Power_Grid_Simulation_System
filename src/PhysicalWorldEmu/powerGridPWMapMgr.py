@@ -68,16 +68,16 @@ class powerGridPWMapMgr(object):
              'type': 'Moto-Pump',
              'pos': (150, 550),
              'tgtpos': [(250, 550), (350, 550)],
-             'pwrstate': 0,
-             'swstate': 0
+             'pwrstate': gv.gItemStateDict['Motor1'] if gv.gItemStateDict else 0,
+             'swstate': gv.gItemStateDict['Motor1SW'] if gv.gItemStateDict else 0
              },
             {'id': 'Motor-2',
              'type': 'Moto-Pump',
              'name': 'Gen-Driver-Motor_02',
              'pos': (150, 650),
              'tgtpos': [(250, 650), (350, 650)],
-             'pwrstate': 1,
-             'swstate': 0
+             'pwrstate': gv.gItemStateDict['Motor2'] if gv.gItemStateDict else 0,
+             'swstate': gv.gItemStateDict['Motor2SW'] if gv.gItemStateDict else 0
              },
 
             {'id': 'Motor-3',
@@ -85,8 +85,8 @@ class powerGridPWMapMgr(object):
              'name': 'Gen-Driver-Motor_03[Backup]',
              'pos': (150, 750),
              'tgtpos': [(250, 750), (350, 750)],
-             'pwrstate': 0,
-             'swstate': 1
+             'pwrstate': gv.gItemStateDict['Motor3'] if gv.gItemStateDict else 0,
+             'swstate': gv.gItemStateDict['Motor3SW'] if gv.gItemStateDict else 0
              }
         ]
         for m in parm:
@@ -106,8 +106,8 @@ class powerGridPWMapMgr(object):
              'pos': (350, 550),
              'tgtpos': [(450, 550), (550, 550), (550, 650)],
              'pwrstate': 0,
-             'swstate': 0,
-             'powerparm':(10, 500, ('kV', 'A')),
+             'swstate': gv.gItemStateDict['Gen1SW'] if gv.gItemStateDict else 0,
+             'powerparm':(10, 400, ('kV', 'A')),
              'enegyPts': ((400, 550), (430, 550), (460, 550), (490, 550),
                           (520, 550), (550, 550), (550, 580), (550, 610)),
              },
@@ -118,8 +118,8 @@ class powerGridPWMapMgr(object):
              'pos': (350, 650),
              'tgtpos': [(450, 650), (550, 650)],
              'pwrstate': 1,
-             'swstate': 0,
-             'powerparm':(10, 500, ('kV', 'A')),
+             'swstate': gv.gItemStateDict['Gen2SW'] if gv.gItemStateDict else 0,
+             'powerparm':(10, 400, ('kV', 'A')),
              'enegyPts': ((400, 650), (430, 650), (460, 650), (490, 650), (520, 650))
              },
 
@@ -129,8 +129,8 @@ class powerGridPWMapMgr(object):
              'pos': (350, 750),
              'tgtpos': [(450, 750), (550, 750), (550, 650)],
              'pwrstate': 0,
-             'swstate': 1,
-             'powerparm':(10, 500, ('kV', 'A')),
+             'swstate': gv.gItemStateDict['Gen3SW'] if gv.gItemStateDict else 0,
+             'powerparm':(10, 400, ('kV', 'A')),
              'enegyPts': ((400, 750), (430, 750), (460, 750), (490, 750),
                           (520, 750), (550, 750), (550, 720), (550, 680)),
              }
@@ -144,7 +144,6 @@ class powerGridPWMapMgr(object):
             gen.setEnergyFlowPt(g['enegyPts'])
             self.generators.append(gen)
 
-
     #-----------------------------------------------------------------------------
     def _initSolarPanel(self):
         parm = {'id': 'Solar-Panels',
@@ -152,8 +151,8 @@ class powerGridPWMapMgr(object):
                 'name': 'Solar-Panel-Generators',
                 'pos': (200, 150),
                 'tgtpos': [(200, 350), (200, 400)],
-                'pwrstate': 0,
-                'swstate': 0,
+                'pwrstate': gv.gItemStateDict['SolarGen'] if gv.gItemStateDict else 1,
+                'swstate': gv.gItemStateDict['SolarSW'] if gv.gItemStateDict else 0,
                 'powerparm':(40, 120, ('V', 'A')),
                 'enegyPts': ((200, 250), (200, 275),(200, 300), (200, 325), (200, 375))
         }
@@ -171,8 +170,8 @@ class powerGridPWMapMgr(object):
                 'name': 'Wind-Turbine-Generators',
                 'pos': (500, 150),
                 'tgtpos': [(500, 300), (500, 350)],
-                'pwrstate': 0,
-                'swstate': 0,
+                'pwrstate': gv.gItemStateDict['WindGen'] if gv.gItemStateDict else 1,
+                'swstate': gv.gItemStateDict['WindSW'] if gv.gItemStateDict else 0,
                 'powerparm': (3.3, 90, ('kV', 'A')),
                 'enegyPts': ((500, 250), (500, 275), (500, 325))
                 }
@@ -192,7 +191,7 @@ class powerGridPWMapMgr(object):
              'pos': (200, 450),
              'tgtpos': [(300, 450), (420, 450), (420, 480), (800, 480)],
              'pwrstate': 0,
-             'swstate': 0,
+             'swstate': gv.gItemStateDict['SolarTrans'] if gv.gItemStateDict else 0,
              'powerparm':(33, 100, ('kV', 'A')),
              'enegyPts': ((250, 450), (360, 450), (420, 450), (420, 480),
                           (500, 480), (580, 480), (660, 480), (740, 480))
@@ -204,7 +203,7 @@ class powerGridPWMapMgr(object):
              'pos': (500, 380),
              'tgtpos': [(360, 380), (360, 420), (800, 420)],
              'pwrstate': 1,
-             'swstate': 1,
+             'swstate': gv.gItemStateDict['WindTrans'] if gv.gItemStateDict else 0,
              'powerparm':(33, 100, ('kV', 'A')),
              'enegyPts': ((440, 380), (380, 380), (360, 420), (400, 420),
                           (500, 420), (580, 420), (640, 420), (720, 420))
@@ -216,7 +215,7 @@ class powerGridPWMapMgr(object):
              'pos': (550, 650),
              'tgtpos': [(650, 650), (800, 650), (800, 450)],
              'pwrstate': 0,
-             'swstate': 0,
+             'swstate': gv.gItemStateDict['GenTrans'] if gv.gItemStateDict else 0,
              'powerparm':(33, 1200, ('kV', 'A')),
              'enegyPts': ((600, 650), (630, 650), (680, 650), (720, 650), (760, 650),
                           (800, 650), (800, 600), (800, 550), (800, 500))
@@ -239,7 +238,7 @@ class powerGridPWMapMgr(object):
                 'pos': (800, 450),
                 'tgtpos': [(800, 300), (700, 300), (700, 120), (900, 120)],
                 'pwrstate': 0,
-                'swstate': 0,
+                'swstate': gv.gItemStateDict['TransmitIn'] if gv.gItemStateDict else 0,
                 'powerparm': (138, 50, ('kV', 'A')),
                 'enegyPts': ((800, 350), (800, 320), (770, 300), (740, 300), (700, 300),
                              (700, 250), (700, 200), (700, 150), (700, 120), (730, 120))
@@ -260,7 +259,7 @@ class powerGridPWMapMgr(object):
             'pos': (1100, 120),
             'tgtpos': [(1500, 120), (1500, 250), (1000, 250), (1000, 400)],
             'pwrstate': 1,
-            'swstate': 1,
+            'swstate': gv.gItemStateDict['TrainsmistOut'] if gv.gItemStateDict else 1,
             'powerparm': (138, 50, ('kV', 'A')),
             'enegyPts': ((1420, 120), (1460, 120), (1500, 120), (1500, 160), (1500, 200),
                          (1500, 250), (1400, 250), (1300,
@@ -285,7 +284,7 @@ class powerGridPWMapMgr(object):
              'pos': (1000, 400),
              'tgtpos': [(1000, 480), (1000, 560)],
              'pwrstate': 0,
-             'swstate': 0,
+             'swstate': gv.gItemStateDict['DownTrans1'] if gv.gItemStateDict else 0,
              'powerparm':(69, 100, ('kV', 'A'))
              },
             {'id': 'Lvl1-transformer',
@@ -294,7 +293,7 @@ class powerGridPWMapMgr(object):
              'pos': (1000, 560),
              'tgtpos': [(1000, 640), (1000, 720)],
              'pwrstate': 1,
-             'swstate': 1,
+             'swstate': gv.gItemStateDict['DownTrans2'] if gv.gItemStateDict else 1,
              'powerparm':(13, 80, ('kV', 'A'))
              },
             {'id': 'Lvl2-transformer',
@@ -303,7 +302,7 @@ class powerGridPWMapMgr(object):
              'pos': (1000, 720),
              'tgtpos': [(1000, 800), (1200, 800)],
              'pwrstate': 0,
-             'swstate': 0,
+             'swstate': gv.gItemStateDict['Load3'] if gv.gItemStateDict else 0,
              'powerparm':(220, 40, ('V', 'A'))
              }
         ]
@@ -324,7 +323,7 @@ class powerGridPWMapMgr(object):
             'pos': (1350, 490),
             'tgtpos': [(1100, 400), (1000, 400)],
             'pwrstate': 1,
-            'swstate': 0
+            'swstate': gv.gItemStateDict['Load1'] if gv.gItemStateDict else 1
         }
         self.loadRailway = agent.AgentTarget(self, parm['id'], parm['pos'],
                                              parm['tgtpos'], parm['type'])
@@ -341,7 +340,7 @@ class powerGridPWMapMgr(object):
             'pos': (1300, 660),
             'tgtpos': [(1100, 560), (1000, 560)],
             'pwrstate': 1,
-            'swstate': 0
+            'swstate': gv.gItemStateDict['Load2'] if gv.gItemStateDict else 1
         }
         self.loadFactory = agent.AgentTarget(self, parm['id'], parm['pos'],
                                             parm['tgtpos'], parm['type'])

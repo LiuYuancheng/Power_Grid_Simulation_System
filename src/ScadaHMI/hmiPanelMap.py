@@ -100,7 +100,7 @@ class PanelMap(wx.Panel):
         dc.DrawRectangle(1000, 5, 40, 40)
         dc.DrawBitmap(self.bitMaps['time'], 1005, 10, True)
         dc.SetTextForeground(wx.Colour('GREEN'))
-        dc.DrawText('TIME : '+time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time())), 1050, 10)
+        dc.DrawText('TIME : '+time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time())), 1050, 15)
 
     #-----------------------------------------------------------------------------
     def _drawItem(self, dc, item):

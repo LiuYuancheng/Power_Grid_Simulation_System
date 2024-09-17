@@ -9,3 +9,7 @@
 Physical World simulation UI:
 
 ![](designDoc/img/ui.png)
+
+Power HMI:
+
+![](designDoc/img/hmi.png)

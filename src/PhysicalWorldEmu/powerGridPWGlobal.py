@@ -86,6 +86,13 @@ gUpdateRate = float(CONFIG_DICT['UI_INTERVAL']) if float(CONFIG_DICT['UI_INTERVA
 gUDPPort = int(CONFIG_DICT['UDP_PORT']) if 'UDP_PORT' in CONFIG_DICT.keys() else UDP_PORT
 gPlcTimeout = int(CONFIG_DICT['PLC_TIMEOUT'])
 
+# load the item state file.
+stateCfgPath = os.path.join(dirpath, CONFIG_DICT['STATE_FILE'])
+gItemStateDict = None
+if os.path.exists(stateCfgPath):
+    jsonloader = ConfigLoader.JsonLoader()
+    jsonloader.loadFile(stateCfgPath)
+    gItemStateDict = jsonloader.getJsonData()
 
 #-------<GLOBAL PARAMTERS>-----------------------------------------------------
 iMapPanel = None

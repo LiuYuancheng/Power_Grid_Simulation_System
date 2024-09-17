@@ -23,3 +23,6 @@ UI_INTERVAL:0.8
 # Init Plc connection time out, if plc is not connect in num of seconds, the system will
 # treate it as offline
 PLC_TIMEOUT: 3
+
+# Power grid item state config file name for the simulator
+STATE_FILE:itemStateCfg.json
