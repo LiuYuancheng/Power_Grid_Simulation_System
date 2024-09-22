@@ -76,7 +76,7 @@ class onlyCoilLadderLogic(modbusTcpCom.ladderLogic):
         else:
             # direct connection copy the register state to coil directly:
             coilsRsl = list(regsList).copy()
-            gv.gCoilSychCount -=1
+            gv.gCoilSychCount = 0
         gv.gDebugPrint('Finished calculate all coils: %s' %str(coilsRsl), logType=gv.LOG_INFO)
         return coilsRsl
         
