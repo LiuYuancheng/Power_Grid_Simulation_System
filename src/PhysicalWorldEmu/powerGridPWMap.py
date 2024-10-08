@@ -67,6 +67,7 @@ class PanelMap(wx.Panel):
         self.bitMaps['time'] = self._loadImgFile('time.png', (30, 30))
         self.bitMaps['plc'] = self._loadImgFile('plcIcon.png', (50, 30))
         self.bitMaps['rtu'] = self._loadImgFile('rtuIcon.png', (50, 30))
+        self.bitMaps['plink'] = self._loadImgFile('powerlink.png', (50, 50))
         self.bitMaps['storage'] = self._loadImgFile('storage.png', (80, 68))
 
     #-----------------------------------------------------------------------------
@@ -102,6 +103,7 @@ class PanelMap(wx.Panel):
         dc.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.NORMAL))
         plcStateDict = gv.iDataMgr.getLastPlcsConnectionState()
         rtuStateDict = gv.iDataMgr.getLastRtusConnectionState()
+        plinkStateDict = gv.iDataMgr.getLastPowerLinkConnectionState()
         # PLC connection state
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawRectangle(695, 715, 60, 40)
@@ -113,7 +115,7 @@ class PanelMap(wx.Panel):
         connState = 'online' if state else 'offline'
         textStr = '- [ PLC-00, PLC-01, PLC-02 ]\n- Last Update Time:%s\n- Connection State:%s' % (timeStr, connState)
         dc.DrawText(textStr, 765, 710)
-        # Rtu connection state
+        # RTU connection state
         dc.SetTextForeground(wx.Colour("WHITE"))
         dc.DrawRectangle(695, 815, 60, 40)
         dc.DrawBitmap(self.bitMaps['rtu'], 700, 820, True)
@@ -124,6 +126,16 @@ class PanelMap(wx.Panel):
         connState = 'online' if state else 'offline'
         textStr = '- [ RTU-01-08 ]\n- Last Update Time:%s\n- Connection State:%s' % (timeStr, connState)
         dc.DrawText(textStr, 765, 815)
+        # Power Link connection state
+        dc.SetTextForeground(wx.Colour("WHITE"))
+        dc.DrawRectangle(1250, 260, 60, 60)
+        dc.DrawBitmap(self.bitMaps['plink'], 1255, 265, True)
+        timeStr, state = plinkStateDict['powerLink']
+        textColor = wx.Colour('GREEN') if state else wx.Colour('RED')
+        dc.SetTextForeground(textColor)
+        connState = 'online' if state else 'offline'
+        textStr = '- [ Power Link to Customers]\n- Last Update Time:%s\n- Connection State:%s' % (timeStr, connState)
+        dc.DrawText(textStr, 1320, 265)
 
         # Draw power storage
         dc.SetTextForeground(wx.Colour("WHITE"))

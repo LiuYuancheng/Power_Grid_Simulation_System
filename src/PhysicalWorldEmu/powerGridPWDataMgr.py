@@ -75,6 +75,7 @@ class DataManager(threading.Thread):
         self.switchesData = [0]*21
         self.powerPlcUpdateT = 0
         self.powerRtuUpdateT = 0
+        self.powerLinkUpdateT = 0 
 
     #-----------------------------------------------------------------------------
     def fetchSwitchesData(self):
@@ -194,20 +195,39 @@ class DataManager(threading.Thread):
         self.powerRtuUpdateT = time.time()
         return json.dumps(data)
 
+    def fetchPowerLinkState(self):
+        data = {
+            'railway': gv.iMapMgr.getLoadRailway().getPowerState(),
+            'factory': gv.iMapMgr.getLoadFactory().getPowerState(),
+            'house': gv.iMapMgr.getLoadHome().getPowerState()
+        }
+        self.powerLinkUpdateT = time.time()
+        return json.dumps(data)
+
     #-----------------------------------------------------------------------------
     def getLastPlcsConnectionState(self):
         #print time.strftime("%b %d %Y %H:%M:%S", time.localtime(time.time))
         crtTime = time.time()
         powerPlcOnline = crtTime - self.powerPlcUpdateT < gv.gPlcTimeout
         return {
-            'powerPlc': (time.strftime("%H:%M:%S", time.localtime(self.powerPlcUpdateT)), powerPlcOnline), 
+            'powerPlc': (time.strftime("%H:%M:%S", time.localtime(self.powerPlcUpdateT)), 
+                         powerPlcOnline), 
         }
 
     def getLastRtusConnectionState(self):
         crtTime = time.time()
         powerRtuOnline = crtTime - self.powerRtuUpdateT < gv.gPlcTimeout
         return {
-            'powerRtu': (time.strftime("%H:%M:%S", time.localtime(self.powerRtuUpdateT)), powerRtuOnline), 
+            'powerRtu': (time.strftime("%H:%M:%S", time.localtime(self.powerRtuUpdateT)), 
+                         powerRtuOnline), 
+        }
+
+    def getLastPowerLinkConnectionState(self):
+        crtTime = time.time()
+        powerLinkOnline = crtTime - self.powerLinkUpdateT < gv.gPlcTimeout*5
+        return {
+            'powerLink': (time.strftime("%H:%M:%S", time.localtime(self.powerLinkUpdateT)), 
+                          powerLinkOnline), 
         }
 
     #-----------------------------------------------------------------------------
@@ -299,6 +319,9 @@ class DataManager(threading.Thread):
             elif reqType == 'powerRtu':
                 respStr = self.fetchComponentsVal()
                 resp =';'.join(('REP', 'powerRtu', respStr))
+            elif reqType == 'powerLink':
+                respStr = self.fetchPowerLinkState()
+                resp =';'.join(('REP', 'powerLink', respStr))
         elif reqKey=='POST':
             if reqType == 'powerPlc':
                 respStr = self.setCtrlSwitch(reqJsonStr)
