@@ -1,0 +1,9 @@
+# This is the config file template for the module <MetroEmuRun.py>
+# Setup the paramter with below format (every line follow <key>:<val> format, the
+# key can not be changed):
+
+GRID_IP:127.0.0.1
+GRID_PORT:3001
+
+TARGET_IP:127.0.0.1
+TARGET_PORT:3002
