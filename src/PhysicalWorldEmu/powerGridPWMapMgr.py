@@ -419,6 +419,14 @@ class powerGridPWMapMgr(object):
         # calculate load home
         self.loadHome.setPowerState(self.downTrans[2].isPowerOutput())
 
+    def calculateConsumedState(self):
+        """ Reverse the enenry flow sequence to calculate the consumed state of each 
+            component. 
+        """
+
+
+
+
     #-----------------------------------------------------------------------------
     def getSolarPanels(self):
         return self.solarPl

@@ -179,7 +179,7 @@ class AgentGenerator(AgentTarget):
     def updateDataDict(self):
         self.dataDict['State'] = 'Running' if self.getPowerState() else 'Standby'
         self.dataDict['Voltage'] = self.valtage if self.getPowerState() else 0
-        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
+        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1) if self.isPowerOutput() else 0
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -188,8 +188,8 @@ class AgentTransform(AgentTarget):
     def __init__(self, parent, tgtID, pos, targetPosList, tType="TRANS"):
         self.pUnit = ('V', 'A')
         super().__init__(parent, tgtID, pos, targetPosList, tType)
-        self.valtage = 0
-        self.current = 0
+        self.valtage = 0 # design voltage
+        self.current = 0 # design current
         self.enerygFlowPt = []
         self.enerygIdx = None
         self.energyNum = 0
@@ -199,17 +199,15 @@ class AgentTransform(AgentTarget):
         self.dataDict['Current'] = 0
         return super()._initDataDict()
 
-
     def getDataDict(self, toStr=True):
         if toStr:
             valDict = {
                 'Voltage': str(self.dataDict['Voltage']) + self.pUnit[0],
-                'Current': '%.1f' %self.dataDict['Current'] + self.pUnit[1]
+                'Current': '%.1f' %self.dataDict['Current'] + self.pUnit[1],
             }
             return valDict
         else:
             return self.dataDict
-
 
     def getEnergyFlowPt(self):
         if self.enerygIdx is None or self.energyNum == 0:
@@ -233,4 +231,4 @@ class AgentTransform(AgentTarget):
 
     def updateDataDict(self):
         self.dataDict['Voltage'] = self.valtage if self.getPowerState() else 0
-        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1)//1.0 if self.isPowerOutput() else 0
+        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1) if self.isPowerOutput() else 0

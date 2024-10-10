@@ -32,6 +32,7 @@ class PanelMap(wx.Panel):
         self.SetBackgroundColour(self.bgColor)
         self.panelSize = panelSize
         self.bitMaps = {} # panel image bit map dict.
+        self.animationKeyList = []
         self._loadBitMapImgs()
         self.toggle = False
         # Paint the map
@@ -54,13 +55,42 @@ class PanelMap(wx.Panel):
     #-----------------------------------------------------------------------------
     def _loadBitMapImgs(self):
         """ Load the internal usage pictures as bitmaps."""
-        self.bitMaps['motor'] = self._loadImgFile('pump.png', (60, 60))
-        self.bitMaps['gen'] = self._loadImgFile('gen.png', (60, 60))
-        self.bitMaps['wind'] = self._loadImgFile('wind.png', (200, 200))
-        self.bitMaps['solar'] = self._loadImgFile('solar.png', (200, 200))
+        self.bitMaps['motor'] = [
+            self._loadImgFile('pump_on1.png', (60, 60)),
+            self._loadImgFile('pump_on2.png', (60, 60)),
+            self._loadImgFile('pump.png', (60, 60))]
+        self.animationKeyList.append('motor')
+        
+        self.bitMaps['gen'] = [
+            self._loadImgFile('gen_on1.png', (60, 60)),
+            self._loadImgFile('gen_on2.png', (60, 60)),
+            self._loadImgFile('gen.png', (60, 60))]
+        self.animationKeyList.append('gen')
+
+        self.bitMaps['wind'] = [
+            self._loadImgFile('wind_on1.png', (200, 200)),
+            self._loadImgFile('wind_on2.png', (200, 200)),
+            self._loadImgFile('wind.png', (200, 200))]
+        self.animationKeyList.append('wind')
+
+        self.bitMaps['solar'] = [
+            self._loadImgFile('solar_on1.png', (200, 200)),
+            self._loadImgFile('solar_on2.png', (200, 200)),
+            self._loadImgFile('solar.png', (200, 200))]
+        self.animationKeyList.append('solar')
+
         self.bitMaps['trans'] = self._loadImgFile('transformer.png', (60, 60))
-        self.bitMaps['subST'] = self._loadImgFile('subStation.jpg', (200, 150))
-        self.bitMaps['transm'] = self._loadImgFile('transmission.png', (600, 130))
+        self.bitMaps['subST'] = [
+            self._loadImgFile('subStation_on1.png', (200, 150)),
+            self._loadImgFile('subStation_on2.png', (200, 150)),
+            self._loadImgFile('subStation.jpg', (200, 150))]
+        self.animationKeyList.append('subST')
+        self.bitMaps['transm'] = [
+            self._loadImgFile('transmission_on1.png', (600, 130)),
+            self._loadImgFile('transmission_on2.png', (600, 130)),
+            self._loadImgFile('transmission.png', (600, 130))]
+        self.animationKeyList.append('transm')
+
         self.bitMaps['city'] = self._loadImgFile('city.png', (200, 110))
         self.bitMaps['factory'] = self._loadImgFile('factory.png', (200, 100))
         self.bitMaps['railway'] = self._loadImgFile('railway.png', (300, 180))
@@ -170,7 +200,16 @@ class PanelMap(wx.Panel):
         if tgtPos: dc.DrawLine(itemPos[0], itemPos[1], tgtPos[0], tgtPos[1])
         w1, h1 = size[0]//2, size[1]//2
         dc.DrawRectangle(itemPos[0]-w1-2, itemPos[1]-h1-2, size[0]+4, size[1]+4)
-        dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
+        if imageKey in self.animationKeyList:
+            if pwState:
+                if self.toggle: 
+                    dc.DrawBitmap(self.bitMaps[imageKey][0], itemPos[0]-w1, itemPos[1]-h1, True)
+                else:
+                    dc.DrawBitmap(self.bitMaps[imageKey][1], itemPos[0]-w1, itemPos[1]-h1, True)
+            else:
+                dc.DrawBitmap(self.bitMaps[imageKey][2], itemPos[0]-w1, itemPos[1]-h1, True)
+        else:
+            dc.DrawBitmap(self.bitMaps[imageKey], itemPos[0]-w1, itemPos[1]-h1, True)
         # Draw item data 
         dataCol = wx.Colour('GREEN') if pwState else wx.Colour('RED')
         dc.SetTextForeground(dataCol)
