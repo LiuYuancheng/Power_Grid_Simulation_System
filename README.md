@@ -1,21 +1,27 @@
 # Power_Grid_OT_Simulation_System
 
-**Project Design Purpose**:  The goal of this project is to develop a scaled-down OT digital equivalent capable of simulating a small-sized 18KW hybrid power grid system to full fill the requirement of cyber security training, exercise and research. The system will serve as a simplified, digital-twin-style simulation platform for Operational Technology (OT) environments, encompassing power generation, transmission, and distribution processes. The project will offer a range of modular components, including physical world simulation, electrical metering units (MUs), PLCs, RTUs, and a SCADA-HMI interface. Together, these components will emulate the entire OT environment from Level 0 (Physical process field I/O devices) to Level 2 (Control center operations), providing a comprehensive simulation solution as illustrated below:
+### Mini OT-Energy-System Cyber Security Test Platform
 
-![](designDoc/img/title.png)
+![](doc/img/rm_02.png)
 
-The platform comprises three primary components which cover different levels of the system requirement: 
+**Project Design Purpose**: 
 
-- `Level 0` : 2D Power Grid Physical-world Simulation Program. 
-- `Level 1`: Power System Controller Simulation (MU, PLC & RTU) Programs.
-- `Level 2`: Power Grid Supervisory Control and Data Acquisition (SCADA)  System. 
+The primary objective of this project is to develop a scaled-down Operational Technology (OT) digital twin/equivalent — an advanced software simulation system capable of emulating the functionality of an small-sized 18KW hybrid power grid. This system will meet the requirements for cybersecurity training, exercises, and research, serving as an essential platform for assessing the resilience and security of OT environments in power systems.
 
-This cyber range platform serves multiple purposes including cyber exercises, professional training, OT security project R&D, testing and demonstration (Such as conducting cyber security exercises to demonstrate and assess the impact of various IT attacks on OT systems). 
+The simulation provides a modular, comprehensive approach to replicating real-world power generation, transmission, and distribution processes. It will integrate physical-world simulation with various control and monitoring units, including electrical metering units (MUs), programmable logic controllers (PLCs), remote terminal units (RTUs), and a SCADA-HMI interface. By offering full-spectrum emulation from Level 0 (physical field devices and sensors) to Level 2 (control center operations) as shown in the `figure-00`, this platform creates a robust environment to simulate operational activities and vulnerabilities.
+
+The platform consists of three primary components, each targeting a different level of OT system requirements:
+
+- `OT Level 0`: A 2D simulation program representing the physical-world processes of a power grid, including energy generation from natural gas, solar, and wind sources, as well as the physical flow of electricity through transmission lines and distribution networks.
+- `OT Level 1`: Simulation of power system controllers, including MU, PLC, and RTU functionalities, responsible for gathering, processing, and transmitting data from field devices to supervisory systems.
+- `OT Level 2`: A fully integrated SCADA-HMI system that provides real-time visualization, monitoring, and control of the simulated power grid, ensuring seamless interaction with the OT environment.
+
+We Follow the [International Electrotechnical Commission](https://iec.ch/) IEC 61850, IEC 60617 standard when design and built the system, the system is a POC project and the real world energy system is more complex. This cyber range platform serves multiple purposes including cyber exercises, ICS professional training, OT security project R&D, testing and demonstration (Such as conducting cyber security exercises to demonstrate and assess the impact of various IT attacks on OT systems). 
 
 ```
-# version:     v0.0.2
+# version:     v0.1.2
 # Created:     2024/08/21
-# Copyright:   Copyright (c) 2023 LiuYuancheng
+# Copyright:   Copyright (c) 2024 LiuYuancheng
 # License:     MIT License
 ```
 
@@ -27,17 +33,29 @@ This cyber range platform serves multiple purposes including cyber exercises, pr
 
 ### Introduction 
 
-The **Mini OT Power Grid Simulation System** is a digital equivalent software platform designed to simulate the core operations of a hybrid power grid system, including  hybrid power generation (natural gas power plants, solar power plants, and wind turbine farms), high-voltage power transmission and a three-level step-down power distribution system. The simulation integrates a SCADA system that incorporates PLCs for remote system control, PLC+RTUs and MUs for real-time data monitoring, and a HMI interface for operators to manage the grid to simulate part of the IEC61850  power system structure . The system view is shown below:
+The **Mini OT-Energy-System Cyber Security Test Platform** is a comprehensive software platform designed to simulate the essential operations of a small-scale hybrid power grid. The key objectives of this project will cover:
 
-![](designDoc/img/overview.png)
+- **Cybersecurity Training & Exercises**: The platform will enable hands-on cybersecurity exercises, allowing professionals to explore and mitigate the effects of various cyber-attacks on OT systems.
+- **OT System Simulation**: Simulating power grid operations with components that follow the [International Electrotechnical Commission](https://iec.ch/) standards, particularly IEC 61850 (communication networks and systems for power utility automation) and IEC 60617 (graphical symbols for diagrams), ensuring adherence to industry protocols.
+- **Research & Development (R&D)**: Providing a research platform to explore and develop novel cybersecurity strategies, protocols, and solutions specifically for OT systems in the energy sector.
+- **Training for ICS Professionals**: Offering a realistic environment for industrial control system (ICS) professionals to enhance their understanding of OT operations and cyber-attack scenarios in a controlled, risk-free setting.
+- **R&D and Testing**: Facilitating the testing of new OT security tools and protocols, as well as demonstrating the impact of cyber-attacks on critical infrastructures, such as power generation and distribution networks.
 
-The system includes three main part: 
+This digital twin provides a dynamic environment for simulating power generation from multiple sources, including natural gas power plants, solar farms, and wind turbine farms. It also simulates high-voltage power transmission and a three-level step-down distribution system. The system overview is shown below:
 
-- One 2D Power Grid Physical-world device/components scenario visualization Program
-- OT Field Controller (with OT protocol) Simulation Programs set includes Programable Logic Controller simulation, sensors  sampled values (SV) Measure Unit Simulation Program, Remote Control Unit simulation program.
-- Power Grid Supervisory SCADA Human Machine Interface for system monitoring and control.
+![](doc/img/rm_03.png)
 
-In addition to simulating standard grid operations, the system replicates key smart grid functionalities, such as unusual situation detection, automated alerts, and generation-load management. This allows for a realistic simulation of how modern power grids respond to exceptions and maintain balance between power generation and consumption.
+At the core of the system is a SCADA (Supervisory Control and Data Acquisition) system, which integrates key components such as Programmable Logic Controllers (PLCs), Remote Terminal Units (RTUs), and Metering Units (MUs). These components work together to enable real-time data monitoring, control, and communication, while an intuitive Human-Machine Interface (HMI) allows operators to oversee and manage grid activities. The platform follows the IEC 61850 standard for power system communications, ensuring compatibility with modern power grid structures.
+
+The system architecture consists of three primary modules:
+
+- **2D Visualization Program**: Simulates the physical-world devices and components of the power grid, providing a clear visual representation of grid operations.
+- **OT Field Controller Simulation**: Includes simulation programs for PLCs, sensors, Metering Units (MUs), and Remote Control Units (RTUs) that enable interaction between the grid’s physical elements and the control systems.
+- **SCADA-HMI System**: Provides supervisory control and real-time monitoring of the simulated power grid, allowing for detailed oversight of grid performance and operations.
+
+Beyond replicating traditional grid functionalities, the simulation also incorporates smart grid features. This includes automated detection of unusual situations, alerts, and adaptive generation-load balancing to emulate how modern power grids respond to disruptions and maintain system equilibrium.
+
+
 
 #### 2D Power Grid Physical-world Simulation Introduction 
 
@@ -48,7 +66,7 @@ The physical world simulator is a 2D real world activates visualization program 
 - Interface to fetch online city weather data to adjust the solar and wind energy power generation. 
 - Power link Interface to link to other digital equivalent system (such as railway and smart factory) to provide "power" status to link them together. 
 
-The screen shot of the 2D Power Grid Physical-world Simulation is shown below:
+The screen shot of the 2D Power Grid Physical-world Simulation UI is shown below:
 
 ![](doc/img/rm_04.png)
 
@@ -81,3 +99,4 @@ The Power Grid Supervisory Human Machine Interface screen shot is shown below:
 
 ------
 
+https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30
