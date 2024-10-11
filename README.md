@@ -57,43 +57,59 @@ Beyond replicating traditional grid functionalities, the simulation also incorpo
 
 
 
-#### 2D Power Grid Physical-world Simulation Introduction 
+#### 2D Power Grid Physical-world Simulation Introduction
 
-The physical world simulator is a 2D real world activates visualization program which provides general data and energy flow simulation of the components in power/energy system such as solar panel, turn turbine, power cable, power storage (battery), power cable, circuit breakers, DC-AC/AC-AC step up transformers, 138Kv high voltage transmission line, three steps down transformers and different power distribution customers (request different kind of voltage). The program also provide different interface to:
-
-- Simulate the logistic level (such as voltage-High/Low) signal  to feed in/out to PLC simulator.
-- Simulate the linear analog level (such as Volt, Amp, Wat RPM) signal o feed in to MU/RTU simulator.
-- Interface to fetch online city weather data to adjust the solar and wind energy power generation. 
-- Power link Interface to link to other digital equivalent system (such as railway and smart factory) to provide "power" status to link them together. 
-
-The screen shot of the 2D Power Grid Physical-world Simulation UI is shown below:
+The **Physical-world Simulator** is a 2D visualization tool designed to replicate real-world activities within a power and energy system. It simulates the flow of both data and energy across various components such as `motor driven generators`, `solar panels`, `wind turbines`, `power cables`, `energy storage units (batteries)`, `circuit breakers`, and `step-up/step-down transformers`, `138kV high-voltage transmission lines` and `power distribution networks` serving different customer voltage requirements. The UI screen shot is shown below:
 
 ![](doc/img/rm_04.png)
 
+This simulator provides several interfaces for enhanced functionality:
+
+- **Logistic Level Signal Simulation**: Simulates voltage high/low signals for interaction with the PLC simulator, enabling control system logic testing.
+- **Analog Level Signal Simulation**: Simulates linear analog signals (such as Volt, Amp, Wat and RPM) that are fed into Metering Units (MU) and RTU simulators, ensuring accurate data flow representation.
+- **Weather Integration**: Interfaces with live city weather data to dynamically adjust solar and wind power generation based on real-world conditions, reflecting the impact of environmental factors on energy production.
+- **Power Link Interface**: Connects to other digital equivalent systems (such as railway systems or smart factories) to share "power" status data, enabling integrated simulations across multiple digital infrastructures.
+
+The simulator provides a highly visual and interactive environment, allowing users to observe how various components of the power grid function and interact, offering a realistic view of energy production, transmission, and distribution processes.
+
+
+
 #### Power System Controller Simulation (MU, PLC & RTU) Introduction
 
-The OT controller system will collect all data from the 2D Power Grid Physical-world Simulation, do the electrical device automate control, then feed back the critical data to the HMI in the scada system and get the control command from HMI and change the related components state in the  Physical-world Simulation program. The main feature includes:
-
-- 3 PLCs connect to 23 remote controllable circuit breaker in Physical-world simulator and connect to HMI via Modbus-TCP(IEC61850)
-- 8 measurement unit (MU) connect to 29 sampled values (SV) sensors to collect data and feed to a RTU ( use PLC to IEC61850 simulate SV-IED-MMS-RTU work flow)
-- One RTU connect to 8 MU and feed back the processed data back to HMI. 
-
-The system work flow is shown below:
+The **OT Field Controller System** plays a pivotal role in managing data and control flows between the 2D Power Grid Physical-world Simulation and the SCADA system. It automates the operation of electrical devices, gathers real-time data from the grid simulation, and relays critical information to the Human-Machine Interface (HMI) in the SCADA system. Additionally, it receives control commands from the HMI, adjusting the state of relevant components in the physical-world simulation accordingly. The system work flow diagram is shown below:
 
 ![](doc/img/rm_06.png)
 
-#### Power Grid Supervisory Human Machine Interface
+Key features of the controller system include:
 
-The SCADA-HMI will connect to the all the PLC and RTU programs for the power grid operator/staff to control and monitor the system. The HMI also provide the system double safety control mechanism, controller working condition monitor ,energy generation and consumption auto-balance feature. The main components include: 
+- **PLCs and Circuit Breaker Control**: Three PLCs are connected to 23 remote-controlled circuit breakers within the Physical-world Simulator. They communicate with the HMI using the Modbus-TCP protocol (IEC 61850), allowing operators to manage grid operations in real-time.
+- **Measurement Units (MU) and Sensor Data Collection**: Eight MUs are connected to 29 Sampled Value (SV) sensors that collect data from the grid. This data is processed and transmitted to a Remote Terminal Unit (RTU), following the IEC 61850 workflow (current version we use PLC to simulate the SV-IED-MMS-RTU flow).
+- **RTU Data Feedback**: The RTU consolidates data from the eight MUs and sends processed information back to the HMI for monitoring and control purposes.
 
-- One circuit diagram interface (follow IEC 60617 stand Graphical Symbols for Diagrams ) for power grid operator to monitor and control all the circuit breaker and closers. 
-- Connection and working condition panel to display all the PLC and RTU real time working state and log panel to show the system event history.
-- MU data panel to display all the data collected by the measurement unit. 
-- Load display panel to display the current and history energy generation and consumption. 
+This simulation replicates real-world power system operations, ensuring seamless integration between control devices and grid components while allowing users to monitor and manipulate the system through an intuitive SCADA-HMI interface.
 
-The Power Grid Supervisory Human Machine Interface screen shot is shown below:
+
+
+#### Power Grid Supervisory Human Machine Interface (HMI) Introduction
+
+The **SCADA-HMI** serves as the central interface for power grid operators, connecting to all PLC and RTU systems to enable efficient control and real-time monitoring of the power grid. It provides operators with advanced features such as double safety control mechanisms, monitoring of controller conditions, and automated balancing of energy generation and consumption. These features ensure safe, efficient, and reliable grid operations. The HMI UI screen shot is shown below: 
 
 ![](doc/img/rm_05.png)
+
+The key components of the HMI include:
+
+- **Circuit Diagram Interface**: Following the IEC 60617 standard for graphical symbols, this interface allows operators to monitor and control circuit breakers and switches across the grid.
+- **Connection and Working Condition Panel**: Displays real-time operational statuses of all PLCs and RTUs, along with a log panel for reviewing system event history and diagnostics.
+- **MU Data Panel**: Shows data collected from all metering units, providing insights into grid performance and operational parameters.
+- **Load Display Panel**: Displays both current and historical data on energy generation and consumption, helping operators maintain balance within the grid.
+
+This user-friendly HMI ensures that operators have complete visibility and control over the entire power grid system, promoting safe and effective power management.
+
+
+
+------
+
+### System Design
 
 
 
