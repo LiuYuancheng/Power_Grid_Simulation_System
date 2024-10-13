@@ -9,4 +9,4 @@ if %errorlevel% neq 0 (
 )
 
 REM Run the Python script
-call rtuSimulatorPower.py
+call rtuCtrl\rtuSimulatorPower.py

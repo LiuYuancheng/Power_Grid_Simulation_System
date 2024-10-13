@@ -1,0 +1,3 @@
+pyModbusTCP==0.3.0
+python_snap7==1.3
+wxPython==4.1.0

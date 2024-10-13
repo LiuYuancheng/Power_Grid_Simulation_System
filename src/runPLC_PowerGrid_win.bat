@@ -1,4 +1,4 @@
 echo "Running Power Grid System Control PLC Program [plcSimulatorPwr.py]"
 @echo off
-python plcSimulatorPwr.py
+python plcCtrl\plcSimulatorPwr.py
 pause
