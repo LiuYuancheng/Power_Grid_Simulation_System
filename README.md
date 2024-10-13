@@ -1,6 +1,6 @@
 # Power_Grid_OT_Simulation_System
 
-### Mini OT-Energy-System Cyber Security Test Platform
+### Mini OT-Energy-System Cyber Security Digital Twin
 
 ![](doc/Img/rm_02.png)
 
@@ -242,41 +242,100 @@ The system design diagram is shown below:
 
 The 23 remote-controlled circuit breakers(closer) include:
 
-| Idx  | Breaker ID (Physical Wold / HMI) | Linked Src | Linked Dest | System |
-| ---- | -------------------------------- | ---------- | ----------- | ------ |
-| 1    |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
-|      |                                  |            |             |        |
+**Power Generation System**
+
+| Idx  | Breaker ID (Physical World / HMI) | Breaker Linked Source                       | Breaker Linked Destination                 |
+| ---- | --------------------------------- | ------------------------------------------- | ------------------------------------------ |
+| 1    | Solar farm charge switch          | Solar farm output                           | Solar energy storage input                 |
+| 2    | Solar farm output switch          | Solar farm output                           | Solar farm DC-AC step up transformer input |
+| 3    | Transformer-01-SW                 | Solar farm DC-AC step up transformer output | Power substation input                     |
+| 4    | Wind gen link switch              | Wind turbine blades                         | Wind turbine generator                     |
+| 5    | Wind Gen Switch                   | Wind turbine generator output               | Wind farm AC-AC step up transformer input  |
+| 6    | Transformer-02-SW                 | Wind farm AC-AC step up transformer output  | Power substation input                     |
+| 7    | Gen-Driver-Motor-01               | Motor-01 Fuel pump                          |                                            |
+| 8    | Driver-Motor-01-SW                | Motor-01output                              | Generator-01 input                         |
+| 9    | Gen-01-SW                         | Generator-01 output                         | Natural Gas Power Plant AC Bus             |
+| 10   | Gen-Driver-Motor-02               | Motor-02 Fuel pump                          |                                            |
+| 11   | Driver-Motor-02-SW                | Motor-02 output                             | Generator-02 input                         |
+| 12   | Gen-02-SW                         | Generator-02 output                         | Natural Gas Power Plant AC Bus             |
+| 13   | Gen-Driver-Motor-03               | Backup Motor Fuel pump                      |                                            |
+| 14   | Driver-Motor-03-SW                | Backup Motor output                         | Backup Generator input                     |
+| 15   | Gen-03-SW                         | Backup generator output                     | Natural Gas Power Plant AC Bus             |
+| 16   | Transformer-03-SW                 | Natural Gas Power Plant output              | Power substation input                     |
+
+**Power Transmission System**
+
+| Idx  | Breaker ID (Physical World / HMI) | Breaker Linked Source                  | Breaker Linked Destination            |
+| ---- | --------------------------------- | -------------------------------------- | ------------------------------------- |
+| 17   | Substation SW                     | Power substation                       | High Voltage transmission tower input |
+| 18   | Transmission SW                   | High Voltage transmission tower output | Power Distribution substation input   |
+
+**Power Distribution System**
+
+| Idx  | Breaker ID (Physical World / HMI) | Breaker Linked Source                | Breaker Linked Destination              |
+| ---- | --------------------------------- | ------------------------------------ | --------------------------------------- |
+| 19   | Lvl0-Transformer-SW               | Power Distribution substation output | Lvl0-Transformer input                  |
+| 20   | Lvl1-Transformer-SW               | Lvl0-Transformer output              | Lvl1-Transformer input                  |
+| 21   | Lvl2-Transformer-SW               | Lvl1-Transformer output              | Lvl2-Transformer input                  |
+| 22   | Load-Railway-SW                   | Lvl0-Transformer output              | Railway system digital twin power input |
+| 23   | Load-Industrial-SW                | Lvl1-Transformer output              | Smart Factory digital twin power input  |
 
 
 
+#### MU-RTU System Monitor Design
 
+Currently as we haven't find a good lib to simulate the MMS message communication, so we use the S7Comm with as [HD67620-A1](https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30) to simulate the IEC61850 MU-IED-RTU control sequence. (In the next version we will improve this design) The structure diagram is shown below:
 
+![](doc/Img/rm_09.png)
 
+The SV metering unit will detect the linked components below data:
 
+- **Work state** : running, Idle , error
+- **Power output state**: Voltage, current 
+- **Special State**: such as motor RPM, battery percentage 
 
+In the program we implement the convertor interface in the HMI part and the data flow diagram (we will improve this design in the next version) is shown below: 
+
+ ![](doc/Img/rm_10.png)
+
+The 23 measurement unit include:
+
+**Power Generation System**
+
+| Idx  | MU Set ID              | Sensor Num | Connected Components            | Metering data                                          |
+| ---- | ---------------------- | ---------- | ------------------------------- | ------------------------------------------------------ |
+| 1    | Solar farm MU          | 3          | Solar Panel                     | Work-State, Voltage, Current                           |
+| 2    | Solar storage MU       | 2          | Solar power storage battery     | Battery power Charge/release, battery %                |
+| 3    | Transformer-01-MU      | 3          | Solar step up transformer       | Work-State, Voltage, Current                           |
+| 4    | Wind farm MU           | 4          | Wind Turbine                    | Work-State, turbine blade rotate RPM, Voltage, Current |
+| 5    | Transformer-02-MU      | 3          | Wind step up transformer        | Work-State, Voltage, Current                           |
+| 6    | Motor-01-MU            | 3          | Gen01 driven motor              | Work-State, throttle % , RPM                           |
+| 7    | Gen-01-MU              | 4          | Generator 01                    | Work-State, RPM, Voltage, Current                      |
+| 8    | Gen-02-MU              | 4          | Generator 01                    | Work-State, RPM, Voltage, Current                      |
+| 9    | Gen-02-MU              | 4          | Backup generator                | Work-State, RPM, Voltage, Current                      |
+| 10   | Transformer-03-MU      | 3          | Power plant step up transformer | Work-State, Voltage, Current                           |
+| 11   | Power Plant Storage MU | 2          | Power plant storage             | Storage power Charge/release, Storage %                |
+
+**Power Transmission System**
+
+| Idx  | MU Set ID             | Sensor Num | Connected Components        | Metering data                                                |
+| ---- | --------------------- | ---------- | --------------------------- | ------------------------------------------------------------ |
+| 12   | Substation MU         | 8          | Power substation            | Work-State, Input bus voltage current, Output transmission voltage current, power storage voltage current |
+| 13   | Substation storage MU | 2          | Solar power storage battery | Storage power Charge/release, Storage%                       |
+| 14   | Transmission MU       | 2          | Transmission line           | High voltage transmission voltage, current.                  |
+
+**Power Distribution System**
+
+| Idx  | MU Set ID           | Sensor Num | Connected Components             | Metering data                |
+| ---- | ------------------- | ---------- | -------------------------------- | ---------------------------- |
+| 15   | Lvl0-Transformer-MU | 3          | level 0 setup down transformer   | Work-State, Voltage, Current |
+| 16   | Station-Cus-MU      | 3          | Station power customer (railway) | Work-State, Voltage, Current |
+| 17   | Lvl1-Transformer-MU | 3          | level 1 setup down transformer   | Work-State, Voltage, Current |
+| 18   | Primary-Cus-MU      | 3          | Primary power customer (facotry) | Work-State, Voltage, Current |
+| 19   | Lvl2-Transformer-MU | 3          | level 2 setup down transformer   | Work-State, Voltage, Current |
+| 20   | Secondary-Cus-Mu    | 3          | Secondary power customer(home)   | Work-State, Voltage, Current |
 
 
 
 ------
 
-https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30
