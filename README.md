@@ -4,6 +4,8 @@
 
 ![](doc/Img/rm_02.png)
 
+` Figure-00: Power_Grid_OT_Simulation_System Environment Diagram, version v0.1.2 (2024)`
+
 **Project Design Purpose**: 
 
 The primary objective of this project is to develop a scaled-down Operational Technology (OT) digital twin/equivalent — an advanced software simulation system capable of emulating the functionality of an small-sized 18KW (560+MkWh/year) hybrid power grid. This system will meet the requirements for cybersecurity training, exercises, and research, serving as an essential platform for assessing the resilience and security of OT environments in power systems.
@@ -18,6 +20,8 @@ The platform consists of three primary components, each targeting a different le
 
 We Follow the [International Electrotechnical Commission](https://iec.ch/) IEC 61850, IEC 60617 standard when design and built the system, the system is a POC project and the real world energy system is more complex. This cyber range platform serves multiple purposes including cyber exercises, ICS professional training, OT security project R&D, testing and demonstration (Such as conducting cyber security exercises to demonstrate and assess the impact of various IT attacks on OT systems). 
 
+**Project demo Video**: https://youtu.be/e6M78G84zvg?si=BUI0HOx_aJ74MDt5
+
 ```
 # version:     v0.1.2
 # Created:     2024/08/21
@@ -28,6 +32,18 @@ We Follow the [International Electrotechnical Commission](https://iec.ch/) IEC 6
 **Table of Contents**
 
 [TOC]
+
+- [Power_Grid_OT_Simulation_System](#power-grid-ot-simulation-system)
+    + [Mini OT-Energy-System Cyber Security Digital Twin](#mini-ot-energy-system-cyber-security-digital-twin)
+    + [Introduction](#introduction)
+      - [2D Power Grid Physical-world Simulation Introduction](#2d-power-grid-physical-world-simulation-introduction)
+      - [Power System Controller Simulation (MU, PLC & RTU) Introduction](#power-system-controller-simulation--mu--plc---rtu--introduction)
+      - [Power Grid Supervisory Human Machine Interface (HMI) Introduction](#power-grid-supervisory-human-machine-interface--hmi--introduction)
+    + [System Design](#system-design)
+      - [System Network Design](#system-network-design)
+      - [Physical World Simulator Energy Flow Design](#physical-world-simulator-energy-flow-design)
+      - [PLC and Remote Control Circuit Breaker Design](#plc-and-remote-control-circuit-breaker-design)
+      - [MU-RTU Monitor System Design](#mu-rtu-monitor-system-design)
 
 ------
 
@@ -44,6 +60,8 @@ The **Mini OT-Energy-System Cyber Security Test Platform** is a comprehensive so
 This digital twin provides a dynamic environment for simulating power generation from multiple sources, including natural gas power plants, solar farms, and wind turbine farms. It also simulates high-voltage power transmission and a three-level step-down distribution system. The system overview is shown below:
 
 ![](doc/Img/rm_03.png)
+
+` Figure-01: Power_Grid_OT_Simulation System Overview Diagram, version v0.1.2 (2024)`
 
 At the core of the system is a SCADA (Supervisory Control and Data Acquisition) system, which integrates key components such as Programmable Logic Controllers (PLCs), Remote Terminal Units (RTUs), and Metering Units (MUs). These components work together to enable real-time data monitoring, control, and communication, while an intuitive Human-Machine Interface (HMI) allows operators to oversee and manage grid activities. The platform follows the IEC 61850 standard for power system communications, ensuring compatibility with modern power grid structures.
 
@@ -63,6 +81,8 @@ The **Physical-world Simulator** is a 2D visualization tool designed to replicat
 
 ![](doc/Img/rm_04.gif)
 
+` Figure-02: Power Grid Simulation Physical  world simulator UI screen short, version v0.1.2 (2024)`
+
 This simulator provides several interfaces for enhanced functionality:
 
 - **Logistic Level Signal Simulation**: Simulates voltage high/low signals for interaction with the PLC simulator, enabling control system logic testing.
@@ -80,6 +100,8 @@ The **OT Field Controller System** plays a pivotal role in managing data and con
 
 ![](doc/Img/rm_06.png)
 
+` Figure-03: Power Grid Simulation system work flow diagram, version v0.1.2 (2024)`
+
 Key features of the controller system include:
 
 - **PLCs and Circuit Breaker Control**: Three PLCs are connected to 23 remote-controlled circuit breakers within the Physical-world Simulator. They communicate with the HMI using the Modbus-TCP protocol (IEC 61850), allowing operators to manage grid operations in real-time.
@@ -95,6 +117,8 @@ This simulation replicates real-world power system operations, ensuring seamless
 The **SCADA-HMI** serves as the central interface for power grid operators, connecting to all PLC and RTU systems to enable efficient control and real-time monitoring of the power grid. It provides operators with advanced features such as double safety control mechanisms, monitoring of controller conditions, and automated balancing of energy generation and consumption. These features ensure safe, efficient, and reliable grid operations. The HMI UI screen shot is shown below: 
 
 ![](doc/Img/rm_05.gif)
+
+` Figure-04: Power Grid Simulation SCADA-HMI simulator UI screen short, version v0.1.2 (2024)`
 
 The key components of the HMI include:
 
@@ -116,6 +140,8 @@ This user-friendly HMI ensures that operators have complete visibility and contr
 The system include 3 subnet (ICS supervision SCADA network , ICS production network and Physical world simulation network ), each sub net represent one layer of OT environment. The ICS network use IEC61850 protocol and the physical world network use UDP to simulate the electrical signal. The network diagram is shown below:
 
 ![](doc/Img/rm_07.png)
+
+` Figure-05: Power Grid Simulation System network diagram and components View, version v0.1.2 (2024)`
 
 - **Supervision SCADA network**: A subnet simulating the `Level 2 Control Center (HQ) Processing LAN` of Energy OT environment , this subnet features distinct, SCADA data/historian servers, HMI computers for system operators, and maintenance computers dedicated to Blue team ICS/OT-system engineers.
 - **Production network**: This subnet host all ICS field device PLC & RTU simulator programs, contributing to a realistic representation of the production (Field Device Controllers) environment within the energy system. It will simulate the `Level 1 Controller LAN` of the OT environment.  
@@ -240,6 +266,8 @@ The system design diagram is shown below:
 
 ![](doc/img/rm_08.png)
 
+` Figure-06: PLC and Remote Control Circuit Breaker Design diagram, version v0.1.2 (2024)`
+
 For a detailed overview of how PLCs are used to control circuit breakers remotely, refer to this article:: [Use PLC to Remote Control Circuit Breaker in Power Digital Twin System](https://www.linkedin.com/pulse/use-plc-remote-control-circuit-breaker-power-system-yuancheng-liu-7ljxc/?trackingId=LfYvE61DTZS0RA0vqM5n8Q%3D%3D)
 
 The system is designed to control 23 remote circuit breakers across the power grid's generation, transmission, and distribution systems. The diagram below illustrates the layout of these circuit breakers:
@@ -292,11 +320,13 @@ Each circuit breaker can be manually operated via Physical world control check b
 
 
 
-#### MU-RTU System Monitor Design
+#### MU-RTU Monitor System Design
 
-The **MU-RTU System Monitor** design currently utilizes S7Comm communication protocols, paired with the [HD67620-A1](https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30) module, to simulate the IEC61850 MU-IED-RTU control sequence. Currently as we haven't find a good lib to simulate the MMS message communication well, so we temporarily use this solution to bridge the gap and in the next version we will improve this design. The following diagram provides an overview of the system structure:
+The **MU-RTU Monitor System ** design currently utilizes S7Comm communication protocols, paired with the [HD67620-A1](https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30) module, to simulate the IEC61850 MU-IED-RTU control sequence. Currently as we haven't find a good lib to simulate the MMS message communication well, so we temporarily use this solution to bridge the gap and in the next version we will improve this design. The following diagram provides an overview of the system structure:
 
 ![](doc/Img/rm_09.png)
+
+` Figure-07: MU-RTU Monitor System Design diagram, version v0.1.2 (2024)`
 
 The **SV (Sampled Values) metering units** (MUs) are responsible for collecting and monitoring data from various components throughout the power grid. Each MU detects specific parameters, including:
 
@@ -307,6 +337,8 @@ The **SV (Sampled Values) metering units** (MUs) are responsible for collecting 
 In the program we also implemented the convertor interface in the HMI part and the data flow diagram (we will improve this design in the next version) is shown below: 
 
  ![](doc/Img/rm_10.png)
+
+` Figure-08: MU-RTU Monitor System data flow diagram, version v0.1.2 (2024)`
 
 A total of 20 Measurement Units (MUs) are integrated within the system, spanning the power generation, transmission, and distribution sections of the grid. Each unit is linked to specific components to provide comprehensive monitoring:
 
@@ -347,9 +379,11 @@ A total of 20 Measurement Units (MUs) are integrated within the system, spanning
 
 > Future Enhancements: In the upcoming version, the design will be upgraded to include enhanced MMS communication and more robust integration between the MU, RTU, and HMI components, ensuring better interoperability and improved system performance.
 
-
+------
 
 
 
 ------
+
+> last edit by LiuYuancheng (liu_yuan_cheng@hotmail.com) by 12/10/2024 if you have any problem, please send me a message. 
 
