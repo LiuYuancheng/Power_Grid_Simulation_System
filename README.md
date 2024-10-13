@@ -61,7 +61,7 @@ Beyond replicating traditional grid functionalities, the simulation also incorpo
 
 The **Physical-world Simulator** is a 2D visualization tool designed to replicate real-world activities within a power and energy system. It simulates the flow of both data and energy across various components such as `motor driven generators`, `solar panels`, `wind turbines`, `power cables`, `energy storage units (batteries)`, `circuit breakers`, and `step-up/step-down transformers`, `138kV high-voltage transmission lines` and `power distribution networks` serving different customer voltage requirements. The UI screen shot is shown below:
 
-![](doc/Img/rm_04.png)
+![](doc/Img/rm_04.gif)
 
 This simulator provides several interfaces for enhanced functionality:
 
@@ -94,7 +94,7 @@ This simulation replicates real-world power system operations, ensuring seamless
 
 The **SCADA-HMI** serves as the central interface for power grid operators, connecting to all PLC and RTU systems to enable efficient control and real-time monitoring of the power grid. It provides operators with advanced features such as double safety control mechanisms, monitoring of controller conditions, and automated balancing of energy generation and consumption. These features ensure safe, efficient, and reliable grid operations. The HMI UI screen shot is shown below: 
 
-![](doc/Img/rm_05.png)
+![](doc/Img/rm_05.gif)
 
 The key components of the HMI include:
 
@@ -234,15 +234,19 @@ flowchart LR
 
 #### PLC and Remote Control Circuit Breaker Design
 
-For simulate the Controllable Circuit Breaker in the power grid system and use the PLC simulation program to control them please refer to this article: [Use PLC to Remote Control Circuit Breaker in Power Digital Twin System](https://www.linkedin.com/pulse/use-plc-remote-control-circuit-breaker-power-system-yuancheng-liu-7ljxc/?trackingId=LfYvE61DTZS0RA0vqM5n8Q%3D%3D)
+The circuit breakers play a crucial role in managing the connection and disconnection of various power generation sources, transmission lines, and distribution networks, ensuring safe and efficient grid operations. The PLC and Remote Control Circuit Breaker design simulates the automated control of circuit breakers throughout the power grid system. Utilizing a PLC simulation program, it enables the remote control of circuit breakers, allowing operators to manage the grid effectively via SCADA systems.
 
 The system design diagram is shown below:
 
 ![](doc/img/rm_08.png)
 
-The 23 remote-controlled circuit breakers(closer) include:
+For a detailed overview of how PLCs are used to control circuit breakers remotely, refer to this article:: [Use PLC to Remote Control Circuit Breaker in Power Digital Twin System](https://www.linkedin.com/pulse/use-plc-remote-control-circuit-breaker-power-system-yuancheng-liu-7ljxc/?trackingId=LfYvE61DTZS0RA0vqM5n8Q%3D%3D)
+
+The system is designed to control 23 remote circuit breakers across the power grid's generation, transmission, and distribution systems. The diagram below illustrates the layout of these circuit breakers:
 
 **Power Generation System**
+
+16 Circuit Breakers: Manage the flow of power from solar panels, wind turbines, and natural gas generators. Breakers control connections between power generation units, energy storage, and step-up transformers. The detail is shown below:
 
 | Idx  | Breaker ID (Physical World / HMI) | Breaker Linked Source                       | Breaker Linked Destination                 |
 | ---- | --------------------------------- | ------------------------------------------- | ------------------------------------------ |
@@ -265,12 +269,16 @@ The 23 remote-controlled circuit breakers(closer) include:
 
 **Power Transmission System**
 
+2 Circuit Breakers: Control the transmission of high-voltage power from the main substation to transmission towers and further to distribution substations.
+
 | Idx  | Breaker ID (Physical World / HMI) | Breaker Linked Source                  | Breaker Linked Destination            |
 | ---- | --------------------------------- | -------------------------------------- | ------------------------------------- |
 | 17   | Substation SW                     | Power substation                       | High Voltage transmission tower input |
 | 18   | Transmission SW                   | High Voltage transmission tower output | Power Distribution substation input   |
 
 **Power Distribution System**
+
+5 Circuit Breakers: Regulate the step-down process across different voltage levels, enabling safe and controlled power distribution to various consumers, including railway systems and industrial facilities.
 
 | Idx  | Breaker ID (Physical World / HMI) | Breaker Linked Source                | Breaker Linked Destination              |
 | ---- | --------------------------------- | ------------------------------------ | --------------------------------------- |
@@ -280,60 +288,66 @@ The 23 remote-controlled circuit breakers(closer) include:
 | 22   | Load-Railway-SW                   | Lvl0-Transformer output              | Railway system digital twin power input |
 | 23   | Load-Industrial-SW                | Lvl1-Transformer output              | Smart Factory digital twin power input  |
 
+Each circuit breaker can be manually operated via Physical world control check box, HMI or controlled automatically by PLCs, ensuring flexibility in managing power flow and responding to grid demands.
+
 
 
 #### MU-RTU System Monitor Design
 
-Currently as we haven't find a good lib to simulate the MMS message communication, so we use the S7Comm with as [HD67620-A1](https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30) to simulate the IEC61850 MU-IED-RTU control sequence. (In the next version we will improve this design) The structure diagram is shown below:
+The **MU-RTU System Monitor** design currently utilizes S7Comm communication protocols, paired with the [HD67620-A1](https://www.adfweb.com/Home/products/IEC61850_PROFINET.asp?frompg=nav35_30) module, to simulate the IEC61850 MU-IED-RTU control sequence. Currently as we haven't find a good lib to simulate the MMS message communication well, so we temporarily use this solution to bridge the gap and in the next version we will improve this design. The following diagram provides an overview of the system structure:
 
 ![](doc/Img/rm_09.png)
 
-The SV metering unit will detect the linked components below data:
+The **SV (Sampled Values) metering units** (MUs) are responsible for collecting and monitoring data from various components throughout the power grid. Each MU detects specific parameters, including:
 
-- **Work state** : running, Idle , error
-- **Power output state**: Voltage, current 
-- **Special State**: such as motor RPM, battery percentage 
+- **Work State:** Indicates the current operational state (e.g., running, idle, error).
+- **Power Output State:** Monitors electrical parameters such as voltage and current.
+- **Special State Indicators:** Tracks unique metrics, such as motor RPM or battery charge percentage.
 
-In the program we implement the convertor interface in the HMI part and the data flow diagram (we will improve this design in the next version) is shown below: 
+In the program we also implemented the convertor interface in the HMI part and the data flow diagram (we will improve this design in the next version) is shown below: 
 
  ![](doc/Img/rm_10.png)
 
-The 23 measurement unit include:
+A total of 20 Measurement Units (MUs) are integrated within the system, spanning the power generation, transmission, and distribution sections of the grid. Each unit is linked to specific components to provide comprehensive monitoring:
 
-**Power Generation System**
+**Power Generation System:**
 
-| Idx  | MU Set ID              | Sensor Num | Connected Components            | Metering data                                          |
-| ---- | ---------------------- | ---------- | ------------------------------- | ------------------------------------------------------ |
-| 1    | Solar farm MU          | 3          | Solar Panel                     | Work-State, Voltage, Current                           |
-| 2    | Solar storage MU       | 2          | Solar power storage battery     | Battery power Charge/release, battery %                |
-| 3    | Transformer-01-MU      | 3          | Solar step up transformer       | Work-State, Voltage, Current                           |
-| 4    | Wind farm MU           | 4          | Wind Turbine                    | Work-State, turbine blade rotate RPM, Voltage, Current |
-| 5    | Transformer-02-MU      | 3          | Wind step up transformer        | Work-State, Voltage, Current                           |
-| 6    | Motor-01-MU            | 3          | Gen01 driven motor              | Work-State, throttle % , RPM                           |
-| 7    | Gen-01-MU              | 4          | Generator 01                    | Work-State, RPM, Voltage, Current                      |
-| 8    | Gen-02-MU              | 4          | Generator 01                    | Work-State, RPM, Voltage, Current                      |
-| 9    | Gen-02-MU              | 4          | Backup generator                | Work-State, RPM, Voltage, Current                      |
-| 10   | Transformer-03-MU      | 3          | Power plant step up transformer | Work-State, Voltage, Current                           |
-| 11   | Power Plant Storage MU | 2          | Power plant storage             | Storage power Charge/release, Storage %                |
+| Idx  | MU Set ID              | Sensor Num | Connected Components            | Metering Data                                    |
+| ---- | ---------------------- | ---------- | ------------------------------- | ------------------------------------------------ |
+| 1    | Solar Farm MU          | 3          | Solar Panel                     | Work State, Voltage, Current                     |
+| 2    | Solar Storage MU       | 2          | Solar Power Storage Battery     | Battery Charge/Release, Battery Percentage       |
+| 3    | Transformer-01-MU      | 3          | Solar Step-Up Transformer       | Work State, Voltage, Current                     |
+| 4    | Wind Farm MU           | 4          | Wind Turbine                    | Work State, Turbine Blade RPM, Voltage, Current  |
+| 5    | Transformer-02-MU      | 3          | Wind Step-Up Transformer        | Work State, Voltage, Current                     |
+| 6    | Motor-01-MU            | 3          | Generator-01 Driven Motor       | Work State, Throttle Percentage, RPM             |
+| 7    | Gen-01-MU              | 4          | Generator 01                    | Work State, RPM, Voltage, Current                |
+| 8    | Gen-02-MU              | 4          | Generator 02                    | Work State, RPM, Voltage, Current                |
+| 9    | Backup Gen-03-MU       | 4          | Backup Generator                | Work State, RPM, Voltage, Current                |
+| 10   | Transformer-03-MU      | 3          | Power Plant Step-Up Transformer | Work State, Voltage, Current                     |
+| 11   | Power Plant Storage MU | 2          | Power Plant Storage             | Storage Power Charge/Release, Storage Percentage |
 
-**Power Transmission System**
+**Power Transmission System:**
 
-| Idx  | MU Set ID             | Sensor Num | Connected Components        | Metering data                                                |
-| ---- | --------------------- | ---------- | --------------------------- | ------------------------------------------------------------ |
-| 12   | Substation MU         | 8          | Power substation            | Work-State, Input bus voltage current, Output transmission voltage current, power storage voltage current |
-| 13   | Substation storage MU | 2          | Solar power storage battery | Storage power Charge/release, Storage%                       |
-| 14   | Transmission MU       | 2          | Transmission line           | High voltage transmission voltage, current.                  |
+| Idx  | MU Set ID             | Sensor Num | Connected Components     | Metering Data                                                |
+| ---- | --------------------- | ---------- | ------------------------ | ------------------------------------------------------------ |
+| 12   | Substation MU         | 8          | Power Substation         | Work State, Input Bus Voltage/Current, Output Transmission Voltage/Current, Power Storage Voltage/Current |
+| 13   | Substation Storage MU | 2          | Substation Power Storage | Storage Power Charge/Release, Storage Percentage             |
+| 14   | Transmission MU       | 2          | Transmission Line        | High Voltage Transmission Voltage, Current                   |
 
-**Power Distribution System**
+**Power Distribution System:**
 
-| Idx  | MU Set ID           | Sensor Num | Connected Components             | Metering data                |
+| Idx  | MU Set ID           | Sensor Num | Connected Components             | Metering Data                |
 | ---- | ------------------- | ---------- | -------------------------------- | ---------------------------- |
-| 15   | Lvl0-Transformer-MU | 3          | level 0 setup down transformer   | Work-State, Voltage, Current |
-| 16   | Station-Cus-MU      | 3          | Station power customer (railway) | Work-State, Voltage, Current |
-| 17   | Lvl1-Transformer-MU | 3          | level 1 setup down transformer   | Work-State, Voltage, Current |
-| 18   | Primary-Cus-MU      | 3          | Primary power customer (facotry) | Work-State, Voltage, Current |
-| 19   | Lvl2-Transformer-MU | 3          | level 2 setup down transformer   | Work-State, Voltage, Current |
-| 20   | Secondary-Cus-Mu    | 3          | Secondary power customer(home)   | Work-State, Voltage, Current |
+| 15   | Lvl0-Transformer-MU | 3          | Level 0 Step-Down Transformer    | Work State, Voltage, Current |
+| 16   | Station-Cus-MU      | 3          | Station Power Customer (Railway) | Work State, Voltage, Current |
+| 17   | Lvl1-Transformer-MU | 3          | Level 1 Step-Down Transformer    | Work State, Voltage, Current |
+| 18   | Primary-Cus-MU      | 3          | Primary Power Customer (Factory) | Work State, Voltage, Current |
+| 19   | Lvl2-Transformer-MU | 3          | Level 2 Step-Down Transformer    | Work State, Voltage, Current |
+| 20   | Secondary-Cus-MU    | 3          | Secondary Power Customer (Home)  | Work State, Voltage, Current |
+
+> Future Enhancements: In the upcoming version, the design will be upgraded to include enhanced MMS communication and more robust integration between the MU, RTU, and HMI components, ensuring better interoperability and improved system performance.
+
+
 
 
 
