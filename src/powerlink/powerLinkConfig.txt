@@ -1,9 +1,13 @@
-# This is the config file template for the module <MetroEmuRun.py>
-# Setup the paramter with below format (every line follow <key>:<val> format, the
+# This is the config file template for the module <PowerLinkRun.py>
+# Setup the parameter with below format (every line follow <key>:<val> format, the
 # key can not be changed):
 
+#-----------------------------------------------------------------------------
+# Set the power grid ip address and port
 GRID_IP:127.0.0.1
 GRID_PORT:3001
 
+#-----------------------------------------------------------------------------
+# Add the target ip address and port
 TARGET_IP:127.0.0.1
 TARGET_PORT:3002

@@ -1,13 +1,13 @@
-# This is the config file template for the module <hmiEmuApp.py>
-# Setup the paramter with below format (every line follows <key>:<val> format, the
+# This is the config file template for the module <ScadaHMIRun.py>
+# Setup the parameter with below format (every line follows <key>:<val> format, the
 # key can not be changed):
 
 #-----------------------------------------------------------------------------
 # Test mode:
-# True: use the simulation data without currect to the PLC module.
-# False: connect to PLC via modbus TCP, fetch and set the PLC real state.
-#TEST_MD:False
-TEST_MD:True
+# True: use the simulation data without connect to the PLC module.
+# False: connect to PLC via Modbus TCP, fetch and set the PLC real state.
+TEST_MD:False
+#TEST_MD:True
 
 #-----------------------------------------------------------------------------
 # Init the sensor-signal PLC set information
@@ -25,9 +25,8 @@ RTU_IP:127.0.0.1
 # Target RTU Port (default 102) 
 RTU_PORT:102
 
-
 #-----------------------------------------------------------------------------
-# Define all the HMI UI config paramters
+# Define all the HMI UI config parameters
 
 # define UI title name 
 UI_TITLE:POWER_GRID_SYSTEM_SCADA_HMI

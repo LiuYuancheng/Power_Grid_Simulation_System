@@ -22,7 +22,7 @@ We Follow the [International Electrotechnical Commission](https://iec.ch/) IEC 6
 
 **Project demo Video**: https://youtu.be/e6M78G84zvg?si=BUI0HOx_aJ74MDt5
 
-```
+```python
 # version:     v0.1.2
 # Created:     2024/08/21
 # Copyright:   Copyright (c) 2024 LiuYuancheng
@@ -44,6 +44,7 @@ We Follow the [International Electrotechnical Commission](https://iec.ch/) IEC 6
       - [Physical World Simulator Energy Flow Design](#physical-world-simulator-energy-flow-design)
       - [PLC and Remote Control Circuit Breaker Design](#plc-and-remote-control-circuit-breaker-design)
       - [MU-RTU Monitor System Design](#mu-rtu-monitor-system-design)
+      - 
 
 ------
 
@@ -383,7 +384,7 @@ A total of 20 Measurement Units (MUs) are integrated within the system, spanning
 
 ### System Setup and Usage
 
-If you want to use the system, please follow below section to setup and use the API
+If you want to use the system, please follow below section to setup and use the program.
 
 #### System Setup
 
@@ -391,15 +392,16 @@ If you want to use the system, please follow below section to setup and use the 
 
 **Additional Lib/Software Need** 
 
-| Lib Module       | Version | Installation               | Lib link                               |
-| ---------------- | ------- | -------------------------- | -------------------------------------- |
-| **pyModbusTCP**  | 0.3.0   | `pip install pyModbusTCP`  | https://pypi.org/project/pyModbusTCP/  |
-| **python_snap7** | 1.3     | `pip install python-snap7` | https://pypi.org/project/python-snap7/ |
-| **wxPython**     | 4.1.0   | `pip install wxPython`     | https://pypi.org/project/wxPython/     |
+| Lib Module         | Version | Installation                 | Lib link                                 |
+| ------------------ | ------- | ---------------------------- | ---------------------------------------- |
+| **pyModbusTCP**    | 0.3.0   | `pip install pyModbusTCP`    | https://pypi.org/project/pyModbusTCP/    |
+| **python_snap7**   | 1.3     | `pip install python-snap7`   | https://pypi.org/project/python-snap7/   |
+| **wxPython**       | 4.1.0   | `pip install wxPython`       | https://pypi.org/project/wxPython/       |
+| **python-weather** | 2.0.7   | `pip install python-weather` | https://pypi.org/project/python-weather/ |
 
 If you use Ubuntu system, to install snap 7 please follow below steps:
 
-```
+```bash
 $ sudo apt-get install software-properties-common
 $ sudo add-apt-repository ppa:gijzelaar/snap7
 $ sudo apt-get update
@@ -434,24 +436,70 @@ Reference: https://github.com/LiuYuancheng/PLC_and_RTU_Simulator/issues/2#issuec
 
 For Setup the system in a distribution network nodes please refer to the [UsageManual]()
 
-For simple test and run on one local machine please follow below steps:
+For simple test and run on one local machine please follow below steps (It will be good if you also follow the execution sequence):
 
 **Run the physical world simulator** 
 
-- Open folder `src/PhysicalWorldEmu/`
-- Change the `powerGridPWConfig_template.txt` to  `powerGridPWConfig.txt`
+```bash
+cd src/PhysicalWorldEmu
+mv powerGridPWConfig_template.txt powerGridPWConfig.txt
+sudo python3 PowerGridPWRun.py
+```
+
+- For Windows user after change the config file name, double click the `src/runPW_PowerGrid_win.bat`
 
 
+**Run the weather information fetcher**
+
+Set the city string in the config file.
+
+```bash
+cd src/weatherFether
+mv weatherConfig_template.txt weatherConfig.txt
+sudo python3 weatherFetcher.py
+```
+
+- For Windows user after change the config file name, double click the `src/runWea_PowerGrid_win.bat`
+
+**Run the power link program**
+
+```bash
+cd src/powerlink
+python PowerLinkRun.py
+```
+
+- For Windows user after change the config file name, double click the `src/runLINK_PowerGrid_win.bat`
+
+**Run the PLC simulator**
+
+```bash
+cd src/plcCtrl
+mv plcConfig_template.txt plcConfig.txt
+sudo python3 plcSimulatorPwr.py
+```
+
+- For Windows user after change the config file name, double click the `src/runPLC_PowerGrid_win.bat`
 
 
+**Run the RTU simulator**
 
+```bash
+cd src/rtuCtrl
+mv rtuConfig_template.txt rtuConfig.txt
+sudo python3 rtuSimulatorPower.py
+```
 
+- For Windows user after change the config file name, double click the `src/runRTU_PowerGrid_win.bat`
 
+**Run the Scada HMI simulator**
 
+```bash
+cd src/ScadaHMI
+mv scadaHMIConfig_template.txt scadaHMIConfig.txt
+sudo python3 ScadaHMIRun.py
+```
 
-
-
-
+- For Windows user after change the config file name, double click the `src/runHMI_PowerGrid_win.bat`
 
 ------
 
