@@ -381,9 +381,78 @@ A total of 20 Measurement Units (MUs) are integrated within the system, spanning
 
 ------
 
+### System Setup and Usage
+
+If you want to use the system, please follow below section to setup and use the API
+
+#### System Setup
+
+**Development/Execution Environment** : python 3.7.4+
+
+**Additional Lib/Software Need** 
+
+| Lib Module       | Version | Installation               | Lib link                               |
+| ---------------- | ------- | -------------------------- | -------------------------------------- |
+| **pyModbusTCP**  | 0.3.0   | `pip install pyModbusTCP`  | https://pypi.org/project/pyModbusTCP/  |
+| **python_snap7** | 1.3     | `pip install python-snap7` | https://pypi.org/project/python-snap7/ |
+| **wxPython**     | 4.1.0   | `pip install wxPython`     | https://pypi.org/project/wxPython/     |
+
+If you use Ubuntu system, to install snap 7 please follow below steps:
+
+```
+$ sudo apt-get install software-properties-common
+$ sudo add-apt-repository ppa:gijzelaar/snap7
+$ sudo apt-get update
+$ sudo apt-get install libsnap7-1 libsnap7-dev
+$ pip install python-snap7==1.3
+```
+
+Reference: https://github.com/LiuYuancheng/PLC_and_RTU_Simulator/issues/2#issuecomment-2244070501
+
+**Program Source File List** 
+
+| Program File                    | Execution Env | Module Description                                           |
+| ------------------------------- | ------------- | ------------------------------------------------------------ |
+| `src/lib/*.py`                  | python 3      | All the library files.                                       |
+| `src/Logs/*`                    | txt           | All the logs file for each sub system module                 |
+| `src/PhysicalWorldEmu/*.py`     | python 3      | The power grid physical world simulation program and config files. |
+| `src/plcCtrl/*.py`              | python 3      | The power grid Programmable Logic Controller simulation program and config files. |
+| `src/powerlink/*.py`            | python 3      | The link program to fetch the power state from the power grid physical world simulator program and send to the target digital twin's physical world simulator. |
+| `src/rtuCtrl/*.py`              | python 3      | The power grid Remote Terminal Unit simulation program and config files. |
+| `src/ScadaHMI/*py`              | python 3      | The SCADA Human machine interface simulation program.        |
+| `src/weatherAPI/*py`            | python 3      | Online weather fetch program and send to the power grid physical world simualtor. |
+| `src/runHMI_PowerGrid_win.bat`  | Win           | Power grid HMI Window-OS execution file.                     |
+| `src/runLINK_PowerGrid_win.bat` | Win           | Power link Window-OS execution file.                         |
+| `src/runPLC_PowerGrid_win.bat`  | Win           | PLC Simulator Window-OS execution file.                      |
+| `src/runPW_PowerGrid_win.bat`   | Win           | Power grid physical world simulator Window-OS execution file. |
+| `src/runRTU_PowerGrid_win.bat`  | Win           | RTU Simulator Window-OS execution file.                      |
+| `src/runWea_PowerGrid_win.bat`  | Win           | Realtime online whether information Windows-OS execution file. |
+
+
+
+#### System Usage and Execution 
+
+For Setup the system in a distribution network nodes please refer to the [UsageManual]()
+
+For simple test and run on one local machine please follow below steps:
+
+**Run the physical world simulator** 
+
+- Open folder `src/PhysicalWorldEmu/`
+- Change the `powerGridPWConfig_template.txt` to  `powerGridPWConfig.txt`
+
+
+
+
+
+
+
+
+
+
+
 
 
 ------
 
 > last edit by LiuYuancheng (liu_yuan_cheng@hotmail.com) by 12/10/2024 if you have any problem, please send me a message. 
-
