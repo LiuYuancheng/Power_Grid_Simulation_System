@@ -116,6 +116,7 @@ gPlcPnlInfo['PLC-02'] = {'id': 'PLC-02',  'label': 'PLC-02[Slave:slot-2]',
                          'tgt': 'PLC-00', 'hRegsInfo': (16, 21), 'coilsInfo': (16, 21)}
 
 gUpdateRate = float(CONFIG_DICT['CLK_INT'])    # main frame update rate 1 sec.
+gAutoSafety = CONFIG_DICT['AUTO_SAFETY'] if 'AUTO_SAFETY' in CONFIG_DICT.keys() else False
 
 #-------<GLOBAL PARAMTERS>-----------------------------------------------------
 iMainFrame = None   # UI MainFrame.

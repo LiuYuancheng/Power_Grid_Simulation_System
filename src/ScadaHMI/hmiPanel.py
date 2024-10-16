@@ -402,7 +402,7 @@ class PanelDataDisplay(wx.Panel):
         self._addDisplayLed(sizer, 'Motor RPM: ' ,flagsL)
         self._addDisplayLed(sizer, 'Voltage[kV]: ' ,flagsL)
         self._addDisplayLed(sizer, 'Current[A]: ' ,flagsL)
-
+        
         return sizer
 
     #-----------------------------------------------------------------------------
@@ -434,7 +434,25 @@ class PanelDataDisplay(wx.Panel):
         self._addDisplayLed(sizer, 'lvl2-Vol[V]: ' ,flagsL)
         self._addDisplayLed(sizer, 'lvl2-Crt[A]: ' ,flagsL)
 
+        # Added the error 
+        sizer.Add(wx.StaticText(self, -1, 'Error:'), 0, flagsL)
+        self.errorMsg = wx.StaticText(self, -1, ' No Error ')
+        self.errorMsg.SetFont(wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD))
+        self.errorMsg.SetBackgroundColour(wx.Colour("BLACK")) 
+        self.errorMsg.SetForegroundColour(wx.Colour("GREEN"))
+        #self.updateErrorCode('V0')
+        sizer.Add(self.errorMsg, 0, flagsL)
         return sizer
+
+    #-----------------------------------------------------------------------------
+    def updateErrorCode(self, errorCode):
+        if not errorCode:
+            self.errorMsg.SetLabel(' No Error ')
+        else:
+            self.errorMsg.SetBackgroundColour(wx.Colour("BLACK")) 
+            self.errorMsg.SetForegroundColour(wx.Colour("RED"))
+            self.errorMsg.SetLabel(' Error: %s ' %str(errorCode))
+        self.errorMsg.Refresh()
 
     #-----------------------------------------------------------------------------
     def buidUISizer(self):
@@ -485,8 +503,8 @@ class PanelDataDisplay(wx.Panel):
             self.dataleds[23].SetValue(str(dataDict['load2'][0]))
             self.dataleds[24].SetValue(str(dataDict['load2'][1]))
 
-            self.dataleds[25].SetValue(str(dataDict['load2'][0]))
-            self.dataleds[26].SetValue(str(dataDict['load2'][1]))
+            self.dataleds[25].SetValue(str(dataDict['load2'][2]))
+            self.dataleds[26].SetValue(str(dataDict['load2'][3]))
 
     #-----------------------------------------------------------------------------
     def periodic(self, now):

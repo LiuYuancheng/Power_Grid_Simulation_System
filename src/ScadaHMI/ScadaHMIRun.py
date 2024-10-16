@@ -249,6 +249,9 @@ class UIFrame(wx.Frame):
             gv.iMapPanel.periodic(now)
             gv.iDataDisPanel.periodic(now)
             gv.iHistoryPanel.periodic(now)
+            if gv.gAutoSafety and not gv.TEST_MD:
+                print("-------")
+                gv.idataMgr.checkloadError()
             # Updat the last update time stamp.
             self.lastPeriodicTime = now
 

@@ -177,10 +177,10 @@ class DataManager(threading.Thread):
         loadD2Dict = gv.iMapMgr.getDownTF()[1].getDataDict(toStr=False)
         load2Val.append(loadD2Dict['Voltage'])
         load2Val.append(loadD2Dict['Current'])
-        loadD3Dict = gv.iMapMgr.getUpTF()[2].getDataDict(toStr=False)
+        loadD3Dict = gv.iMapMgr.getDownTF()[2].getDataDict(toStr=False)
         load2Val.append(loadD3Dict['Voltage'])
         load2Val.append(loadD3Dict['Current'])
-
+        print(load2Val)
         data = {
             'solar': solarVal.copy(),
             'wind': windVal.copy(),

@@ -662,35 +662,6 @@ class MapMgr(object):
         self.loads[1].setCtrlState(self.loadSw[1].getOutState())
         self.loads[2].setCtrlState(self.loadSw[2].getOutState())
 
-    #-----------------------------------------------------------------------------
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #-----------------------------------------------------------------------------
 # Init all the get() function here:
 
