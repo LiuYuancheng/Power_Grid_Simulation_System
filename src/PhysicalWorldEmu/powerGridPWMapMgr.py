@@ -107,7 +107,7 @@ class powerGridPWMapMgr(object):
              'tgtpos': [(450, 550), (550, 550), (550, 650)],
              'pwrstate': 0,
              'swstate': gv.gItemStateDict['Gen1SW'] if gv.gItemStateDict else 0,
-             'powerparm':(10, 400, ('kV', 'A')),
+             'powerparm':(10, 240, ('kV', 'A')),
              'enegyPts': ((400, 550), (430, 550), (460, 550), (490, 550),
                           (520, 550), (550, 550), (550, 580), (550, 610)),
              },
@@ -119,7 +119,7 @@ class powerGridPWMapMgr(object):
              'tgtpos': [(450, 650), (550, 650)],
              'pwrstate': 1,
              'swstate': gv.gItemStateDict['Gen2SW'] if gv.gItemStateDict else 0,
-             'powerparm':(10, 400, ('kV', 'A')),
+             'powerparm':(10, 240, ('kV', 'A')),
              'enegyPts': ((400, 650), (430, 650), (460, 650), (490, 650), (520, 650))
              },
 
@@ -130,7 +130,7 @@ class powerGridPWMapMgr(object):
              'tgtpos': [(450, 750), (550, 750), (550, 650)],
              'pwrstate': 0,
              'swstate': gv.gItemStateDict['Gen3SW'] if gv.gItemStateDict else 0,
-             'powerparm':(10, 400, ('kV', 'A')),
+             'powerparm':(10, 240, ('kV', 'A')),
              'enegyPts': ((400, 750), (430, 750), (460, 750), (490, 750),
                           (520, 750), (550, 750), (550, 720), (550, 680)),
              }
@@ -216,7 +216,7 @@ class powerGridPWMapMgr(object):
              'tgtpos': [(650, 650), (800, 650), (800, 450)],
              'pwrstate': 0,
              'swstate': gv.gItemStateDict['GenTrans'] if gv.gItemStateDict else 0,
-             'powerparm':(33, 1200, ('kV', 'A')),
+             'powerparm':(33, 320, ('kV', 'A')),
              'enegyPts': ((600, 650), (630, 650), (680, 650), (720, 650), (760, 650),
                           (800, 650), (800, 600), (800, 550), (800, 500))
              }
@@ -366,8 +366,30 @@ class powerGridPWMapMgr(object):
         self.loadHome.setName(parm['name'])
 
     #-----------------------------------------------------------------------------
-    def updateComponentsData(self):
+    def updateComponentsPowerData(self):
         """ Update the components data from the agent. """
+        # change the lvl0 step down transformer ouput to railway.
+        railCurrent = 90 if self.loadRailway.getPowerState() else 0
+        self.downTrans[0].setOpsCurrent(current=railCurrent)
+        # Change the lvl1 step down transformer output to factory.
+        factCurrent = 75 if self.loadFactory.getPowerState() else 0
+        self.downTrans[1].setOpsCurrent(current=factCurrent)
+        # Change the lvl2 step down transformer output to home.
+        homeCurrent = 18 if self.loadHome.getPowerState() else 0
+        self.downTrans[2].setOpsCurrent(current=homeCurrent)
+        for trans in self.downTrans:
+            trans.updateDataDict()
+        # calculate actor the total load power
+        ldpower  = 69000*railCurrent+ 13000*factCurrent + 220*homeCurrent
+
+        transCrt = ldpower/138000
+        if transCrt < 5: transCrt = 5
+        self.transmition.setOpsCurrent(current=transCrt)
+        self.transmition.updateDataDict()
+
+        self.substations.setOpsCurrent(current=transCrt+2)
+        self.substations.updateDataDict()
+
         self.solarPl.updateDataDict()
         self.windTb.updateDataDict()
 
@@ -375,15 +397,11 @@ class powerGridPWMapMgr(object):
             motor.updateDataDict()
 
         for gen in self.generators:
+            gen.setOpsCurrent()
             gen.updateDataDict()
 
         for trans in self.upTrans:
-            trans.updateDataDict()
-
-        self.substations.updateDataDict()
-        self.transmition.updateDataDict()
-        
-        for trans in self.downTrans:
+            trans.setOpsCurrent()
             trans.updateDataDict()
 
     #-----------------------------------------------------------------------------
@@ -423,8 +441,7 @@ class powerGridPWMapMgr(object):
         """ Reverse the enenry flow sequence to calculate the consumed state of each 
             component. 
         """
-
-
+        pass
 
 
     #-----------------------------------------------------------------------------
@@ -464,4 +481,4 @@ class powerGridPWMapMgr(object):
     #-----------------------------------------------------------------------------
     def periodic(self, now):
         self.calculatePowerState()
-        self.updateComponentsData()
+        self.updateComponentsPowerData()

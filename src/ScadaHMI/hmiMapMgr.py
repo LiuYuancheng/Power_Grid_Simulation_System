@@ -521,7 +521,7 @@ class MapMgr(object):
              'tgtpos': None,
              },
             {'id': 'load-3',
-             'name': 'Secondary Load:\nSmart Hom',
+             'name': 'Secondary Load:\nSmart Home',
              'type': 'L',
              'pos': (1050, 160),
              'tgtpos': None,

@@ -265,7 +265,7 @@ The circuit breakers play a crucial role in managing the connection and disconne
 
 The system design diagram is shown below:
 
-![](doc/img/rm_08.png)
+![](doc/Img/rm_08.png)
 
 ` Figure-06: PLC and Remote Control Circuit Breaker Design diagram, version v0.1.2 (2024)`
 

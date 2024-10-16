@@ -129,6 +129,7 @@ class AgentGenerator(AgentTarget):
         super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.valtage = 0
         self.current = 0
+        self.opsCurrent = 0 
         self.enerygFlowPt = []  # energy animation flow points.
         self.enerygIdx = None   # current energy points highlight index.
         self.energyNum = 0
@@ -179,7 +180,16 @@ class AgentGenerator(AgentTarget):
     def updateDataDict(self):
         self.dataDict['State'] = 'Running' if self.getPowerState() else 'Standby'
         self.dataDict['Voltage'] = self.valtage if self.getPowerState() else 0
-        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1) if self.isPowerOutput() else 0
+        self.dataDict['Current'] = self.opsCurrent*random.uniform(0.9, 1.1) if self.isPowerOutput() else 0
+
+    def setOpsCurrent(self, current=None):
+        if current is None: 
+            self.opsCurrent = self.current*0.95
+        else:
+            if current < 0: current = 0 
+            if current > self.current: current = self.current
+            self.opsCurrent = current
+
 
 #-----------------------------------------------------------------------------
 #-----------------------------------------------------------------------------
@@ -190,6 +200,7 @@ class AgentTransform(AgentTarget):
         super().__init__(parent, tgtID, pos, targetPosList, tType)
         self.valtage = 0 # design voltage
         self.current = 0 # design current
+        self.opsCurrent = 0 # operating current now
         self.enerygFlowPt = []
         self.enerygIdx = None
         self.energyNum = 0
@@ -231,4 +242,12 @@ class AgentTransform(AgentTarget):
 
     def updateDataDict(self):
         self.dataDict['Voltage'] = self.valtage if self.getPowerState() else 0
-        self.dataDict['Current'] = self.current*random.uniform(0.9, 1.1) if self.isPowerOutput() else 0
+        self.dataDict['Current'] = self.opsCurrent*random.uniform(0.9, 1.1) if self.isPowerOutput() else 0
+
+    def setOpsCurrent(self, current=None):
+        if current is None: 
+            self.opsCurrent = self.current*0.95
+        else:
+            if current < 0: current = 0 
+            if current > self.current: current = self.current
+            self.opsCurrent = current
