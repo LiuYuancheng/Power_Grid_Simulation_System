@@ -104,14 +104,14 @@ class DataManager(object):
         if not (transmRangeV[0] <= transmV <= transmRangeV[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('V0')
             gv.iMainFrame.updateTFDetail("Error: Measured transmission voltage %s Kv out of safety range!" %str(transmV))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Transmission out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism : Transmission out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(15), False)
             return True
     
         if not (transmRangeC[0] <= transmC <= transmRangeC[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('C0')
             gv.iMainFrame.updateTFDetail("Error: Measured transmission current %s Kv out of safety range!" %str(transmC)) 
-            gv.iMainFrame.updateTFDetail("Active safety measures: Transmission out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Transmission out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(15), False)
             return True
             
@@ -119,14 +119,14 @@ class DataManager(object):
         if not (load1RangeV[0] <= load1V <= load1RangeV[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('V1')
             gv.iMainFrame.updateTFDetail("Error: Measured load1 voltage %s Kv out of safety range!" %str(load1V))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Load1 out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Load1 out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(19), False)
             return True
 
         if not (load1RangeC[0] <= load1C <= load1RangeC[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('C1')
             gv.iMainFrame.updateTFDetail("Error: Measured load1 current %s Kv out of safety range!" %str(load1C))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Load1 out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Load1 out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(19), False)
             return True
         
@@ -134,14 +134,14 @@ class DataManager(object):
         if not (load2RangeV[0] <= load2V <= load2RangeV[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('V2')
             gv.iMainFrame.updateTFDetail("Error: Measured load2 voltage %s Kv out of safety range!" %str(load2V))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Load2 out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Load2 out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(20), False)
             return True
 
         if not (load2RangeC[0] <= load2C <= load2RangeC[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('C2')
             gv.iMainFrame.updateTFDetail("Error: Measured load2 current %s Kv out of safety range!" %str(load2C))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Load2 out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Load2 out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(20), False)
             return True
         
@@ -149,14 +149,14 @@ class DataManager(object):
         if not (load3RangeV[0] <= load3V <= load3RangeV[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('V3')
             gv.iMainFrame.updateTFDetail("Error: Measured load3 voltage %s Kv out of safety range!" %str(load3V))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Load3 out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Load3 out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(18), False)
             return True
         
         if not (load3RangeC[0] <= load3C <= load3RangeC[1]):
             if gv.iDataDisPanel: gv.iDataDisPanel.updateErrorCode('C3')
             gv.iMainFrame.updateTFDetail("Error: Measured load3 current %s Kv out of safety range!" %str(load3C))
-            gv.iMainFrame.updateTFDetail("Active safety measures: Load3 out cut off!.")
+            gv.iMainFrame.updateTFDetail("Active safety mechanism: Load3 out cut off!.")
             gv.idataMgr.setPlcCoilsData('PLC-00', int(18), False)
             return True
         return False
