@@ -454,7 +454,7 @@ sudo python3 PowerGridPWRun.py
 Set the city string in the config file.
 
 ```bash
-cd src/weatherFether
+cd src/weatherFetcher
 mv weatherConfig_template.txt weatherConfig.txt
 sudo python3 weatherFetcher.py
 ```

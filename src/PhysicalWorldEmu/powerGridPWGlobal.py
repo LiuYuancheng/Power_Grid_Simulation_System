@@ -89,6 +89,7 @@ gPlcTimeout = int(CONFIG_DICT['PLC_TIMEOUT'])
 # load the item state file.
 stateCfgPath = os.path.join(dirpath, CONFIG_DICT['STATE_FILE'])
 gItemStateDict = None
+gWeatherStateParm = 1 #weather state paramter for solar and wind 
 if os.path.exists(stateCfgPath):
     jsonloader = ConfigLoader.JsonLoader()
     jsonloader.loadFile(stateCfgPath)

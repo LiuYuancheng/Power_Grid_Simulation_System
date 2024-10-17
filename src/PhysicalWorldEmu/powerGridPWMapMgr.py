@@ -13,6 +13,7 @@
 # License:     MIT License
 #-----------------------------------------------------------------------------
 
+import datetime
 import powerGridPWGlobal as gv
 import powerGridAgent as agent
 
@@ -390,7 +391,13 @@ class powerGridPWMapMgr(object):
         self.substations.setOpsCurrent(current=transCrt+2)
         self.substations.updateDataDict()
 
+        now = datetime.datetime.now()
+        solarCrt = 100 - abs(now.hour-12)*10 if now.hour >= 7 and now.hour <= 19 else 3
+        solarCrt = solarCrt*gv.gWeatherStateParm
+        self.solarPl.setOpsCurrent(current=solarCrt)
         self.solarPl.updateDataDict()
+
+        self.windTb.setOpsCurrent()
         self.windTb.updateDataDict()
 
         for motor in self.motos:

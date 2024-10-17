@@ -295,6 +295,23 @@ class DataManager(threading.Thread):
             gv.gDebugPrint("setTrainsPower() Error: %s" %str(err), logType=gv.LOG_EXCEPT)
         return respStr
 
+    #-----------------------------------------------------------------------------
+    def setWeatherParm(self, reqJsonStr):
+        respStr = json.dumps({'result': 'failed'})
+        try:
+            reqDict = json.loads(reqJsonStr)
+            if 'kind' in reqDict.keys():
+                weatherStr = str(reqDict['kind']).lower()
+                if 'sunny' in weatherStr :
+                    gv.gWeatherStateParm = 1
+                elif 'cload' in weatherStr :
+                    gv.gWeatherStateParm = 0.5
+                elif 'rain' in weatherStr or 'shower' in weatherStr:
+                    gv.gWeatherStateParm = 0.2
+        except Exception as err:
+            gv.gDebugPrint("setWeatherParm() Error: %s" %str(err), logType=gv.LOG_EXCEPT)
+        return respStr
+
    #-----------------------------------------------------------------------------
     def msgHandler(self, msg):
         """ Function to handle the data-fetch/control request from the monitor-hub.
@@ -326,6 +343,11 @@ class DataManager(threading.Thread):
             if reqType == 'powerPlc':
                 respStr = self.setCtrlSwitch(reqJsonStr)
                 resp =';'.join(('REP', 'powerPlc', respStr))
+            elif reqType == 'powerRtu':
+                pass
+            elif reqType == 'weather':
+                respStr = self.setWeatherParm(reqJsonStr)
+                resp =';'.join(('REP', 'weather', respStr))
             # TODO: Handle all the control request here.
         if isinstance(resp, str): resp = resp.encode('utf-8')
         #gv.gDebugPrint('reply: %s' %str(resp), logType=gv.LOG_INFO )
